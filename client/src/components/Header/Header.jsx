@@ -1,13 +1,16 @@
 import { Menu, Search, Bell } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export const Header = ({ onToggleSidebar }) => {
   return (
     <header className="header">
       <div className="header-content">
         <div className="header-left">
-          <button onClick={onToggleSidebar} className="menu-button mobile-only">
-            <Menu className="icon-md" />
-          </button>
+          <SidebarTrigger>
+            <button className="menu-button mobile-only">
+              <Menu className="icon-md" />
+            </button>
+          </SidebarTrigger>
 
           <div>
             <h1 className="header-title">Bienvenida, María</h1>

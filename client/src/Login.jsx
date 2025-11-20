@@ -25,7 +25,8 @@ const LoginPage = ({ onSwitchToSignup }) => {
       <div className="auth-left">
         <div className="auth-brand">
           <div className="auth-logo-large">
-            <span className="logo-text">FlickDo</span>
+            <img src="/logo.png" alt="FlickDo Logo" className="auth-logo-img" />
+            <span className="logo-text-auth">FlickDo</span>
           </div>
           <p className="auth-tagline">
             Organiza tu vida de manera simple y eficiente
@@ -183,7 +184,8 @@ const SignupPage = ({ onSwitchToLogin }) => {
       <div className="auth-left">
         <div className="auth-brand">
           <div className="auth-logo-large">
-            <span className="logo-text">FlickDo</span>
+            <img src="/logo.png" alt="FlickDo Logo" className="auth-logo-img" />
+            <span className="logo-text-auth">FlickDo</span>
           </div>
           <p className="auth-tagline">Comienza a organizarte mejor desde hoy</p>
         </div>

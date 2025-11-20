@@ -43,14 +43,6 @@ export default function Home() {
 
   return (
     <div className="dashboard-container">
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        tasks={tasks}
-        darkMode={darkMode}
-        onToggleDarkMode={() => setDarkMode(!darkMode)}
-      />
-
       <main className="main-content">
         <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
