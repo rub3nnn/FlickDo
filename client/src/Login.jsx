@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Mail,
   Lock,
@@ -11,6 +12,7 @@ import {
 
 // Componente de Login
 const LoginPage = ({ onSwitchToSignup }) => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,28 +30,26 @@ const LoginPage = ({ onSwitchToSignup }) => {
             <img src="/logo.png" alt="FlickDo Logo" className="auth-logo-img" />
             <span className="logo-text-auth">FlickDo</span>
           </div>
-          <p className="auth-tagline">
-            Organiza tu vida de manera simple y eficiente
-          </p>
+          <p className="auth-tagline">{t("auth.tagline")}</p>
         </div>
       </div>
 
       <div className="auth-right">
         <div className="auth-card">
           <div className="auth-header">
-            <h2 className="auth-title">Iniciar Sesión</h2>
-            <p className="auth-subtitle">Bienvenido de nuevo a FlickDo</p>
+            <h2 className="auth-title">{t("auth.login.title")}</h2>
+            <p className="auth-subtitle">{t("auth.login.subtitle")}</p>
           </div>
 
           <div className="auth-form">
             <div className="form-group">
-              <label className="form-label">Correo electrónico</label>
+              <label className="form-label">{t("auth.login.email")}</label>
               <div className="input-wrapper">
                 <Mail className="input-icon" />
                 <input
                   type="email"
                   className="form-input"
-                  placeholder="tu@email.com"
+                  placeholder={t("auth.login.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -57,7 +57,7 @@ const LoginPage = ({ onSwitchToSignup }) => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Contraseña</label>
+              <label className="form-label">{t("auth.login.password")}</label>
               <div className="input-wrapper">
                 <Lock className="input-icon" />
                 <input
@@ -83,11 +83,11 @@ const LoginPage = ({ onSwitchToSignup }) => {
 
             <div className="form-options">
               <label className="checkbox-label">
-                <input type="checkbox" className="checkbox-input" />
-                <span className="checkbox-text">Recordarme</span>
+                {/*<input type="checkbox" className="checkbox-input" />
+                <span className="checkbox-text">Recordarme</span>*/}
               </label>
               <button type="button" className="link-button">
-                ¿Olvidaste tu contraseña?
+                {t("auth.login.forgotPassword")}
               </button>
             </div>
 
@@ -96,12 +96,14 @@ const LoginPage = ({ onSwitchToSignup }) => {
               onClick={handleSubmit}
               className="btn-primary"
             >
-              <span>Iniciar Sesión</span>
+              <span>{t("auth.login.loginButton")}</span>
               <ArrowRight className="icon-sm" />
             </button>
 
             <div className="divider">
-              <span className="divider-text">O continúa con</span>
+              <span className="divider-text">
+                {t("auth.login.orContinueWith")}
+              </span>
             </div>
 
             <div className="social-buttons">
@@ -141,12 +143,12 @@ const LoginPage = ({ onSwitchToSignup }) => {
 
           <div className="auth-footer">
             <p className="auth-footer-text">
-              ¿No tienes una cuenta?{" "}
+              {t("auth.login.noAccount")}{" "}
               <button
                 onClick={onSwitchToSignup}
                 className="link-button primary"
               >
-                Crear cuenta
+                {t("auth.login.createAccount")}
               </button>
             </p>
           </div>
@@ -158,6 +160,7 @@ const LoginPage = ({ onSwitchToSignup }) => {
 
 // Componente de Signup
 const SignupPage = ({ onSwitchToLogin }) => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -187,29 +190,27 @@ const SignupPage = ({ onSwitchToLogin }) => {
             <img src="/logo.png" alt="FlickDo Logo" className="auth-logo-img" />
             <span className="logo-text-auth">FlickDo</span>
           </div>
-          <p className="auth-tagline">Comienza a organizarte mejor desde hoy</p>
+          <p className="auth-tagline">{t("auth.taglineSignup")}</p>
         </div>
       </div>
 
       <div className="auth-right">
         <div className="auth-card">
           <div className="auth-header">
-            <h2 className="auth-title">Crear Cuenta</h2>
-            <p className="auth-subtitle">
-              Comienza gratis, no requiere tarjeta
-            </p>
+            <h2 className="auth-title">{t("auth.signup.title")}</h2>
+            <p className="auth-subtitle">{t("auth.signup.subtitle")}</p>
           </div>
 
           <div className="auth-form">
             <div className="form-group">
-              <label className="form-label">Nombre completo</label>
+              <label className="form-label">{t("auth.signup.fullName")}</label>
               <div className="input-wrapper">
                 <User className="input-icon" />
                 <input
                   type="text"
                   name="name"
                   className="form-input"
-                  placeholder="María Chuchumeca"
+                  placeholder={t("auth.signup.fullNamePlaceholder")}
                   value={formData.name}
                   onChange={handleChange}
                 />
@@ -217,14 +218,14 @@ const SignupPage = ({ onSwitchToLogin }) => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Correo electrónico</label>
+              <label className="form-label">{t("auth.signup.email")}</label>
               <div className="input-wrapper">
                 <Mail className="input-icon" />
                 <input
                   type="email"
                   name="email"
                   className="form-input"
-                  placeholder="tu@email.com"
+                  placeholder={t("auth.signup.emailPlaceholder")}
                   value={formData.email}
                   onChange={handleChange}
                 />
@@ -232,7 +233,7 @@ const SignupPage = ({ onSwitchToLogin }) => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Contraseña</label>
+              <label className="form-label">{t("auth.signup.password")}</label>
               <div className="input-wrapper">
                 <Lock className="input-icon" />
                 <input
@@ -258,7 +259,9 @@ const SignupPage = ({ onSwitchToLogin }) => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Confirmar contraseña</label>
+              <label className="form-label">
+                {t("auth.signup.confirmPassword")}
+              </label>
               <div className="input-wrapper">
                 <Lock className="input-icon" />
                 <input
@@ -287,9 +290,9 @@ const SignupPage = ({ onSwitchToLogin }) => {
               <label className="checkbox-label">
                 <input type="checkbox" className="checkbox-input" />
                 <span className="checkbox-text">
-                  Acepto los{" "}
+                  {t("auth.signup.acceptTerms")}{" "}
                   <button type="button" className="link-button inline">
-                    términos y condiciones
+                    {t("auth.signup.termsAndConditions")}
                   </button>
                 </span>
               </label>
@@ -300,12 +303,14 @@ const SignupPage = ({ onSwitchToLogin }) => {
               onClick={handleSubmit}
               className="btn-primary"
             >
-              <span>Crear cuenta</span>
+              <span>{t("auth.signup.signupButton")}</span>
               <ArrowRight className="icon-sm" />
             </button>
 
             <div className="divider">
-              <span className="divider-text">O regístrate con</span>
+              <span className="divider-text">
+                {t("auth.signup.orSignupWith")}
+              </span>
             </div>
 
             <div className="social-buttons">
@@ -345,9 +350,9 @@ const SignupPage = ({ onSwitchToLogin }) => {
 
           <div className="auth-footer">
             <p className="auth-footer-text">
-              ¿Ya tienes una cuenta?{" "}
+              {t("auth.signup.haveAccount")}{" "}
               <button onClick={onSwitchToLogin} className="link-button primary">
-                Iniciar sesión
+                {t("auth.signup.login")}
               </button>
             </p>
           </div>

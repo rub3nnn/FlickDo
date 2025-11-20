@@ -1,4 +1,5 @@
 import { LayoutGrid, Inbox, Calendar, GraduationCap, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Logo } from "./Logo";
 import { NavItem } from "./NavItem";
 import { ProjectItem } from "./ProjectItem";
@@ -10,18 +11,24 @@ import {
 import { PROJECTS } from "../../data/constants";
 
 export const Sidebar = ({}) => {
+  const { t } = useTranslation();
   const navItems = [
-    { icon: LayoutGrid, label: "Dashboard", id: "dashboard", active: true },
+    {
+      icon: LayoutGrid,
+      label: t("sidebar.dashboard"),
+      id: "dashboard",
+      active: true,
+    },
     {
       icon: Inbox,
-      label: "Todas las tareas",
+      label: t("sidebar.allTasks"),
       id: "tasks",
       badge: 2,
     },
-    { icon: Calendar, label: "Calendario", id: "calendar" },
+    { icon: Calendar, label: t("sidebar.calendar"), id: "calendar" },
     {
       icon: GraduationCap,
-      label: "Google Classroom",
+      label: t("sidebar.googleClassroom"),
       id: "classroom",
       badge: 3,
     },
@@ -51,7 +58,7 @@ export const Sidebar = ({}) => {
 
             <div className="nav-section">
               <div className="nav-section-header">
-                <h3 className="nav-section-title">Proyectos</h3>
+                <h3 className="nav-section-title">{t("sidebar.projects")}</h3>
               </div>
               <div className="nav-section-items">
                 {PROJECTS.map((project) => (
@@ -64,7 +71,7 @@ export const Sidebar = ({}) => {
                 ))}
                 <button className="nav-item secondary">
                   <Plus className="icon-sm" />
-                  <span>Nuevo</span>
+                  <span>{t("sidebar.new")}</span>
                 </button>
               </div>
             </div>

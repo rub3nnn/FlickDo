@@ -1,0 +1,94 @@
+{
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "subtitle": "Welcome back to FlickDo",
+      "email": "Email",
+      "emailPlaceholder": "you@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "",
+      "forgotPassword": "Forgot your password?",
+      "loginButton": "Sign In",
+      "orContinueWith": "Or continue with",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account"
+    },
+    "signup": {
+      "title": "Create Account",
+      "subtitle": "Start for free, no card required",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Maria Chuchumeca",
+      "email": "Email",
+      "emailPlaceholder": "you@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "",
+      "confirmPassword": "Confirm password",
+      "acceptTerms": "I accept the",
+      "termsAndConditions": "terms and conditions",
+      "signupButton": "Create account",
+      "orSignupWith": "Or sign up with",
+      "haveAccount": "Already have an account?",
+      "login": "Sign in"
+    },
+    "tagline": "Organize your life simply and efficiently",
+    "taglineSignup": "Start organizing better today"
+  },
+  "header": {
+    "welcome": "Welcome, Maria",
+    "date": "Tuesday, November 18, 2025",
+    "search": "Search..."
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "allTasks": "All tasks",
+    "calendar": "Calendar",
+    "googleClassroom": "Google Classroom",
+    "projects": "Projects",
+    "new": "New"
+  },
+  "stats": {
+    "urgent": "Urgent",
+    "urgentDesc": "For today",
+    "classroom": "Classroom",
+    "classroomDesc": "Assignments",
+    "inProgress": "In progress",
+    "inProgressDesc": "Active tasks",
+    "completed": "Completed",
+    "completedDesc": "This week"
+  },
+  "tasks": {
+    "myTasks": "My Tasks",
+    "newTask": "New task",
+    "all": "All",
+    "work": "Work",
+    "classroom": "Classroom",
+    "today": "Today"
+  },
+  "widgets": {
+    "eventsToday": "Events Today",
+    "viewAll": "View all",
+    "openCalendar": "Open calendar",
+    "openClassroom": "Open Classroom",
+    "quickActions": "Quick Actions",
+    "newTask": "New task",
+    "scheduleEvent": "Schedule event",
+    "shareProject": "Share project"
+  },
+  "userMenu": {
+    "myAccount": "My Account",
+    "myProfile": "My profile",
+    "notAvailable": "Not available",
+    "settings": "Settings",
+    "theme": "Theme",
+    "themeStyle": "Theme style",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "language": "Language",
+    "chooseLanguage": "Choose a language",
+    "spanish": "Spanish",
+    "english": "English",
+    "french": "French",
+    "logout": "Logout"
+  }
+}

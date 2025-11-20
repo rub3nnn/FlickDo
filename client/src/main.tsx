@@ -1,18 +1,18 @@
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import App from "@/App";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SidebarProvider } from "./components/ui/sidebar";
+import "./i18n";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <SidebarProvider>
+    <Suspense fallback={<div>Loading...</div>}>
+      <BrowserRouter>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
           <App />
-        </SidebarProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+        </ThemeProvider>
+      </BrowserRouter>
+    </Suspense>
   </StrictMode>
 );

@@ -1,0 +1,94 @@
+﻿{
+  "auth": {
+    "login": {
+      "title": "Iniciar Sesión",
+      "subtitle": "Bienvenido de nuevo a FlickDo",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "tu@email.com",
+      "password": "Contraseña",
+      "passwordPlaceholder": "",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "loginButton": "Iniciar Sesión",
+      "orContinueWith": "O continúa con",
+      "noAccount": "¿No tienes una cuenta?",
+      "createAccount": "Crear cuenta"
+    },
+    "signup": {
+      "title": "Crear Cuenta",
+      "subtitle": "Comienza gratis, no requiere tarjeta",
+      "fullName": "Nombre completo",
+      "fullNamePlaceholder": "María Chuchumeca",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "tu@email.com",
+      "password": "Contraseña",
+      "passwordPlaceholder": "",
+      "confirmPassword": "Confirmar contraseña",
+      "acceptTerms": "Acepto los",
+      "termsAndConditions": "términos y condiciones",
+      "signupButton": "Crear cuenta",
+      "orSignupWith": "O regístrate con",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "login": "Iniciar sesión"
+    },
+    "tagline": "Organiza tu vida de manera simple y eficiente",
+    "taglineSignup": "Comienza a organizarte mejor desde hoy"
+  },
+  "header": {
+    "welcome": "Bienvenida, María",
+    "date": "Martes, 18 de Noviembre 2025",
+    "search": "Buscar..."
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "allTasks": "Todas las tareas",
+    "calendar": "Calendario",
+    "googleClassroom": "Google Classroom",
+    "projects": "Proyectos",
+    "new": "Nuevo"
+  },
+  "stats": {
+    "urgent": "Urgente",
+    "urgentDesc": "Para hoy",
+    "classroom": "Classroom",
+    "classroomDesc": "Asignaciones",
+    "inProgress": "En progreso",
+    "inProgressDesc": "Tareas activas",
+    "completed": "Completadas",
+    "completedDesc": "Esta semana"
+  },
+  "tasks": {
+    "myTasks": "Mis Tareas",
+    "newTask": "Nueva tarea",
+    "all": "Todas",
+    "work": "Trabajo",
+    "classroom": "Classroom",
+    "today": "Hoy"
+  },
+  "widgets": {
+    "eventsToday": "Eventos Hoy",
+    "viewAll": "Ver todo",
+    "openCalendar": "Abrir calendario",
+    "openClassroom": "Abrir Classroom",
+    "quickActions": "Acciones Rápidas",
+    "newTask": "Nueva tarea",
+    "scheduleEvent": "Agendar evento",
+    "shareProject": "Compartir proyecto"
+  },
+  "userMenu": {
+    "myAccount": "Mi Cuenta",
+    "myProfile": "Mi perfil",
+    "notAvailable": "No disponible",
+    "settings": "Ajustes",
+    "theme": "Tema",
+    "themeStyle": "Estilo del tema",
+    "dark": "Oscuro",
+    "light": "Claro",
+    "system": "Sistema",
+    "language": "Idioma",
+    "chooseLanguage": "Escoge un idioma",
+    "spanish": "Español",
+    "english": "Inglés",
+    "french": "Francés",
+    "logout": "Cerrar sesión"
+  }
+}

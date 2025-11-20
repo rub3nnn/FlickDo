@@ -1,8 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { AlertCircle, GraduationCap, Clock, CheckCircle2 } from "lucide-react";
 import { StatCard } from "./StatCard";
 
 export const StatsGrid = ({ tasks }) => {
+  const { t } = useTranslation();
   const urgentTasks = tasks.filter(
     (t) => t.daysLeft === 0 && t.status !== "completed"
   );
@@ -16,30 +18,30 @@ export const StatsGrid = ({ tasks }) => {
     <div className="stats-grid">
       <StatCard
         icon={AlertCircle}
-        label="Urgente"
+        label={t("stats.urgent")}
         value={urgentTasks.length}
-        description="Para hoy"
+        description={t("stats.urgentDesc")}
         variant="urgent"
       />
       <StatCard
         icon={GraduationCap}
-        label="Classroom"
+        label={t("stats.classroom")}
         value={classroomTasks.length}
-        description="Asignaciones"
+        description={t("stats.classroomDesc")}
         variant="classroom"
       />
       <StatCard
         icon={Clock}
-        label="En progreso"
+        label={t("stats.inProgress")}
         value={inProgressTasks.length}
-        description="Tareas activas"
+        description={t("stats.inProgressDesc")}
         variant="progress"
       />
       <StatCard
         icon={CheckCircle2}
-        label="Completadas"
+        label={t("stats.completed")}
         value={completedTasks.length}
-        description="Esta semana"
+        description={t("stats.completedDesc")}
         variant="completed"
       />
     </div>

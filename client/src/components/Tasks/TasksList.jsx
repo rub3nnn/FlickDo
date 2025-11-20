@@ -1,9 +1,11 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { TaskCard } from "./TaskCard";
 import { FilterButton } from "./FilterButton";
 
 export const TasksList = ({ tasks, filter, onFilterChange, onToggleTask }) => {
+  const { t } = useTranslation();
   const filteredTasks = tasks.filter((task) => {
     if (filter === "all") return true;
     return task.type === filter;
@@ -12,18 +14,18 @@ export const TasksList = ({ tasks, filter, onFilterChange, onToggleTask }) => {
   const filterOptions = [
     {
       id: "all",
-      label: "Todas",
+      label: t("tasks.all"),
       count: tasks.filter((t) => t.status !== "completed").length,
     },
     {
       id: "work",
-      label: "Trabajo",
+      label: t("tasks.work"),
       count: tasks.filter((t) => t.type === "work" && t.status !== "completed")
         .length,
     },
     {
       id: "classroom",
-      label: "Classroom",
+      label: t("tasks.classroom"),
       count: tasks.filter(
         (t) => t.type === "classroom" && t.status !== "completed"
       ).length,
@@ -35,14 +37,14 @@ export const TasksList = ({ tasks, filter, onFilterChange, onToggleTask }) => {
       <div className="tasks-header">
         <div className="tasks-title-wrapper">
           <div className="tasks-title-group">
-            <h2 className="section-title">Mis Tareas</h2>
+            <h2 className="section-title">{t("tasks.myTasks")}</h2>
             <span className="title-badge">
               {filteredTasks.filter((t) => t.status !== "completed").length}
             </span>
           </div>
           <button className="add-task-button">
             <Plus className="icon-sm" />
-            Nueva tarea
+            {t("tasks.newTask")}
           </button>
         </div>
 

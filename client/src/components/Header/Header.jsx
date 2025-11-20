@@ -1,20 +1,22 @@
 import { Menu, Search, Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export const Header = ({ onToggleSidebar }) => {
+  const { t } = useTranslation();
+  const { toggleSidebar } = useSidebar();
   return (
     <header className="header">
       <div className="header-content">
         <div className="header-left">
-          <SidebarTrigger>
-            <button className="menu-button mobile-only">
-              <Menu className="icon-md" />
-            </button>
-          </SidebarTrigger>
+          <button className="menu-button mobile-only" onClick={toggleSidebar}>
+            <Menu className="icon-md" />
+          </button>
 
           <div>
-            <h1 className="header-title">Bienvenida, María</h1>
-            <p className="header-subtitle">Martes, 18 de Noviembre 2025</p>
+            <h1 className="header-title">{t("header.welcome")}</h1>
+            <p className="header-subtitle">{t("header.date")}</p>
           </div>
         </div>
 
@@ -23,7 +25,7 @@ export const Header = ({ onToggleSidebar }) => {
             <Search className="search-icon" />
             <input
               type="text"
-              placeholder="Buscar..."
+              placeholder={t("header.search")}
               className="search-input"
             />
           </div>

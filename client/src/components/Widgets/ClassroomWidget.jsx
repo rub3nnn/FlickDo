@@ -1,7 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { GraduationCap, ExternalLink } from "lucide-react";
 
 export const ClassroomWidget = ({ classroomTasks }) => {
+  const { t } = useTranslation();
   return (
     <div className="widget classroom-widget">
       <div className="widget-header">
@@ -9,7 +11,7 @@ export const ClassroomWidget = ({ classroomTasks }) => {
           <div className="classroom-icon">
             <GraduationCap className="icon-sm" />
           </div>
-          <h3 className="widget-title">Classroom</h3>
+          <h3 className="widget-title">{t("stats.classroom")}</h3>
         </div>
         <span className="classroom-badge">{classroomTasks.length}</span>
       </div>
@@ -24,7 +26,7 @@ export const ClassroomWidget = ({ classroomTasks }) => {
                   task.daysLeft === 0 ? "urgent" : ""
                 }`}
               >
-                {task.daysLeft === 0 ? "Hoy" : `${task.daysLeft}d`}
+                {task.daysLeft === 0 ? t("tasks.today") : `${task.daysLeft}d`}
               </span>
             </div>
           </div>
@@ -32,7 +34,7 @@ export const ClassroomWidget = ({ classroomTasks }) => {
       </div>
       <button className="widget-button primary">
         <ExternalLink className="icon-sm" />
-        Abrir Classroom
+        {t("widgets.openClassroom")}
       </button>
     </div>
   );
