@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Mail,
   Lock,
@@ -13,13 +15,71 @@ import {
 // Componente de Login
 const LoginPage = ({ onSwitchToSignup }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { signIn, signInWithProvider } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login:", { email, password });
+    setError("");
+    setLoading(true);
+
+    try {
+      const { error } = await signIn(email, password);
+
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          setError("Credenciales incorrectas. Verifica tu email y contraseña.");
+        } else {
+          setError(error.message);
+        }
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError("Error al iniciar sesión. Intenta de nuevo.");
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const { error } = await signInWithProvider("google");
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError("Error al iniciar sesión con Google.");
+      console.error("Google login error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGithubLogin = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const { error } = await signInWithProvider("github");
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError("Error al iniciar sesión con GitHub.");
+      console.error("GitHub login error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,7 +101,23 @@ const LoginPage = ({ onSwitchToSignup }) => {
             <p className="auth-subtitle">{t("auth.login.subtitle")}</p>
           </div>
 
-          <div className="auth-form">
+          <form onSubmit={handleSubmit} className="auth-form">
+            {error && (
+              <div
+                style={{
+                  padding: "12px",
+                  backgroundColor: "#fee2e2",
+                  border: "1px solid #fca5a5",
+                  borderRadius: "8px",
+                  color: "#991b1b",
+                  fontSize: "14px",
+                  marginBottom: "16px",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
             <div className="form-group">
               <label className="form-label">{t("auth.login.email")}</label>
               <div className="input-wrapper">
@@ -52,6 +128,8 @@ const LoginPage = ({ onSwitchToSignup }) => {
                   placeholder={t("auth.login.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -66,11 +144,14 @@ const LoginPage = ({ onSwitchToSignup }) => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   className="input-action"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
                 >
                   {showPassword ? (
                     <EyeOff className="icon-sm" />
@@ -91,12 +172,10 @@ const LoginPage = ({ onSwitchToSignup }) => {
               </button>
             </div>
 
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="btn-primary"
-            >
-              <span>{t("auth.login.loginButton")}</span>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              <span>
+                {loading ? "Iniciando sesión..." : t("auth.login.loginButton")}
+              </span>
               <ArrowRight className="icon-sm" />
             </button>
 
@@ -107,7 +186,12 @@ const LoginPage = ({ onSwitchToSignup }) => {
             </div>
 
             <div className="social-buttons">
-              <button type="button" className="btn-social">
+              <button
+                type="button"
+                className="btn-social"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+              >
                 <svg className="icon-md" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
@@ -128,7 +212,12 @@ const LoginPage = ({ onSwitchToSignup }) => {
                 </svg>
                 Google
               </button>
-              <button type="button" className="btn-social">
+              <button
+                type="button"
+                className="btn-social"
+                onClick={handleGithubLogin}
+                disabled={loading}
+              >
                 <svg
                   className="icon-md"
                   viewBox="0 0 24 24"
@@ -139,7 +228,7 @@ const LoginPage = ({ onSwitchToSignup }) => {
                 GitHub
               </button>
             </div>
-          </div>
+          </form>
 
           <div className="auth-footer">
             <p className="auth-footer-text">
@@ -161,6 +250,8 @@ const LoginPage = ({ onSwitchToSignup }) => {
 // Componente de Signup
 const SignupPage = ({ onSwitchToLogin }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { signUp, signInWithProvider } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -169,10 +260,47 @@ const SignupPage = ({ onSwitchToLogin }) => {
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Signup:", formData);
+    setError("");
+
+    // Validaciones
+    if (formData.password !== formData.confirmPassword) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await signUp(formData.email, formData.password, {
+        full_name: formData.name,
+      });
+
+      if (error) {
+        if (error.message.includes("already registered")) {
+          setError("Este email ya está registrado. Intenta iniciar sesión.");
+        } else {
+          setError(error.message);
+        }
+      } else {
+        // Redirigir al home después del registro exitoso
+        navigate("/");
+      }
+    } catch (err) {
+      setError("Error al crear la cuenta. Intenta de nuevo.");
+      console.error("Signup error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -180,6 +308,40 @@ const SignupPage = ({ onSwitchToLogin }) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleGoogleSignup = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const { error } = await signInWithProvider("google");
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError("Error al registrarse con Google.");
+      console.error("Google signup error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGithubSignup = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const { error } = await signInWithProvider("github");
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError("Error al registrarse con GitHub.");
+      console.error("GitHub signup error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -201,7 +363,23 @@ const SignupPage = ({ onSwitchToLogin }) => {
             <p className="auth-subtitle">{t("auth.signup.subtitle")}</p>
           </div>
 
-          <div className="auth-form">
+          <form onSubmit={handleSubmit} className="auth-form">
+            {error && (
+              <div
+                style={{
+                  padding: "12px",
+                  backgroundColor: "#fee2e2",
+                  border: "1px solid #fca5a5",
+                  borderRadius: "8px",
+                  color: "#991b1b",
+                  fontSize: "14px",
+                  marginBottom: "16px",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
             <div className="form-group">
               <label className="form-label">{t("auth.signup.fullName")}</label>
               <div className="input-wrapper">
@@ -213,6 +391,8 @@ const SignupPage = ({ onSwitchToLogin }) => {
                   placeholder={t("auth.signup.fullNamePlaceholder")}
                   value={formData.name}
                   onChange={handleChange}
+                  required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -228,6 +408,8 @@ const SignupPage = ({ onSwitchToLogin }) => {
                   placeholder={t("auth.signup.emailPlaceholder")}
                   value={formData.email}
                   onChange={handleChange}
+                  required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -243,11 +425,14 @@ const SignupPage = ({ onSwitchToLogin }) => {
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
+                  required
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   className="input-action"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
                 >
                   {showPassword ? (
                     <EyeOff className="icon-sm" />
@@ -271,11 +456,14 @@ const SignupPage = ({ onSwitchToLogin }) => {
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  required
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   className="input-action"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={loading}
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="icon-sm" />
@@ -288,7 +476,7 @@ const SignupPage = ({ onSwitchToLogin }) => {
 
             <div className="form-options">
               <label className="checkbox-label">
-                <input type="checkbox" className="checkbox-input" />
+                <input type="checkbox" className="checkbox-input" required />
                 <span className="checkbox-text">
                   {t("auth.signup.acceptTerms")}{" "}
                   <button type="button" className="link-button inline">
@@ -298,12 +486,10 @@ const SignupPage = ({ onSwitchToLogin }) => {
               </label>
             </div>
 
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="btn-primary"
-            >
-              <span>{t("auth.signup.signupButton")}</span>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              <span>
+                {loading ? "Creando cuenta..." : t("auth.signup.signupButton")}
+              </span>
               <ArrowRight className="icon-sm" />
             </button>
 
@@ -314,7 +500,12 @@ const SignupPage = ({ onSwitchToLogin }) => {
             </div>
 
             <div className="social-buttons">
-              <button type="button" className="btn-social">
+              <button
+                type="button"
+                className="btn-social"
+                onClick={handleGoogleSignup}
+                disabled={loading}
+              >
                 <svg className="icon-md" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
@@ -335,7 +526,12 @@ const SignupPage = ({ onSwitchToLogin }) => {
                 </svg>
                 Google
               </button>
-              <button type="button" className="btn-social">
+              <button
+                type="button"
+                className="btn-social"
+                onClick={handleGithubSignup}
+                disabled={loading}
+              >
                 <svg
                   className="icon-md"
                   viewBox="0 0 24 24"
@@ -346,7 +542,7 @@ const SignupPage = ({ onSwitchToLogin }) => {
                 GitHub
               </button>
             </div>
-          </div>
+          </form>
 
           <div className="auth-footer">
             <p className="auth-footer-text">
@@ -362,7 +558,7 @@ const SignupPage = ({ onSwitchToLogin }) => {
   );
 };
 
-// App principal para demostración
+// App principal
 export default function Login() {
   const [showSignup, setShowSignup] = useState(false);
 

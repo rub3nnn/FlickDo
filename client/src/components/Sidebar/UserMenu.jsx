@@ -2,6 +2,7 @@ import { Settings, LogOut, Moon, Sun, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/components/theme-provider";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,14 +19,26 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 
 export const UserMenu = ({ darkMode, onToggleDarkMode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { setTheme, theme } = useTheme();
   const { t, i18n } = useTranslation();
+  const { user, isInitialized, signOut } = useAuth();
+  const { profile } = useProfile();
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
+  };
+
+  // Obtener iniciales del usuario
+  const getUserInitials = () => {
+    if (!profile?.first_name && !profile?.last_name) return "U";
+    const firstInitial = profile?.first_name?.[0] || "";
+    const lastInitial = profile?.last_name?.[0] || "";
+    return `${firstInitial}${lastInitial}`.toUpperCase();
   };
 
   return (
@@ -33,14 +46,29 @@ export const UserMenu = ({ darkMode, onToggleDarkMode }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="user-menu-button">
-            <div className="user-avatar">MC</div>
-            <div className="user-info">
-              <p className="user-name">María Chuchumeca</p>
-              <p className="user-email">chuchumeca@gmail.com</p>
-            </div>
-            <ChevronDown
-              className={`icon-sm chevron ${isOpen ? "rotated" : ""}`}
-            />
+            {isInitialized && user ? (
+              <>
+                <div className="user-avatar">{getUserInitials()}</div>
+                <div className="user-info">
+                  <p className="user-name">
+                    {profile?.first_name} {profile?.last_name}
+                  </p>
+                  <p className="user-email">{user?.email}</p>
+                </div>
+                <ChevronDown
+                  className={`icon-sm chevron ${isOpen ? "rotated" : ""}`}
+                />
+              </>
+            ) : (
+              <>
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="user-info flex-1">
+                  <Skeleton className="h-4 w-24 mb-1" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <Skeleton className="h-4 w-4" />
+              </>
+            )}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="center">
@@ -112,7 +140,9 @@ export const UserMenu = ({ darkMode, onToggleDarkMode }) => {
             </DropdownMenuSub>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>{t("userMenu.logout")}</DropdownMenuItem>
+          <DropdownMenuItem onClick={signOut}>
+            {t("userMenu.logout")}
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
