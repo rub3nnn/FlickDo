@@ -20,14 +20,12 @@ import {
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile } from "@/hooks/useProfile";
 
 export const UserMenu = ({ darkMode, onToggleDarkMode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { setTheme, theme } = useTheme();
   const { t, i18n } = useTranslation();
-  const { user, isInitialized, signOut } = useAuth();
-  const { profile } = useProfile();
+  const { user, profile, isInitialized, signOut } = useAuth();
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
