@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { StrictMode, Suspense } from "react";
+import { StrictMode } from "react";
 import App from "@/App";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -8,14 +8,12 @@ import "./i18n";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Suspense fallback={<div>Loading...</div>}>
-      <BrowserRouter>
-        <AuthProvider>
-          <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-            <App />
-          </ThemeProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </Suspense>
+    <BrowserRouter>
+      <AuthProvider>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+          <App />
+        </ThemeProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>
 );

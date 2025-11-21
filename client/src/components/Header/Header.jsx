@@ -2,10 +2,24 @@ import { Menu, Search, Bell } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Header = ({ onToggleSidebar }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toggleSidebar } = useSidebar();
+  const { profile, loading } = useAuth();
+
+  function capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  const dateString = new Intl.DateTimeFormat(i18n.language, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+
   return (
     <header className="header">
       <div className="header-content">
@@ -15,8 +29,10 @@ export const Header = ({ onToggleSidebar }) => {
           </button>
 
           <div>
-            <h1 className="header-title">{t("header.welcome")}</h1>
-            <p className="header-subtitle">{t("header.date")}</p>
+            <h1 className="header-title">
+              {t("header.greeting", { name: profile?.first_name })}
+            </h1>
+            <p className="header-subtitle">{capitalizeFirst(dateString)}</p>
           </div>
         </div>
 
