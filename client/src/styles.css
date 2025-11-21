@@ -854,7 +854,7 @@ body {
   border-radius: 12px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-card:hover {
@@ -866,6 +866,7 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-checkbox {
@@ -896,6 +897,7 @@ body {
 .task-details {
   flex: 1;
   min-width: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-title-row {
@@ -903,6 +905,7 @@ body {
   align-items: flex-start;
   gap: 8px;
   margin-bottom: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-title {
@@ -911,6 +914,7 @@ body {
   flex: 1;
   line-height: 1.4;
   color: var(--text-primary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-title.completed {
@@ -945,12 +949,14 @@ body {
   gap: 8px;
   font-size: 12px;
   margin-bottom: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-badge {
   padding: 4px 8px;
   border-radius: 6px;
   font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-badge.classroom {
@@ -994,7 +1000,7 @@ body {
 .progress-fill {
   height: 100%;
   background: linear-gradient(to right, #6366f1, #a855f7);
-  transition: width 0.5s;
+  /* transition: width 0.5s; */
 }
 
 .progress-text {
@@ -1723,5 +1729,331 @@ body {
     flex-direction: column;
     align-items: start;
     gap: 0.75rem;
+  }
+}
+
+/* Task Card Edit Mode */
+.task-card-editing {
+  border: 2px solid var(--indigo);
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+  transform: scale(1.01);
+}
+
+.task-details {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-details:hover {
+  opacity: 0.8;
+}
+
+.task-card-editing .task-details {
+  cursor: default;
+}
+
+.task-card-editing .task-details:hover {
+  opacity: 1;
+}
+
+.task-title-input {
+  width: 100%;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  padding: 4px 8px !important;
+  height: auto !important;
+  min-height: unset !important;
+  line-height: 1.4 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-meta-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.task-badge-input {
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  height: auto !important;
+  min-height: unset !important;
+  border: 1px solid;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 100px;
+}
+
+.task-badge-input.work {
+  background: rgba(147, 51, 234, 0.1) !important;
+  color: var(--purple) !important;
+  border-color: rgba(147, 51, 234, 0.2) !important;
+}
+
+.task-badge-input.work:focus {
+  border-color: var(--purple) !important;
+  box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.1) !important;
+}
+
+.task-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-link-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--indigo);
+  border-color: var(--indigo);
+  transform: translateY(-1px);
+}
+
+.task-link-btn.link {
+  color: var(--indigo);
+  border-color: rgba(79, 70, 229, 0.3);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.task-link-btn.link:hover {
+  background: rgba(79, 70, 229, 0.1);
+}
+
+.task-due-edit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-tertiary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-date-input,
+.task-time-input {
+  padding: 4px 8px !important;
+  height: auto !important;
+  min-height: unset !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-date-input {
+  min-width: 150px !important;
+  width: auto !important;
+}
+
+.task-date-input .mr-2 {
+  margin-right: 0.5rem;
+}
+
+.task-time-input {
+  min-width: 80px;
+}
+
+.task-date-input::-webkit-calendar-picker-indicator,
+.task-time-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: opacity(0.6);
+  transition: all 0.2s ease;
+}
+
+.task-date-input:hover::-webkit-calendar-picker-indicator,
+.task-time-input:hover::-webkit-calendar-picker-indicator {
+  filter: opacity(1);
+}
+
+.dark .task-date-input::-webkit-calendar-picker-indicator,
+.dark .task-time-input::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.6);
+}
+
+.dark .task-date-input:hover::-webkit-calendar-picker-indicator,
+.dark .task-time-input:hover::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(1);
+}
+
+.task-priority-select {
+  height: auto !important;
+  min-height: unset !important;
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  min-width: 90px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-progress-slider {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  margin: 0;
+  padding: 0;
+  transform: translateY(-50%);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  z-index: 10;
+}
+
+.task-progress-slider:hover {
+  opacity: 1;
+}
+
+.progress-wrapper {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-wrapper-edit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-bar-container {
+  position: relative;
+  flex: 1;
+  height: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.progress-wrapper:hover .task-progress-slider {
+  opacity: 1;
+}
+
+.task-progress-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--indigo);
+  cursor: grab;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.5), 0 0 0 3px white;
+  margin-top: 0;
+}
+
+.task-progress-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.6), 0 0 0 3px white;
+}
+
+.task-progress-slider:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.25);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.7), 0 0 0 4px white;
+}
+
+.task-progress-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--indigo);
+  cursor: grab;
+  border: 3px solid white;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.5);
+}
+
+.task-progress-slider:hover::-moz-range-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.6);
+}
+
+.task-progress-slider:active::-moz-range-thumb {
+  cursor: grabbing;
+  transform: scale(1.25);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.7);
+}
+
+.task-progress-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: transparent;
+  border-radius: 999px;
+}
+
+.task-progress-slider::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: transparent;
+  border-radius: 999px;
+  border: none;
+}
+
+/* Modo oscuro */
+.dark .task-progress-slider::-webkit-slider-thumb {
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.7), 0 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .task-progress-slider:hover::-webkit-slider-thumb {
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.8), 0 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .task-progress-slider::-moz-range-thumb {
+  border-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.7);
+}
+
+/* Transiciones suaves para los badges y elementos */
+.task-badge,
+.task-teacher,
+.task-due {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animación de entrada para el modo edición */
+.task-card-editing .task-title-input,
+.task-card-editing .task-badge-input,
+.task-card-editing .task-date-input,
+.task-card-editing .task-time-input,
+.task-card-editing .task-priority-select {
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

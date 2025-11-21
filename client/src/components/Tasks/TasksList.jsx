@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { TaskCard } from "./TaskCard";
@@ -6,10 +6,25 @@ import { FilterButton } from "./FilterButton";
 
 export const TasksList = ({ tasks, filter, onFilterChange, onToggleTask }) => {
   const { t } = useTranslation();
+  const [editingTaskId, setEditingTaskId] = useState(null);
+
   const filteredTasks = tasks.filter((task) => {
     if (filter === "all") return true;
     return task.type === filter;
   });
+
+  const handleEditStart = (taskId) => {
+    setEditingTaskId(taskId);
+  };
+
+  const handleEditEnd = () => {
+    setEditingTaskId(null);
+  };
+
+  const handleSaveTask = (taskId, editedData) => {
+    // Aquí se debería llamar a la función para guardar en el backend
+    console.log("Guardar tarea", taskId, editedData);
+  };
 
   const filterOptions = [
     {
@@ -64,7 +79,15 @@ export const TasksList = ({ tasks, filter, onFilterChange, onToggleTask }) => {
 
       <div className="tasks-list">
         {filteredTasks.map((task) => (
-          <TaskCard key={task.id} task={task} onToggle={onToggleTask} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            onToggle={onToggleTask}
+            isEditing={editingTaskId === task.id}
+            onEditStart={handleEditStart}
+            onEditEnd={handleEditEnd}
+            onSave={handleSaveTask}
+          />
         ))}
       </div>
     </div>
