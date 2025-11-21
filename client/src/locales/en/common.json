@@ -34,8 +34,7 @@
     "taglineSignup": "Start organizing better today"
   },
   "header": {
-    "welcome": "Welcome, Maria",
-    "date": "Tuesday, November 18, 2025",
+    "greeting": "Hello, {{name}}",
     "search": "Search..."
   },
   "sidebar": {

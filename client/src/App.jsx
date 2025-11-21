@@ -12,19 +12,11 @@ function App() {
   const hideRoutes = ["/login"];
 
   const shouldShowSidebar = !hideRoutes.includes(location.pathname);
-
-  // Mostrar loading solo durante la inicialización inicial
-  if (!isInitialized) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse">Verificando sesión...</div>
-      </div>
-    );
-  }
+  const shouldRedirect = isInitialized && !user;
 
   return (
     <>
-      {user && shouldShowSidebar ? (
+      {!shouldRedirect && shouldShowSidebar ? (
         <SidebarProvider>
           <Sidebar />
           <Routes>

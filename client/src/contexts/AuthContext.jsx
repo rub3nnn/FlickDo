@@ -1,35 +1,44 @@
 // src/contexts/AuthContext.jsx
 import { createContext, useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { authApi } from "@/services/api";
 
 export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // Usuario de Supabase Auth
+  const [profile, setProfile] = useState(null); // Perfil de la tabla users
   const [session, setSession] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    let authSubscription = null;
 
     const initializeAuth = async () => {
       try {
-        const {
-          data: { session: currentSession },
-          error,
-        } = await supabase.auth.getSession();
+        const token = localStorage.getItem("auth_token");
 
-        if (error) throw error;
+        if (!token) {
+          if (mounted) {
+            setIsInitialized(true);
+          }
+          return;
+        }
 
-        if (!mounted) return;
+        // Verificar token con el backend
+        const response = await authApi.getCurrentUser();
 
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+        if (mounted && response.success) {
+          setUser(response.data.user); // Usuario de Auth
+          setProfile(response.data.profile); // Perfil de la tabla users
+          setSession({ access_token: token });
+        }
       } catch (error) {
         console.error("Error inicializando auth:", error);
+        // Token inválido o expirado, limpiar
+        localStorage.removeItem("auth_token");
         if (mounted) {
           setUser(null);
+          setProfile(null);
           setSession(null);
         }
       } finally {
@@ -39,78 +48,123 @@ export function AuthProvider({ children }) {
       }
     };
 
-    const setupAuthListener = () => {
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((event, newSession) => {
-        if (!mounted) return;
-
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-      });
-
-      authSubscription = subscription;
-    };
-
     initializeAuth();
-    setupAuthListener();
 
     return () => {
       mounted = false;
-      if (authSubscription) {
-        authSubscription.unsubscribe();
-      }
     };
   }, []);
 
   const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
+    try {
+      const response = await authApi.login(email, password);
+
+      if (response.success) {
+        const { token, user, profile } = response.data;
+
+        // Guardar token
+        localStorage.setItem("auth_token", token);
+
+        // Actualizar estado
+        setUser(user); // Usuario de Auth
+        setProfile(profile); // Perfil de la tabla users
+        setSession({ access_token: token });
+
+        return { data: { user }, error: null };
+      }
+    } catch (error) {
+      return { data: null, error: { message: error.message } };
+    }
   };
 
   const signUp = async (email, password, metadata = {}) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: metadata },
-    });
-    return { data, error };
+    try {
+      const response = await authApi.register(
+        email,
+        password,
+        metadata.full_name
+      );
+
+      if (response.success) {
+        const { token, user, profile } = response.data;
+
+        // Guardar token
+        localStorage.setItem("auth_token", token);
+
+        // Actualizar estado
+        setUser(user); // Usuario de Auth
+        setProfile(profile); // Perfil de la tabla users
+        setSession({ access_token: token });
+
+        return { data: { user }, error: null };
+      }
+    } catch (error) {
+      return { data: null, error: { message: error.message } };
+    }
   };
 
   const signInWithProvider = async (provider) => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    return { data, error };
+    try {
+      const response = await authApi.oauthLogin(
+        provider,
+        `${window.location.origin}/auth/callback`
+      );
+
+      if (response.success && response.data.url) {
+        // Redirigir a la URL de OAuth de Supabase
+        window.location.href = response.data.url;
+        return { data: response.data, error: null };
+      }
+    } catch (error) {
+      return { data: null, error: { message: error.message } };
+    }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    try {
+      await authApi.logout();
+      localStorage.removeItem("auth_token");
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      return { error: null };
+    } catch (error) {
+      // Aunque falle el backend, limpiamos localmente
+      localStorage.removeItem("auth_token");
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      return { error: { message: error.message } };
+    }
   };
 
   const resetPassword = async (email) => {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    return { data, error };
+    try {
+      const response = await authApi.resetPassword(email);
+
+      if (response.success) {
+        return { data: response.data, error: null };
+      }
+    } catch (error) {
+      return { data: null, error: { message: error.message } };
+    }
   };
 
   const updatePassword = async (newPassword) => {
-    const { data, error } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
-    return { data, error };
+    try {
+      const response = await authApi.updatePassword(newPassword);
+
+      if (response.success) {
+        return { data: response.data, error: null };
+      }
+    } catch (error) {
+      return { data: null, error: { message: error.message } };
+    }
   };
 
   const value = {
-    user,
+    user, // Usuario de Supabase Auth (id, email, user_metadata, created_at, etc.)
+    profile, // Perfil de la tabla users (full_name, avatar_url, etc.)
     session,
     isInitialized,
     signIn,

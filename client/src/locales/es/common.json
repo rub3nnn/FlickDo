@@ -34,8 +34,7 @@
     "taglineSignup": "Comienza a organizarte mejor desde hoy"
   },
   "header": {
-    "welcome": "Bienvenida, María",
-    "date": "Martes, 18 de Noviembre 2025",
+    "greeting": "Hola, {{name}}",
     "search": "Buscar..."
   },
   "sidebar": {
