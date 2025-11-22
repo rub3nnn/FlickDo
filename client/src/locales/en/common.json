@@ -30,6 +30,22 @@
       "haveAccount": "Already have an account?",
       "login": "Sign in"
     },
+    "callback": {
+      "verifying": "Verifying your account...",
+      "verifyingDescription": "Please wait while we verify your email address.",
+      "successTitle": "Verification successful!",
+      "successMessage": "Account verified successfully! Redirecting...",
+      "errorTitle": "Verification error",
+      "backToLogin": "Back to login",
+      "errors": {
+        "multipleAccounts": "An account with this email already exists. Please sign in with the method you originally used.",
+        "accessDenied": "Access denied. The verification was cancelled or rejected.",
+        "oauthError": "Error completing Google authentication.",
+        "verificationError": "Error verifying your account. Please try again.",
+        "invalidLink": "Invalid or expired verification link.",
+        "genericError": "An error occurred during verification. Please try again."
+      }
+    },
     "tagline": "Organize your life simply and efficiently",
     "taglineSignup": "Start organizing better today"
   },

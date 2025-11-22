@@ -30,6 +30,22 @@
       "haveAccount": "¿Ya tienes una cuenta?",
       "login": "Iniciar sesión"
     },
+    "callback": {
+      "verifying": "Verificando tu cuenta...",
+      "verifyingDescription": "Por favor, espera mientras verificamos tu correo electrónico.",
+      "successTitle": "¡Verificación exitosa!",
+      "successMessage": "¡Cuenta verificada exitosamente! Redirigiendo...",
+      "errorTitle": "Error de verificación",
+      "backToLogin": "Volver al inicio de sesión",
+      "errors": {
+        "multipleAccounts": "Ya existe una cuenta con este correo electrónico. Por favor, inicia sesión con el método que usaste originalmente.",
+        "accessDenied": "Acceso denegado. La verificación fue cancelada o rechazada.",
+        "oauthError": "Error al completar la autenticación con Google.",
+        "verificationError": "Error al verificar tu cuenta. Por favor, intenta de nuevo.",
+        "invalidLink": "Enlace de verificación inválido o expirado.",
+        "genericError": "Ocurrió un error durante la verificación. Por favor, intenta de nuevo."
+      }
+    },
     "tagline": "Organiza tu vida de manera simple y eficiente",
     "taglineSignup": "Comienza a organizarte mejor desde hoy"
   },

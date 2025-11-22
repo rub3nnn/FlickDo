@@ -1,11 +1,13 @@
 // src/AuthCallback.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { authApi } from "@/services/api";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [status, setStatus] = useState("loading"); // loading, success, error
   const [message, setMessage] = useState("");
 
@@ -19,6 +21,43 @@ export default function AuthCallback() {
         const hashParams = new URLSearchParams(
           window.location.hash.substring(1)
         );
+
+        // Verificar si hay errores en los parámetros de la URL
+        const error = urlParams.get("error") || hashParams.get("error");
+        const errorCode =
+          urlParams.get("error_code") || hashParams.get("error_code");
+        const errorDescription =
+          urlParams.get("error_description") ||
+          hashParams.get("error_description");
+
+        if (error) {
+          // Hay un error en la verificación/autenticación
+          if (!isMounted) return;
+
+          setStatus("error");
+
+          // Decodificar la descripción del error si existe
+          const decodedDescription = errorDescription
+            ? decodeURIComponent(errorDescription).replace(/\+/g, " ")
+            : "";
+
+          // Mensajes de error más amigables según el tipo de error
+          let friendlyMessage = decodedDescription;
+
+          if (
+            error === "server_error" &&
+            decodedDescription.includes("Multiple accounts")
+          ) {
+            friendlyMessage = t("auth.callback.errors.multipleAccounts");
+          } else if (error === "access_denied") {
+            friendlyMessage = t("auth.callback.errors.accessDenied");
+          } else if (!decodedDescription) {
+            friendlyMessage = t("auth.callback.errors.genericError");
+          }
+
+          setMessage(friendlyMessage);
+          return;
+        }
 
         // Verificar si es un callback de OAuth (Google, GitHub, etc.)
         const accessToken = hashParams.get("access_token");
@@ -48,7 +87,7 @@ export default function AuthCallback() {
             console.error("Error en OAuth callback:", error);
             // Si falla, mostrar error
             setStatus("error");
-            setMessage("Error al completar la autenticación con Google.");
+            setMessage(t("auth.callback.errors.oauthError"));
             return;
           }
         }
@@ -71,7 +110,7 @@ export default function AuthCallback() {
             localStorage.setItem("auth_token", token);
 
             setStatus("success");
-            setMessage("¡Cuenta verificada exitosamente! Redirigiendo...");
+            setMessage(t("auth.callback.successMessage"));
 
             // Redirigir al home después de 2 segundos
             setTimeout(() => {
@@ -81,8 +120,7 @@ export default function AuthCallback() {
           } else {
             setStatus("error");
             setMessage(
-              response.message ||
-                "Error al verificar tu cuenta. Por favor, intenta de nuevo."
+              response.message || t("auth.callback.errors.verificationError")
             );
           }
         } else if (type === "recovery") {
@@ -91,16 +129,14 @@ export default function AuthCallback() {
         } else {
           // Otro tipo de callback o error
           setStatus("error");
-          setMessage("Enlace de verificación inválido o expirado.");
+          setMessage(t("auth.callback.errors.invalidLink"));
         }
       } catch (error) {
         console.error("Error en callback:", error);
         if (!isMounted) return; // Si el componente se desmontó, no actualizar estado
 
         setStatus("error");
-        setMessage(
-          error.message || "Ocurrió un error durante la verificación."
-        );
+        setMessage(error.message || t("auth.callback.errors.genericError"));
       }
     };
 
@@ -110,7 +146,7 @@ export default function AuthCallback() {
     return () => {
       isMounted = false;
     };
-  }, [navigate]);
+  }, [navigate, t]);
 
   return (
     <div
@@ -165,12 +201,12 @@ export default function AuthCallback() {
                 color: "#1f2937",
               }}
             >
-              Verificando tu cuenta...
+              {t("auth.callback.verifying")}
             </h2>
             <p
               style={{ color: "#6b7280", fontSize: "1rem", lineHeight: "1.6" }}
             >
-              Por favor, espera mientras verificamos tu correo electrónico.
+              {t("auth.callback.verifyingDescription")}
             </p>
           </>
         )}
@@ -192,7 +228,7 @@ export default function AuthCallback() {
                 color: "#10b981",
               }}
             >
-              ¡Verificación exitosa!
+              {t("auth.callback.successTitle")}
             </h2>
             <p
               style={{ color: "#6b7280", fontSize: "1rem", lineHeight: "1.6" }}
@@ -219,7 +255,7 @@ export default function AuthCallback() {
                 color: "#ef4444",
               }}
             >
-              Error de verificación
+              {t("auth.callback.errorTitle")}
             </h2>
             <p
               style={{
@@ -256,7 +292,7 @@ export default function AuthCallback() {
                   "0 4px 6px rgba(102, 126, 234, 0.3)";
               }}
             >
-              Volver al inicio de sesión
+              {t("auth.callback.backToLogin")}
             </button>
           </>
         )}
