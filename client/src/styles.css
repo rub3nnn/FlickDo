@@ -1025,6 +1025,10 @@ body {
   opacity: 1;
 }
 
+.task-menu[data-state="open"] {
+  opacity: 1;
+}
+
 .task-menu:hover {
   background: var(--bg-tertiary);
 }

@@ -8,9 +8,12 @@ import {
   Link as LinkIcon,
   Unlink,
   CalendarIcon,
+  Trash,
+  Copy,
 } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -18,6 +21,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectLabel,
+  SelectGroup,
 } from "@/components/ui/select";
 import {
   Popover,
@@ -27,6 +32,14 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const TaskCard = ({
   task,
@@ -36,7 +49,13 @@ export const TaskCard = ({
   onEditEnd,
   onSave,
 }) => {
+  const { t, i18n } = useTranslation();
   const cardRef = useRef(null);
+
+  // Mapear el idioma actual a los locales de date-fns
+  const getDateLocale = () => {
+    return i18n.language === "es" ? es : enUS;
+  };
 
   // Parsear la fecha inicial de forma segura
   const parseInitialDate = (dateString) => {
@@ -69,13 +88,15 @@ export const TaskCard = ({
         !cardRef.current.contains(event.target) &&
         isEditing
       ) {
-        // Verificar si el click fue en un popover, select u otro componente de Radix UI
+        // Verificar si el click fue en un popover, select, dropdown u otro componente de Radix UI
         const isClickInPopover =
           event.target.closest('[role="dialog"]') ||
           event.target.closest("[data-radix-popper-content-wrapper]") ||
           event.target.closest('[data-slot="popover-content"]') ||
           event.target.closest('[data-slot="select-content"]') ||
+          event.target.closest('[data-slot="dropdown-menu-content"]') ||
           event.target.closest('[role="listbox"]') ||
+          event.target.closest('[role="menu"]') ||
           event.target.closest(".rdp") || // Calendar de react-day-picker
           event.target.closest('[data-slot="calendar"]');
 
@@ -155,14 +176,14 @@ export const TaskCard = ({
                 value={editedTask.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 className="task-title-input"
-                placeholder="Título de la tarea"
+                placeholder={t("tasks.taskTitle")}
                 autoFocus
               />
               {editedTask.priority === "high" &&
                 task.status !== "completed" && (
                   <div className="urgent-badge">
                     <Flag className="icon-xs" />
-                    <span>URGENTE</span>
+                    <span>{t("tasks.urgent")}</span>
                   </div>
                 )}
             </div>
@@ -177,7 +198,7 @@ export const TaskCard = ({
                   <button
                     onClick={handleUnlinkClassroom}
                     className="task-link-btn"
-                    title="Desvincular de classroom"
+                    title={t("tasks.unlinkFromClassroom")}
                   >
                     <Unlink className="icon-xs" />
                   </button>
@@ -187,10 +208,10 @@ export const TaskCard = ({
                   <button
                     onClick={handleLinkClassroom}
                     className="task-link-btn link"
-                    title="Vincular a tarea de classroom"
+                    title={t("tasks.linkToClassroom")}
                   >
                     <LinkIcon className="icon-xs" />
-                    <span>Vincular a classroom</span>
+                    <span>{t("tasks.linkToClassroom")}</span>
                   </button>
                 </>
               ) : (
@@ -199,12 +220,11 @@ export const TaskCard = ({
                   value={editedTask.project}
                   onChange={(e) => handleChange("project", e.target.value)}
                   className="task-badge-input work"
-                  placeholder="Proyecto"
+                  placeholder={t("tasks.project")}
                 />
               )}
 
               <div className="task-due-edit">
-                <Clock className="icon-xs" />
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -217,9 +237,9 @@ export const TaskCard = ({
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {date ? (
-                        format(date, "PPP", { locale: es })
+                        format(date, "PPP", { locale: getDateLocale() })
                       ) : (
-                        <span>Selecciona fecha</span>
+                        <span>{t("tasks.selectDate")}</span>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -229,7 +249,7 @@ export const TaskCard = ({
                       selected={date}
                       onSelect={handleDateSelect}
                       initialFocus
-                      locale={es}
+                      locale={getDateLocale()}
                     />
                   </PopoverContent>
                 </Popover>
@@ -246,12 +266,21 @@ export const TaskCard = ({
                 onValueChange={(value) => handleChange("priority", value)}
               >
                 <SelectTrigger className="task-priority-select" size="sm">
-                  <SelectValue placeholder="Prioridad" />
+                  <SelectValue placeholder={t("tasks.priority")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Baja</SelectItem>
-                  <SelectItem value="medium">Media</SelectItem>
-                  <SelectItem value="high">Alta</SelectItem>
+                  <SelectGroup>
+                    <SelectLabel>{t("tasks.priority")}</SelectLabel>
+                    <SelectItem value="low">
+                      {t("tasks.priorityLow")}
+                    </SelectItem>
+                    <SelectItem value="medium">
+                      {t("tasks.priorityMedium")}
+                    </SelectItem>
+                    <SelectItem value="high">
+                      {t("tasks.priorityHigh")}
+                    </SelectItem>
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
@@ -281,9 +310,25 @@ export const TaskCard = ({
             )}
           </div>
 
-          <button className="task-menu">
-            <MoreHorizontal className="icon-sm" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="task-menu">
+                <MoreHorizontal className="icon-sm" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-30" align="end">
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Trash />
+                  {t("tasks.delete")}
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Copy />
+                  {t("tasks.duplicate")}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     );
@@ -313,7 +358,7 @@ export const TaskCard = ({
             {task.priority === "high" && task.status !== "completed" && (
               <div className="urgent-badge">
                 <Flag className="icon-xs" />
-                <span>URGENTE</span>
+                <span>{t("tasks.urgent")}</span>
               </div>
             )}
           </div>
@@ -346,9 +391,25 @@ export const TaskCard = ({
           )}
         </div>
 
-        <button className="task-menu">
-          <MoreHorizontal className="icon-sm" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="task-menu">
+              <MoreHorizontal className="icon-sm" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-30" align="end">
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <Trash />
+                {t("tasks.delete")}
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Copy />
+                {t("tasks.duplicate")}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
