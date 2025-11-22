@@ -3280,13 +3280,13 @@ body {
 /* Large screens - 3 columns */
 @media (min-width: 1201px) and (max-width: 1600px) {
   .task-lists-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 /* Extra large screens - 4 columns */
 @media (min-width: 1601px) {
   .task-lists-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
