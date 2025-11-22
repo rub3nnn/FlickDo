@@ -2620,8 +2620,8 @@ body {
   transform: translateY(-1px);
 }
 
-/* Horizontal Wrapper */
-.task-lists-horizontal-wrapper {
+/* Grid Wrapper - Responsive Grid Layout */
+.task-lists-grid-wrapper {
   margin-top: 0;
   position: relative;
   width: 100%;
@@ -2629,94 +2629,87 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  height: 100%; /* Asegurar que ocupe todo el alto disponible */
-  overflow: hidden; /* Evitar que el wrapper tenga scroll */
-}
-
-.task-lists-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 24px 24px 24px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  padding: 4px 24px 20px 24px; /* Más espacio abajo para la scrollbar */
-  width: 100%; /* Ocupar todo el ancho del contenedor */
-  height: 100%; /* Asegurar que ocupe todo el alto disponible */
-  overflow-x: auto; /* Habilitar scroll horizontal */
-  overflow-y: hidden;
 }
 
-/* Contenedor interno para permitir que las tarjetas se expandan horizontalmente */
-.task-lists-inner {
-  display: flex;
-  gap: 16px;
-  align-items: stretch;
-  height: 100%;
+/* Custom Scrollbar for Grid Wrapper */
+.task-lists-grid-wrapper::-webkit-scrollbar {
+  width: 10px;
 }
 
-/* Custom Scrollbar - Modern and Minimalistic */
-.task-lists-scroll::-webkit-scrollbar {
-  height: 12px; /* Altura de la scrollbar */
-}
-
-.task-lists-scroll::-webkit-scrollbar-track {
+.task-lists-grid-wrapper::-webkit-scrollbar-track {
   background: transparent;
-  margin: 0 24px; /* Márgenes laterales para que sea más pequeña que el contenedor */
   border-radius: 10px;
 }
 
-.task-lists-scroll::-webkit-scrollbar-thumb {
+.task-lists-grid-wrapper::-webkit-scrollbar-thumb {
   background: var(--text-tertiary);
   border-radius: 10px;
   transition: background 0.2s ease, opacity 0.3s ease;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
-.task-lists-scroll:hover::-webkit-scrollbar-thumb {
-  opacity: 1;
+.task-lists-grid-wrapper:hover::-webkit-scrollbar-thumb {
+  opacity: 0.7;
 }
 
-.task-lists-scroll::-webkit-scrollbar-thumb:hover {
+.task-lists-grid-wrapper::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
   opacity: 1;
 }
 
-.task-lists-scroll::-webkit-scrollbar-thumb:active {
+.task-lists-grid-wrapper::-webkit-scrollbar-thumb:active {
   background: var(--indigo);
   opacity: 1;
 }
 
 /* Dark mode scrollbar */
-.dark .task-lists-scroll::-webkit-scrollbar-thumb {
+.dark .task-lists-grid-wrapper::-webkit-scrollbar-thumb {
   background: var(--text-tertiary);
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
-.dark .task-lists-scroll:hover::-webkit-scrollbar-thumb {
-  opacity: 1;
+.dark .task-lists-grid-wrapper:hover::-webkit-scrollbar-thumb {
+  opacity: 0.7;
 }
 
-.dark .task-lists-scroll::-webkit-scrollbar-thumb:hover {
+.dark .task-lists-grid-wrapper::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
   opacity: 1;
 }
 
-.dark .task-lists-scroll::-webkit-scrollbar-thumb:active {
+.dark .task-lists-grid-wrapper::-webkit-scrollbar-thumb:active {
   background: var(--indigo);
   opacity: 1;
 }
 
 /* Firefox scrollbar support */
-.task-lists-scroll {
+.task-lists-grid-wrapper {
+  scrollbar-width: thin;
   scrollbar-color: var(--text-tertiary) transparent;
 }
 
-.dark .task-lists-scroll {
+.dark .task-lists-grid-wrapper {
   scrollbar-color: var(--text-tertiary) transparent;
 }
 
-/* Compact List Card - Fixed Width */
+/* Grid Container */
+.task-lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+  width: 100%;
+  align-items: start;
+}
+
+/* Compact List Card - Responsive Width */
 .task-list-card-compact {
-  min-width: 380px;
-  max-width: 380px;
-  height: 100%; /* Aprovechar todo el alto disponible */
+  width: 100%;
+  max-height: 700px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 14px;
@@ -2725,7 +2718,6 @@ body {
   overflow: hidden;
   box-shadow: 0 2px 8px var(--shadow);
   transition: all 0.3s;
-  flex-shrink: 0; /* Evitar que se comprima horizontalmente */
 }
 
 .task-list-card-compact:hover {
@@ -3240,15 +3232,14 @@ body {
     justify-content: center;
   }
 
-  .task-list-card-compact {
-    flex: 0 0 280px;
-    min-width: 280px;
-    max-width: 280px;
-    height: 100%; /* Aprovechar todo el alto disponible */
+  /* Grid ajusta a 1 columna en mobile */
+  .task-lists-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .task-lists-scroll {
-    gap: 12px;
+  .task-list-card-compact {
+    max-height: 600px;
   }
 }
 
@@ -3262,13 +3253,6 @@ body {
     gap: 6px;
   }
 
-  .task-list-card-compact {
-    flex: 0 0 260px;
-    min-width: 345px;
-    max-width: 345px;
-    height: 100%; /* Aprovechar todo el alto disponible */
-  }
-
   .task-list-header-ultra-compact {
     padding: 10px;
   }
@@ -3280,49 +3264,29 @@ body {
   .task-list-footer-compact {
     padding: 8px;
   }
+
+  .task-lists-grid-wrapper {
+    padding: 4px 16px 16px 16px;
+  }
 }
 
-/* ============================================
-   SCROLL AREA (SHADCN) CUSTOM STYLES
-   ============================================ */
-
-/* Personalización del ScrollArea para scroll horizontal */
-.task-lists-horizontal-wrapper [data-slot="scroll-area"] {
-  height: 100%;
-  width: 100%;
+/* Tablet and medium screens - 2 columns */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .task-lists-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.task-lists-horizontal-wrapper [data-slot="scroll-area-viewport"] {
-  height: 100%;
-  width: 100%;
+/* Large screens - 3 columns */
+@media (min-width: 1201px) and (max-width: 1600px) {
+  .task-lists-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.task-lists-horizontal-wrapper [data-slot="scroll-area-viewport"] > div {
-  height: 100%;
-  display: flex;
-}
-
-/* Estilos para el scrollbar horizontal */
-.task-lists-horizontal-wrapper
-  [data-slot="scroll-area-scrollbar"][data-orientation="horizontal"] {
-  height: 10px;
-  margin: 0 24px;
-}
-
-.task-lists-horizontal-wrapper [data-slot="scroll-area-thumb"] {
-  background: var(--text-tertiary);
-  transition: background 0.2s ease;
-}
-
-.task-lists-horizontal-wrapper [data-slot="scroll-area-thumb"]:hover {
-  background: var(--text-secondary);
-}
-
-/* Dark mode */
-.dark .task-lists-horizontal-wrapper [data-slot="scroll-area-thumb"] {
-  background: var(--text-tertiary);
-}
-
-.dark .task-lists-horizontal-wrapper [data-slot="scroll-area-thumb"]:hover {
-  background: var(--text-secondary);
+/* Extra large screens - 4 columns */
+@media (min-width: 1601px) {
+  .task-lists-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
