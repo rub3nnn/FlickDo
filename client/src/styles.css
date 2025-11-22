@@ -184,6 +184,7 @@ body {
   width: 100%; /*Esto solo si no uso el sidebar dentro del css*/
   background: var(--bg-primary);
   transition: all 0.3s;
+  overflow: hidden;
 }
 
 /* Icons */
@@ -628,7 +629,11 @@ body {
 .content-area {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .content-wrapper {
@@ -636,6 +641,10 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 @media (min-width: 1024px) {
@@ -2528,7 +2537,11 @@ body {
 .all-tasks-container-horizontal {
   max-width: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow: visible; /* Permitir que el scroll funcione */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Ultra Compact Header with Inline Stats */
@@ -2538,6 +2551,7 @@ body {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .header-left-compact {
@@ -2606,51 +2620,103 @@ body {
   transform: translateY(-1px);
 }
 
-/* Horizontal Wrapper - NO stretch */
+/* Horizontal Wrapper */
 .task-lists-horizontal-wrapper {
   margin-top: 0;
   position: relative;
   width: 100%;
-  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%; /* Asegurar que ocupe todo el alto disponible */
+  overflow: hidden; /* Evitar que el wrapper tenga scroll */
 }
 
 .task-lists-scroll {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 4px 0 16px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) transparent;
+  padding: 4px 24px 20px 24px; /* Más espacio abajo para la scrollbar */
+  width: 100%; /* Ocupar todo el ancho del contenedor */
+  height: 100%; /* Asegurar que ocupe todo el alto disponible */
+  overflow-x: auto; /* Habilitar scroll horizontal */
+  overflow-y: hidden;
 }
 
+/* Contenedor interno para permitir que las tarjetas se expandan horizontalmente */
+.task-lists-inner {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  height: 100%;
+}
+
+/* Custom Scrollbar - Modern and Minimalistic */
 .task-lists-scroll::-webkit-scrollbar {
-  height: 6px;
+  height: 12px; /* Altura de la scrollbar */
 }
 
 .task-lists-scroll::-webkit-scrollbar-track {
   background: transparent;
-  border-radius: 3px;
+  margin: 0 24px; /* Márgenes laterales para que sea más pequeña que el contenedor */
+  border-radius: 10px;
 }
 
 .task-lists-scroll::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
-  transition: background 0.2s;
+  background: var(--text-tertiary);
+  border-radius: 10px;
+  transition: background 0.2s ease, opacity 0.3s ease;
+  opacity: 0.5;
+}
+
+.task-lists-scroll:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
 }
 
 .task-lists-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--border-hover);
+  background: var(--text-secondary);
+  opacity: 1;
+}
+
+.task-lists-scroll::-webkit-scrollbar-thumb:active {
+  background: var(--indigo);
+  opacity: 1;
+}
+
+/* Dark mode scrollbar */
+.dark .task-lists-scroll::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.dark .task-lists-scroll:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.dark .task-lists-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+  opacity: 1;
+}
+
+.dark .task-lists-scroll::-webkit-scrollbar-thumb:active {
+  background: var(--indigo);
+  opacity: 1;
+}
+
+/* Firefox scrollbar support */
+.task-lists-scroll {
+  scrollbar-color: var(--text-tertiary) transparent;
+}
+
+.dark .task-lists-scroll {
+  scrollbar-color: var(--text-tertiary) transparent;
 }
 
 /* Compact List Card - Fixed Width */
 .task-list-card-compact {
-  flex: 0 0 320px;
-  min-width: 320px;
-  max-width: 320px;
-  height: 580px;
+  min-width: 380px;
+  max-width: 380px;
+  height: 100%; /* Aprovechar todo el alto disponible */
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 14px;
@@ -2659,6 +2725,7 @@ body {
   overflow: hidden;
   box-shadow: 0 2px 8px var(--shadow);
   transition: all 0.3s;
+  flex-shrink: 0; /* Evitar que se comprima horizontalmente */
 }
 
 .task-list-card-compact:hover {
@@ -2735,7 +2802,7 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding-left: 36px;
+  /*padding-left: 36px;*/
 }
 
 .list-badge-mini {
@@ -2799,6 +2866,9 @@ body {
   padding: 10px;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Importante para flex children con scroll */
 }
 
 .task-list-content-compact::-webkit-scrollbar {
@@ -2818,10 +2888,166 @@ body {
   background: var(--border-hover);
 }
 
+/* Completed Section Middle - Entre content y footer */
+.completed-section-middle {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-top: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.completed-section-middle.expanded {
+  border-top-color: var(--border-color);
+}
+
+/* Botón toggle trigger - siempre en la parte superior del contenedor */
+.completed-toggle-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: rgba(16, 185, 129, 0.05);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--emerald);
+  flex-shrink: 0;
+}
+
+.dark .completed-toggle-trigger {
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.completed-toggle-trigger:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.completed-toggle-trigger .completed-text-footer {
+  flex: 1;
+  text-align: left;
+}
+
+.completed-toggle-trigger .completed-icon {
+  color: var(--emerald);
+}
+
+/* Contenedor de tareas completadas */
+.completed-tasks-container {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estado expandido */
+.completed-section-middle.expanded .completed-tasks-container {
+  max-height: 400px; /* Ajusta según necesites */
+}
+
+/* Lista de tareas completadas con scroll */
+.completed-tasks-list-expanded {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+/* Lista de tareas completadas con scroll */
+.completed-tasks-list-expanded {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.completed-tasks-list-expanded::-webkit-scrollbar {
+  width: 5px;
+}
+
+.completed-tasks-list-expanded::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.completed-tasks-list-expanded::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.completed-tasks-list-expanded::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+.completed-tasks-list-expanded .task-card {
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+
+.completed-tasks-list-expanded .task-card:hover {
+  opacity: 1;
+}
+
+/* Mantener los antiguos estilos por compatibilidad pero los dejamos sin uso */
+/* Completed Section Sticky - DEPRECATED */
+.completed-section-sticky {
+  display: none;
+}
+
+/* Completed Tasks Expandable Section - DEPRECATED */
+.completed-tasks-expandable {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  animation: expandDown 0.3s ease-out;
+  flex-shrink: 0;
+}
+
+@keyframes expandDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 300px;
+    opacity: 1;
+  }
+}
+
+.completed-tasks-expandable::-webkit-scrollbar {
+  width: 5px;
+}
+
+.completed-tasks-expandable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.completed-tasks-expandable::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.completed-tasks-expandable::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Los estilos de completed-tasks-list-expanded ahora están dentro de .completed-section-sticky */
+
 .tasks-list-compact {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-bottom: 12px; /* Espacio extra para el sticky */
 }
 
 .list-empty-state-compact {
@@ -2832,6 +3058,7 @@ body {
   padding: 32px 16px;
   text-align: center;
   color: var(--text-tertiary);
+  flex: 1; /* Ocupa todo el espacio disponible cuando no hay tareas */
 }
 
 .list-empty-state-compact .icon-sm {
@@ -2845,74 +3072,51 @@ body {
   font-size: 12px;
 }
 
-/* Completed Section Compact */
-.completed-section-compact {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
-}
-
-.completed-toggle-compact {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  background: rgba(16, 185, 129, 0.05);
-  border: 1px solid rgba(16, 185, 129, 0.15);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 8px;
-}
-
-.dark .completed-toggle-compact {
-  background: rgba(16, 185, 129, 0.08);
-  border-color: rgba(16, 185, 129, 0.2);
-}
-
-.completed-toggle-compact:hover {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.25);
-}
-
-.completed-text-compact {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--emerald);
-  flex: 1;
-}
-
-.completed-tasks-compact {
-  margin-top: 8px;
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.completed-tasks-compact .task-card {
-  opacity: 0.75;
-}
-
-.completed-tasks-compact .task-card:hover {
-  opacity: 1;
-}
-
 /* Footer Compact */
 .task-list-footer-compact {
   padding: 10px;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Completed Toggle in Footer */
+.completed-toggle-footer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--emerald);
+}
+
+.dark .completed-toggle-footer {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.completed-toggle-footer:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.completed-text-footer {
+  flex: 1;
+  text-align: left;
+}
+
+.completed-icon {
+  color: var(--emerald);
 }
 
 .add-task-btn-footer {
@@ -3040,7 +3244,7 @@ body {
     flex: 0 0 280px;
     min-width: 280px;
     max-width: 280px;
-    height: 550px;
+    height: 100%; /* Aprovechar todo el alto disponible */
   }
 
   .task-lists-scroll {
@@ -3060,9 +3264,9 @@ body {
 
   .task-list-card-compact {
     flex: 0 0 260px;
-    min-width: 260px;
-    max-width: 260px;
-    height: 520px;
+    min-width: 345px;
+    max-width: 345px;
+    height: 100%; /* Aprovechar todo el alto disponible */
   }
 
   .task-list-header-ultra-compact {
@@ -3076,4 +3280,49 @@ body {
   .task-list-footer-compact {
     padding: 8px;
   }
+}
+
+/* ============================================
+   SCROLL AREA (SHADCN) CUSTOM STYLES
+   ============================================ */
+
+/* Personalización del ScrollArea para scroll horizontal */
+.task-lists-horizontal-wrapper [data-slot="scroll-area"] {
+  height: 100%;
+  width: 100%;
+}
+
+.task-lists-horizontal-wrapper [data-slot="scroll-area-viewport"] {
+  height: 100%;
+  width: 100%;
+}
+
+.task-lists-horizontal-wrapper [data-slot="scroll-area-viewport"] > div {
+  height: 100%;
+  display: flex;
+}
+
+/* Estilos para el scrollbar horizontal */
+.task-lists-horizontal-wrapper
+  [data-slot="scroll-area-scrollbar"][data-orientation="horizontal"] {
+  height: 10px;
+  margin: 0 24px;
+}
+
+.task-lists-horizontal-wrapper [data-slot="scroll-area-thumb"] {
+  background: var(--text-tertiary);
+  transition: background 0.2s ease;
+}
+
+.task-lists-horizontal-wrapper [data-slot="scroll-area-thumb"]:hover {
+  background: var(--text-secondary);
+}
+
+/* Dark mode */
+.dark .task-lists-horizontal-wrapper [data-slot="scroll-area-thumb"] {
+  background: var(--text-tertiary);
+}
+
+.dark .task-lists-horizontal-wrapper [data-slot="scroll-area-thumb"]:hover {
+  background: var(--text-secondary);
 }
