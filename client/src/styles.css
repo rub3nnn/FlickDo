@@ -1693,6 +1693,109 @@ body {
   color: var(--text-secondary);
 }
 
+/* Verificación de Email */
+.verification-message-container {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.verification-icon {
+  margin: 0 auto 2rem;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.mail-icon {
+  color: white;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.verification-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.verification-text {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.verification-instructions {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.verification-tips {
+  background-color: var(--bg-secondary);
+  border-radius: 0.625rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.verification-tip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.verification-tip:last-child {
+  margin-bottom: 0;
+}
+
+.verification-tip svg {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+/* Form Row para campos en dos columnas */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .auth-container {

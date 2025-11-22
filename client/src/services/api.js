@@ -14,11 +14,11 @@ const handleResponse = async (response) => {
 
 export const authApi = {
   // Registro
-  register: async (email, password, name) => {
+  register: async (email, password, firstName, lastName) => {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, firstName, lastName }),
     });
     return handleResponse(response);
   },
@@ -83,6 +83,26 @@ export const authApi = {
         Authorization: `Bearer ${getToken()}`,
       },
       body: JSON.stringify({ newPassword }),
+    });
+    return handleResponse(response);
+  },
+
+  // Verify email
+  verifyEmail: async (token_hash, type) => {
+    const response = await fetch(`${API_URL}/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token_hash, type }),
+    });
+    return handleResponse(response);
+  },
+
+  // Handle OAuth callback
+  handleOAuthCallback: async (accessToken, refreshToken) => {
+    const response = await fetch(`${API_URL}/auth/oauth-callback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accessToken, refreshToken }),
     });
     return handleResponse(response);
   },

@@ -33,7 +33,6 @@ app.get("/", (req, res) => {
     endpoints: {
       health: "/api/health",
       auth: "/api/auth",
-      docs: "/api/docs (próximamente)",
     },
   });
 });

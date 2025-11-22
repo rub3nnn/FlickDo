@@ -1,4 +1,9 @@
 // src/lib/supabase.js
+// NOTA: Este archivo ya NO se usa en el frontend
+// Toda la lógica de autenticación se maneja a través del backend
+// Se mantiene este archivo por si acaso se necesita en el futuro
+
+/*
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -11,3 +16,4 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
   },
 });
+*/

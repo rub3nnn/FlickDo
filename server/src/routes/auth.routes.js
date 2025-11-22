@@ -32,6 +32,13 @@ router.post("/login", loginValidation, validate, authController.login);
 router.post("/oauth/:provider", authController.oauthLogin);
 
 /**
+ * @route   POST /api/auth/oauth-callback
+ * @desc    Manejar callback de OAuth
+ * @access  Public
+ */
+router.post("/oauth-callback", authController.handleOAuthCallback);
+
+/**
  * @route   POST /api/auth/logout
  * @desc    Logout de usuario
  * @access  Private
@@ -69,5 +76,12 @@ router.put(
  * @access  Private
  */
 router.get("/me", verifyToken, authController.getCurrentUser);
+
+/**
+ * @route   POST /api/auth/verify-email
+ * @desc    Verificar email del usuario
+ * @access  Public
+ */
+router.post("/verify-email", authController.verifyEmail);
 
 module.exports = router;

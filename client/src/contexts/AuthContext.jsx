@@ -82,10 +82,22 @@ export function AuthProvider({ children }) {
       const response = await authApi.register(
         email,
         password,
-        metadata.full_name
+        metadata.firstName,
+        metadata.lastName
       );
 
       if (response.success) {
+        if (response.requiresEmailVerification) {
+          // Usuario creado pero requiere verificación
+          return {
+            data: null,
+            error: null,
+            requiresEmailVerification: true,
+            email: response.data.email,
+          };
+        }
+
+        // Usuario creado y puede iniciar sesión (no debería pasar con la nueva config)
         const { token, user, profile } = response.data;
 
         // Guardar token

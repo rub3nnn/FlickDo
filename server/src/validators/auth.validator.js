@@ -14,11 +14,19 @@ const registerValidation = [
       "La contraseña debe contener al menos una mayúscula, una minúscula y un número"
     ),
 
-  body("name")
-    .optional()
+  body("firstName")
     .trim()
+    .notEmpty()
+    .withMessage("El nombre es requerido")
     .isLength({ min: 2 })
     .withMessage("El nombre debe tener al menos 2 caracteres"),
+
+  body("lastName")
+    .trim()
+    .notEmpty()
+    .withMessage("El apellido es requerido")
+    .isLength({ min: 2 })
+    .withMessage("El apellido debe tener al menos 2 caracteres"),
 ];
 
 /**

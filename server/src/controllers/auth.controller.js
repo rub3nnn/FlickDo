@@ -17,18 +17,22 @@ const generateToken = (userId, email) => {
  */
 const register = async (req, res, next) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, firstName, lastName } = req.body;
+    const fullName = `${firstName} ${lastName}`.trim();
 
-    // Registrar usuario en Supabase Auth
-    const { data: authData, error: authError } =
-      await supabase.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: name || "",
+    // Registrar usuario en Supabase Auth con signUp
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          full_name: fullName,
         },
-      });
+        emailRedirectTo: `${config.clientUrl}/auth/callback`,
+      },
+    });
 
     if (authError) {
       return res.status(400).json({
@@ -37,38 +41,22 @@ const register = async (req, res, next) => {
       });
     }
 
-    // Crear perfil del usuario en la tabla users
-    const { data: profileData, error: profileError } = await supabase
-      .from("users")
-      .insert({
-        id: authData.user.id,
-        email: authData.user.email,
-        full_name: name || "",
-        avatar_url: null,
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
-
-    if (profileError) {
-      console.error("Error creando perfil:", profileError);
-      // Nota: El usuario ya fue creado en Auth, considera limpiar si falla
-    }
-
-    // Generar token JWT
-    const token = generateToken(authData.user.id, authData.user.email);
+    // El perfil se crea automáticamente mediante trigger en la base de datos
+    // No necesitamos crear el perfil manualmente aquí
 
     res.status(201).json({
       success: true,
-      message: "Usuario registrado exitosamente",
+      message:
+        "Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.",
+      requiresEmailVerification: true,
       data: {
-        token,
-        user: authData.user, // Usuario de Supabase Auth
-        profile: profileData || {
+        email: authData.user.email,
+        user: {
           id: authData.user.id,
           email: authData.user.email,
-          full_name: name || "",
-          avatar_url: null,
+          first_name: firstName,
+          last_name: lastName,
+          full_name: fullName,
         },
       },
     });
@@ -123,7 +111,6 @@ const login = async (req, res, next) => {
           id: authData.user.id,
           email: authData.user.email,
           full_name: authData.user.user_metadata?.full_name || "",
-          avatar_url: null,
         },
       },
     });
@@ -288,7 +275,156 @@ const getCurrentUser = async (req, res, next) => {
           id: authUser.user.id,
           email: authUser.user.email,
           full_name: authUser.user.user_metadata?.full_name || "",
-          avatar_url: null,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Verificar email del usuario
+ * POST /api/auth/verify-email
+ */
+const verifyEmail = async (req, res, next) => {
+  try {
+    const { token_hash, type } = req.body;
+
+    if (!token_hash || type !== "signup") {
+      return res.status(400).json({
+        success: false,
+        message: "Token o tipo de verificación inválido",
+      });
+    }
+
+    // Verificar el token con Supabase
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash,
+      type: "signup",
+    });
+
+    if (error) {
+      console.error("Error verificando email:", error);
+      return res.status(400).json({
+        success: false,
+        message: "Token inválido o expirado",
+      });
+    }
+
+    if (!data.user) {
+      return res.status(400).json({
+        success: false,
+        message: "No se pudo verificar el usuario",
+      });
+    }
+
+    // Obtener perfil del usuario
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) {
+      console.error("Error obteniendo perfil:", profileError);
+    }
+
+    // Generar token JWT para el usuario verificado
+    const token = generateToken(data.user.id, data.user.email);
+
+    res.json({
+      success: true,
+      message: "Email verificado exitosamente",
+      data: {
+        token,
+        user: data.user,
+        profile: profile || {
+          id: data.user.id,
+          email: data.user.email,
+          first_name: data.user.user_metadata?.first_name || "",
+          last_name: data.user.user_metadata?.last_name || "",
+          full_name: data.user.user_metadata?.full_name || "",
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Manejar callback de OAuth (Google, GitHub, etc.)
+ * POST /api/auth/oauth-callback
+ */
+const handleOAuthCallback = async (req, res, next) => {
+  try {
+    const { accessToken, refreshToken } = req.body;
+
+    if (!accessToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Token de acceso requerido",
+      });
+    }
+
+    // Obtener el usuario usando el access token de Supabase
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser(accessToken);
+
+    if (userError || !user) {
+      return res.status(401).json({
+        success: false,
+        message: "Token inválido o usuario no encontrado",
+      });
+    }
+
+    // Obtener o crear el perfil del usuario
+    let { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    // Si no existe el perfil, se creará automáticamente por el trigger
+    // Pero si aún no se ha creado, esperar un momento y reintentar
+    if (profileError && profileError.code === "PGRST116") {
+      // Esperar 500ms para que el trigger se ejecute
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const { data: retryProfile } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      profile = retryProfile;
+    }
+
+    // Generar token JWT para el usuario
+    const token = generateToken(user.id, user.email);
+
+    res.json({
+      success: true,
+      message: "Autenticación OAuth exitosa",
+      data: {
+        token,
+        user,
+        profile: profile || {
+          id: user.id,
+          email: user.email,
+          first_name:
+            user.user_metadata?.given_name ||
+            user.user_metadata?.first_name ||
+            "",
+          last_name:
+            user.user_metadata?.family_name ||
+            user.user_metadata?.last_name ||
+            "",
+          full_name:
+            user.user_metadata?.full_name || user.user_metadata?.name || "",
         },
       },
     });
@@ -301,8 +437,10 @@ module.exports = {
   register,
   login,
   oauthLogin,
+  handleOAuthCallback,
   logout,
   resetPassword,
   updatePassword,
   getCurrentUser,
+  verifyEmail,
 };
