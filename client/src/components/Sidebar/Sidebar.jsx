@@ -1,5 +1,6 @@
 import { LayoutGrid, Inbox, Calendar, GraduationCap, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Logo } from "./Logo";
 import { NavItem } from "./NavItem";
 import { ProjectItem } from "./ProjectItem";
@@ -12,24 +13,34 @@ import { PROJECTS } from "../../data/constants";
 
 export const Sidebar = ({}) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const navItems = [
     {
       icon: LayoutGrid,
       label: t("sidebar.dashboard"),
       id: "dashboard",
-      active: true,
+      path: "/",
     },
     {
       icon: Inbox,
       label: t("sidebar.allTasks"),
       id: "tasks",
+      path: "/all-tasks",
       badge: 2,
     },
-    { icon: Calendar, label: t("sidebar.calendar"), id: "calendar" },
+    {
+      icon: Calendar,
+      label: t("sidebar.calendar"),
+      id: "calendar",
+      path: "/calendar",
+    },
     {
       icon: GraduationCap,
       label: t("sidebar.googleClassroom"),
       id: "classroom",
+      path: "/classroom",
       badge: 3,
     },
   ];
@@ -52,7 +63,8 @@ export const Sidebar = ({}) => {
                 icon={item.icon}
                 label={item.label}
                 badge={item.badge}
-                active={item.active}
+                active={location.pathname === item.path}
+                onClick={() => navigate(item.path)}
               />
             ))}
 

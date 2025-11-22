@@ -117,5 +117,50 @@
     "english": "Inglés",
     "french": "Francés",
     "logout": "Cerrar sesión"
+  },
+  "allTasks": {
+    "title": "Todas las Listas",
+    "subtitle": "Gestiona y organiza todas tus listas de tareas en un solo lugar",
+    "newList": "Nueva lista",
+    "newTask": "Nueva tarea",
+    "filters": {
+      "all": "Todas",
+      "work": "Trabajo",
+      "classroom": "Classroom"
+    },
+    "stats": {
+      "lists": "Listas",
+      "active": "Activas",
+      "completed": "Completadas",
+      "urgent": "Urgentes",
+      "shared": "Compartidas"
+    },
+    "sections": {
+      "active": "Tareas Activas",
+      "completed": "Tareas Completadas"
+    },
+    "showCompleted": "Mostrar completadas",
+    "hideCompleted": "Ocultar completadas",
+    "emptyState": {
+      "title": "¡Todo listo!",
+      "description": "No tienes tareas pendientes. ¡Buen trabajo!"
+    },
+    "default": "Predeterminada",
+    "synced": "Sincronizada",
+    "sharedWith": "Compartido con",
+    "private": "Privada",
+    "tasksActive": "tareas activas",
+    "addTask": "Añadir tarea",
+    "editList": "Editar lista",
+    "shareList": "Compartir lista",
+    "deleteList": "Eliminar lista",
+    "completed": "Completadas",
+    "emptyList": "Lista vacía",
+    "addFirstTask": "Añadir primera tarea",
+    "noLists": "No tienes listas",
+    "createFirstList": "Crea tu primera lista para empezar a organizarte",
+    "createNewList": "Organiza tus tareas en una nueva lista",
+    "task": "tarea",
+    "tasks": "tareas"
   }
 }

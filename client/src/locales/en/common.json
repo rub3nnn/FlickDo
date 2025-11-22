@@ -117,5 +117,50 @@
     "english": "English",
     "french": "French",
     "logout": "Logout"
+  },
+  "allTasks": {
+    "title": "All Lists",
+    "subtitle": "Manage and organize all your task lists in one place",
+    "newList": "New list",
+    "newTask": "New task",
+    "filters": {
+      "all": "All",
+      "work": "Work",
+      "classroom": "Classroom"
+    },
+    "stats": {
+      "lists": "Lists",
+      "active": "Active",
+      "completed": "Completed",
+      "urgent": "Urgent",
+      "shared": "Shared"
+    },
+    "sections": {
+      "active": "Active Tasks",
+      "completed": "Completed Tasks"
+    },
+    "showCompleted": "Show completed",
+    "hideCompleted": "Hide completed",
+    "emptyState": {
+      "title": "All done!",
+      "description": "You have no pending tasks. Great job!"
+    },
+    "default": "Default",
+    "synced": "Synced",
+    "sharedWith": "Shared with",
+    "private": "Private",
+    "tasksActive": "active tasks",
+    "addTask": "Add task",
+    "editList": "Edit list",
+    "shareList": "Share list",
+    "deleteList": "Delete list",
+    "completed": "Completed",
+    "emptyList": "Empty list",
+    "addFirstTask": "Add first task",
+    "noLists": "You have no lists",
+    "createFirstList": "Create your first list to get started",
+    "createNewList": "Organize your tasks in a new list",
+    "task": "task",
+    "tasks": "tasks"
   }
 }
