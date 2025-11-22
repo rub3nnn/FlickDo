@@ -2562,6 +2562,12 @@ body {
   min-width: 0;
 }
 
+.header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .all-tasks-title-compact-new {
   font-size: 20px;
   font-weight: 700;
@@ -2594,6 +2600,40 @@ body {
 .stat-divider-inline {
   color: var(--text-tertiary);
   font-weight: 300;
+}
+
+/* View Mode Toggle */
+.view-mode-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.view-toggle-btn {
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.view-toggle-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.view-toggle-btn.active {
+  background: var(--bg-primary);
+  color: var(--indigo);
+  box-shadow: 0 1px 3px var(--shadow);
 }
 
 .add-list-btn-compact-header {
@@ -2704,6 +2744,106 @@ body {
   gap: 20px;
   width: 100%;
   align-items: start;
+}
+
+/* ============================================
+   COLUMNS VIEW (HORIZONTAL SCROLL)
+   ============================================ */
+
+/* Columns Wrapper - Horizontal Scroll Layout */
+.task-lists-columns-wrapper {
+  margin-top: 0;
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.task-lists-columns {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 24px 20px 24px;
+}
+
+/* Custom Scrollbar for Columns View */
+.task-lists-columns::-webkit-scrollbar {
+  height: 12px;
+}
+
+.task-lists-columns::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0 24px;
+  border-radius: 10px;
+}
+
+.task-lists-columns::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 10px;
+  transition: background 0.2s ease, opacity 0.3s ease;
+  opacity: 0.5;
+}
+
+.task-lists-columns:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.task-lists-columns::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+  opacity: 1;
+}
+
+.task-lists-columns::-webkit-scrollbar-thumb:active {
+  background: var(--indigo);
+  opacity: 1;
+}
+
+/* Dark mode scrollbar for columns */
+.dark .task-lists-columns::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.dark .task-lists-columns:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.dark .task-lists-columns::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+  opacity: 1;
+}
+
+.dark .task-lists-columns::-webkit-scrollbar-thumb:active {
+  background: var(--indigo);
+  opacity: 1;
+}
+
+/* Firefox scrollbar support for columns */
+.task-lists-columns {
+  scrollbar-color: var(--text-tertiary) transparent;
+}
+
+.dark .task-lists-columns {
+  scrollbar-color: var(--text-tertiary) transparent;
+}
+
+/* Cards in column view - Fixed Width */
+.task-lists-columns .task-list-card-compact {
+  min-width: 380px;
+  max-width: 380px;
+  width: 380px;
+  height: 100%;
+  max-height: none;
+  flex-shrink: 0;
 }
 
 /* Compact List Card - Responsive Width */
@@ -3219,6 +3359,20 @@ body {
     gap: 8px;
   }
 
+  .header-right-actions {
+    width: 100%;
+    flex-direction: row;
+  }
+
+  .view-mode-toggle {
+    flex: 1;
+  }
+
+  .view-toggle-btn {
+    flex: 1;
+    padding: 8px;
+  }
+
   .all-tasks-title-compact-new {
     font-size: 18px;
   }
@@ -3228,7 +3382,7 @@ body {
   }
 
   .add-list-btn-compact-header {
-    width: 100%;
+    flex: 1;
     justify-content: center;
   }
 
@@ -3240,6 +3394,17 @@ body {
 
   .task-list-card-compact {
     max-height: 600px;
+  }
+
+  /* Columns view en mobile */
+  .task-lists-columns .task-list-card-compact {
+    min-width: 300px;
+    max-width: 300px;
+    width: 300px;
+  }
+
+  .task-lists-columns {
+    padding: 4px 16px 16px 16px;
   }
 }
 

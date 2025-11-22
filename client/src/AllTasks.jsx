@@ -20,6 +20,8 @@ import {
   Trash2,
   Share2,
   Edit3,
+  LayoutGrid,
+  Columns3,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -249,6 +251,16 @@ export default function AllTasks() {
     TASK_LISTS.reduce((acc, list) => ({ ...acc, [list.id]: true }), {})
   );
   const [editingTaskId, setEditingTaskId] = useState(null);
+  const [viewMode, setViewMode] = useState(() => {
+    // Cargar preferencia de vista desde localStorage
+    const savedView = localStorage.getItem("taskListViewMode");
+    return savedView || "grid"; // 'grid' o 'columns'
+  });
+
+  // Guardar preferencia de vista cuando cambie
+  useEffect(() => {
+    localStorage.setItem("taskListViewMode", viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     if (darkMode) {
@@ -368,15 +380,50 @@ export default function AllTasks() {
                     )}
                   </div>
                 </div>
-                <button className="add-list-btn-compact-header">
-                  <Plus className="icon-sm" />
-                  <span className="desktop-only">{t("allTasks.newList")}</span>
-                </button>
+                <div className="header-right-actions">
+                  {/* View Mode Toggle */}
+                  <div className="view-mode-toggle">
+                    <button
+                      className={`view-toggle-btn ${
+                        viewMode === "grid" ? "active" : ""
+                      }`}
+                      onClick={() => setViewMode("grid")}
+                      title={t("allTasks.gridView") || "Vista de cuadrícula"}
+                    >
+                      <LayoutGrid className="icon-sm" />
+                    </button>
+                    <button
+                      className={`view-toggle-btn ${
+                        viewMode === "columns" ? "active" : ""
+                      }`}
+                      onClick={() => setViewMode("columns")}
+                      title={t("allTasks.columnView") || "Vista de columnas"}
+                    >
+                      <Columns3 className="icon-sm" />
+                    </button>
+                  </div>
+                  <button className="add-list-btn-compact-header">
+                    <Plus className="icon-sm" />
+                    <span className="desktop-only">{t("allTasks.newList")}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Task Lists - Grid Layout */}
-              <div className="task-lists-grid-wrapper">
-                <div className="task-lists-grid">
+              {/* Task Lists - Dynamic Layout */}
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "task-lists-grid-wrapper"
+                    : "task-lists-columns-wrapper"
+                }
+              >
+                <div
+                  className={
+                    viewMode === "grid"
+                      ? "task-lists-grid"
+                      : "task-lists-columns"
+                  }
+                >
                   {taskLists.map((list) => {
                       const ListIcon = list.icon;
                       const activeTasksInList = list.tasks.filter(

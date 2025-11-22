@@ -123,6 +123,8 @@
     "subtitle": "Manage and organize all your task lists in one place",
     "newList": "New list",
     "newTask": "New task",
+    "gridView": "Grid view",
+    "columnView": "Column view",
     "filters": {
       "all": "All",
       "work": "Work",
