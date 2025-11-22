@@ -61,7 +61,19 @@
     "all": "All",
     "work": "Work",
     "classroom": "Classroom",
-    "today": "Today"
+    "today": "Today",
+    "urgent": "URGENT",
+    "taskTitle": "Task title",
+    "project": "Project",
+    "selectDate": "Select date",
+    "priority": "Priority",
+    "priorityLow": "Low",
+    "priorityMedium": "Medium",
+    "priorityHigh": "High",
+    "linkToClassroom": "Link to classroom",
+    "unlinkFromClassroom": "Unlink from classroom",
+    "delete": "Delete",
+    "duplicate": "Duplicate"
   },
   "widgets": {
     "eventsToday": "Events Today",
