@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "./components/Header/Header";
 import { TaskCard } from "./components/Tasks/TaskCard";
 import { useTranslation } from "react-i18next";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Plus,
   ChevronDown,
@@ -21,6 +20,8 @@ import {
   Trash2,
   Share2,
   Edit3,
+  LayoutGrid,
+  Columns3,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -250,7 +251,16 @@ export default function AllTasks() {
     TASK_LISTS.reduce((acc, list) => ({ ...acc, [list.id]: true }), {})
   );
   const [editingTaskId, setEditingTaskId] = useState(null);
-  const scrollContainerRef = useRef(null);
+  const [viewMode, setViewMode] = useState(() => {
+    // Cargar preferencia de vista desde localStorage
+    const savedView = localStorage.getItem("taskListViewMode");
+    return savedView || "grid"; // 'grid' o 'columns'
+  });
+
+  // Guardar preferencia de vista cuando cambie
+  useEffect(() => {
+    localStorage.setItem("taskListViewMode", viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     if (darkMode) {
@@ -370,17 +380,51 @@ export default function AllTasks() {
                     )}
                   </div>
                 </div>
-                <button className="add-list-btn-compact-header">
-                  <Plus className="icon-sm" />
-                  <span className="desktop-only">{t("allTasks.newList")}</span>
-                </button>
+                <div className="header-right-actions">
+                  {/* View Mode Toggle */}
+                  <div className="view-mode-toggle">
+                    <button
+                      className={`view-toggle-btn ${
+                        viewMode === "grid" ? "active" : ""
+                      }`}
+                      onClick={() => setViewMode("grid")}
+                      title={t("allTasks.gridView") || "Vista de cuadrícula"}
+                    >
+                      <LayoutGrid className="icon-sm" />
+                    </button>
+                    <button
+                      className={`view-toggle-btn ${
+                        viewMode === "columns" ? "active" : ""
+                      }`}
+                      onClick={() => setViewMode("columns")}
+                      title={t("allTasks.columnView") || "Vista de columnas"}
+                    >
+                      <Columns3 className="icon-sm" />
+                    </button>
+                  </div>
+                  <button className="add-list-btn-compact-header">
+                    <Plus className="icon-sm" />
+                    <span className="desktop-only">{t("allTasks.newList")}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Task Lists - Horizontal Scroll Layout */}
-              <div className="task-lists-horizontal-wrapper">
-                <div className="task-lists-scroll" ref={scrollContainerRef}>
-                  <div className="task-lists-inner">
-                    {taskLists.map((list) => {
+              {/* Task Lists - Dynamic Layout */}
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "task-lists-grid-wrapper"
+                    : "task-lists-columns-wrapper"
+                }
+              >
+                <div
+                  className={
+                    viewMode === "grid"
+                      ? "task-lists-grid"
+                      : "task-lists-columns"
+                  }
+                >
+                  {taskLists.map((list) => {
                       const ListIcon = list.icon;
                       const activeTasksInList = list.tasks.filter(
                         (t) => t.status !== "completed"
@@ -557,19 +601,18 @@ export default function AllTasks() {
                       );
                     })}
 
-                    {/* Add New List Card */}
-                    <div className="task-list-card-compact add-list-card">
-                      <div className="add-list-content">
-                        <div className="add-list-icon">
-                          <Plus className="icon-lg" />
-                        </div>
-                        <h3 className="add-list-title">
-                          {t("allTasks.newList")}
-                        </h3>
-                        <p className="add-list-description">
-                          {t("allTasks.createNewList")}
-                        </p>
+                  {/* Add New List Card */}
+                  <div className="task-list-card-compact add-list-card">
+                    <div className="add-list-content">
+                      <div className="add-list-icon">
+                        <Plus className="icon-lg" />
                       </div>
+                      <h3 className="add-list-title">
+                        {t("allTasks.newList")}
+                      </h3>
+                      <p className="add-list-description">
+                        {t("allTasks.createNewList")}
+                      </p>
                     </div>
                   </div>
                 </div>
