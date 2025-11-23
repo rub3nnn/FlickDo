@@ -40,17 +40,40 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/useAuth";
+import { TagCombobox } from "./TagCombobox";
+import { DateTimePicker } from "./DateTimePicker";
+import { ClassroomBadge } from "./ClassroomBadge";
 
 export const TaskCard = ({
   task,
   onToggle,
   isEditing,
+  isDeleting,
   onEditStart,
   onEditEnd,
   onSave,
+  onDelete,
+  availableTags = [], // Tags disponibles de la lista (para evitar múltiples peticiones)
+  onCreateTag, // Función para crear un nuevo tag
+  list, // La lista específica a la que pertenece esta tarea
 }) => {
   const { t, i18n } = useTranslation();
   const cardRef = useRef(null);
+  const { user } = useAuth();
+
+  // Función para obtener iniciales de un nombre
+  const getInitials = (firstName, lastName) => {
+    const first = firstName?.charAt(0)?.toUpperCase() || "";
+    const last = lastName?.charAt(0)?.toUpperCase() || "";
+    return `${first}${last}` || "??";
+  };
 
   // Mapear el idioma actual a los locales de date-fns
   const getDateLocale = () => {
@@ -68,18 +91,88 @@ export const TaskCard = ({
     }
   };
 
-  const [date, setDate] = useState(parseInitialDate(task.dueDate));
+  // Formatear fecha para mostrar
+  const formatDueDate = (dueDate, isAllDay) => {
+    if (!dueDate) return null;
+    const date = new Date(dueDate);
+    if (isAllDay) {
+      return format(date, "PP", { locale: getDateLocale() });
+    }
+    return format(date, "PPp", { locale: getDateLocale() });
+  };
+
+  // Calcular días restantes
+  const getDaysLeft = (dueDate) => {
+    if (!dueDate) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const isOverdue = () => {
+    if (!task.due_date || task.is_completed) return false;
+    const now = new Date();
+    const due = new Date(task.due_date);
+    return due < now;
+  };
+
+  const [date, setDate] = useState(parseInitialDate(task.due_date));
   const [editedTask, setEditedTask] = useState({
     title: task.title,
-    subject: task.subject || "",
-    teacher: task.teacher || "",
-    project: task.project || "",
-    dueDate: task.dueDate || "",
-    dueTime: task.dueTime || "",
-    priority: task.priority,
-    progress: task.progress || 0,
-    classroomLinked: task.classroomLinked || false,
+    description: task.description || "",
+    due_date: task.due_date || "",
+    is_all_day: task.is_all_day || false,
+    assignees: task.assignees?.map((a) => a.id) || [],
+    tags: task.tags?.map((t) => t.id) || [],
   });
+
+  // Sincronizar el estado editado cuando cambian las props de la tarea
+  useEffect(() => {
+    if (!isEditing) {
+      setEditedTask({
+        title: task.title,
+        description: task.description || "",
+        due_date: task.due_date || "",
+        is_all_day: task.is_all_day || false,
+        assignees: task.assignees?.map((a) => a.id) || [],
+        tags: task.tags?.map((t) => t.id) || [],
+      });
+      setDate(parseInitialDate(task.due_date));
+    }
+  }, [task, isEditing]);
+
+  // Función para comparar si los datos han cambiado
+  const hasChanges = () => {
+    const originalTags = task.tags?.map((t) => t.id) || [];
+    const editedTags = editedTask.tags || [];
+    const originalAssignees = task.assignees?.map((a) => a.id) || [];
+    const editedAssignees = editedTask.assignees || [];
+
+    // Comparar arrays de tags
+    const tagsChanged =
+      originalTags.length !== editedTags.length ||
+      !originalTags.every((tag) => editedTags.includes(tag));
+
+    // Comparar arrays de assignees
+    const assigneesChanged =
+      originalAssignees.length !== editedAssignees.length ||
+      !originalAssignees.every((assignee) =>
+        editedAssignees.includes(assignee)
+      );
+
+    return (
+      task.title !== editedTask.title ||
+      (task.description || "") !== editedTask.description ||
+      (task.due_date || "") !== editedTask.due_date ||
+      (task.is_all_day || false) !== editedTask.is_all_day ||
+      assigneesChanged ||
+      tagsChanged
+    );
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -123,8 +216,15 @@ export const TaskCard = ({
   };
 
   const handleSave = () => {
-    // Aquí se debería llamar a una función para guardar los cambios
-    console.log("Guardando cambios:", editedTask);
+    // Verificar si hay cambios antes de guardar
+    if (!hasChanges()) {
+      console.log("✅ No hay cambios en la tarea, no se actualiza");
+      onEditEnd();
+      return;
+    }
+
+    // Guardar los cambios
+    console.log("💾 Guardando cambios:", editedTask);
     if (onSave) {
       onSave(task.id, editedTask);
     }
@@ -135,12 +235,17 @@ export const TaskCard = ({
     setEditedTask((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleDateSelect = (selectedDate) => {
-    if (selectedDate) {
-      setDate(selectedDate);
-      const formattedDate = format(selectedDate, "yyyy-MM-dd");
-      handleChange("dueDate", formattedDate);
-    }
+  const handleDateChange = (newDate) => {
+    handleChange("due_date", newDate);
+  };
+
+  const handleAllDayChange = (newAllDay) => {
+    handleChange("is_all_day", newAllDay);
+  };
+
+  const handleDateClear = () => {
+    handleChange("due_date", null);
+    setDate(undefined);
   };
 
   const handleUnlinkClassroom = () => {
@@ -157,12 +262,24 @@ export const TaskCard = ({
     console.log("Abrir modal para vincular tarea de classroom");
   };
 
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(task.id);
+    }
+  };
+
   if (isEditing) {
     return (
-      <div ref={cardRef} className="task-card task-card-editing">
+      <div
+        ref={cardRef}
+        className={cn(
+          "task-card task-card-editing",
+          isDeleting && "task-card-deleting"
+        )}
+      >
         <div className="task-content">
           <button onClick={() => onToggle(task.id)} className="task-checkbox">
-            {task.status === "completed" ? (
+            {task.is_completed ? (
               <CheckCircle2 className="icon-md checked" />
             ) : (
               <Circle className="icon-md unchecked" />
@@ -179,135 +296,47 @@ export const TaskCard = ({
                 placeholder={t("tasks.taskTitle")}
                 autoFocus
               />
-              {editedTask.priority === "high" &&
-                task.status !== "completed" && (
-                  <div className="urgent-badge">
-                    <Flag className="icon-xs" />
-                    <span>{t("tasks.urgent")}</span>
-                  </div>
-                )}
+              {isOverdue() && (
+                <div className="urgent-badge">
+                  <Flag className="icon-xs" />
+                  <span>{t("tasks.overdue")}</span>
+                </div>
+              )}
             </div>
 
             <div className="task-meta task-meta-edit">
-              {editedTask.classroomLinked ? (
-                <>
-                  <span className="task-badge classroom">
-                    {editedTask.subject}
-                  </span>
-                  <span className="task-teacher">{editedTask.teacher}</span>
-                  <button
-                    onClick={handleUnlinkClassroom}
-                    className="task-link-btn"
-                    title={t("tasks.unlinkFromClassroom")}
-                  >
-                    <Unlink className="icon-xs" />
-                  </button>
-                </>
-              ) : task.type === "classroom" ? (
-                <>
-                  <button
-                    onClick={handleLinkClassroom}
-                    className="task-link-btn link"
-                    title={t("tasks.linkToClassroom")}
-                  >
-                    <LinkIcon className="icon-xs" />
-                    <span>{t("tasks.linkToClassroom")}</span>
-                  </button>
-                </>
-              ) : (
-                <Input
-                  type="text"
-                  value={editedTask.project}
-                  onChange={(e) => handleChange("project", e.target.value)}
-                  className="task-badge-input work"
-                  placeholder={t("tasks.project")}
+              {/* Badge del nombre de la lista */}
+              <span className="task-badge work">
+                {list?.title || t("tasks.personalTask")}
+              </span>
+
+              {/* Badge de Classroom si está vinculada */}
+              {task.classroom_integration && (
+                <ClassroomBadge
+                  classroomIntegration={task.classroom_integration}
+                  task={task}
                 />
               )}
 
-              <div className="task-due-edit">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "task-date-input justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                      size="sm"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? (
-                        format(date, "PPP", { locale: getDateLocale() })
-                      ) : (
-                        <span>{t("tasks.selectDate")}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={handleDateSelect}
-                      initialFocus
-                      locale={getDateLocale()}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Input
-                  type="time"
-                  value={editedTask.dueTime}
-                  onChange={(e) => handleChange("dueTime", e.target.value)}
-                  className="task-time-input"
+              {/* Selector de fecha y hora */}
+              <DateTimePicker
+                value={editedTask.due_date}
+                isAllDay={editedTask.is_all_day}
+                onChange={handleDateChange}
+                onAllDayChange={handleAllDayChange}
+                onClear={handleDateClear}
+              />
+
+              {/* Selector de tags - ahora en la misma línea */}
+              <div className="flex-1 min-w-[200px]">
+                <TagCombobox
+                  tags={availableTags}
+                  selectedTags={editedTask.tags}
+                  onTagsChange={(newTags) => handleChange("tags", newTags)}
+                  onCreateTag={onCreateTag}
                 />
               </div>
-
-              <Select
-                value={editedTask.priority}
-                onValueChange={(value) => handleChange("priority", value)}
-              >
-                <SelectTrigger className="task-priority-select" size="sm">
-                  <SelectValue placeholder={t("tasks.priority")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>{t("tasks.priority")}</SelectLabel>
-                    <SelectItem value="low">
-                      {t("tasks.priorityLow")}
-                    </SelectItem>
-                    <SelectItem value="medium">
-                      {t("tasks.priorityMedium")}
-                    </SelectItem>
-                    <SelectItem value="high">
-                      {t("tasks.priorityHigh")}
-                    </SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
             </div>
-
-            {task.status === "in-progress" && (
-              <div className="progress-wrapper-edit">
-                <div className="progress-bar-container">
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill"
-                      style={{ width: `${editedTask.progress}%` }}
-                    />
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={editedTask.progress}
-                    onChange={(e) =>
-                      handleChange("progress", parseInt(e.target.value))
-                    }
-                    className="task-progress-slider"
-                  />
-                </div>
-                <span className="progress-text">{editedTask.progress}%</span>
-              </div>
-            )}
           </div>
 
           <DropdownMenu>
@@ -318,7 +347,7 @@ export const TaskCard = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-30" align="end">
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDelete}>
                   <Trash />
                   {t("tasks.delete")}
                 </DropdownMenuItem>
@@ -335,10 +364,10 @@ export const TaskCard = ({
   }
 
   return (
-    <div className="task-card">
+    <div className={cn("task-card", isDeleting && "task-card-deleting")}>
       <div className="task-content">
         <button onClick={() => onToggle(task.id)} className="task-checkbox">
-          {task.status === "completed" ? (
+          {task.is_completed ? (
             <CheckCircle2 className="icon-md checked" />
           ) : (
             <Circle className="icon-md unchecked" />
@@ -347,46 +376,139 @@ export const TaskCard = ({
 
         <div className="task-details" onClick={handleEditClick}>
           <div className="task-title-row">
-            <h4
-              className={cn(
-                "task-title",
-                task.status === "completed" && "completed"
-              )}
-            >
+            <h4 className={cn("task-title", task.is_completed && "completed")}>
               {task.title}
             </h4>
-            {task.priority === "high" && task.status !== "completed" && (
+            {isOverdue() && (
               <div className="urgent-badge">
                 <Flag className="icon-xs" />
-                <span>{t("tasks.urgent")}</span>
+                <span>{t("tasks.overdue")}</span>
               </div>
             )}
           </div>
 
           <div className="task-meta">
-            {task.type === "classroom" ? (
-              <>
-                <span className="task-badge classroom">{task.subject}</span>
-                <span className="task-teacher">{task.teacher}</span>
-              </>
-            ) : (
-              <span className="task-badge work">{task.project}</span>
+            {/* Badge del nombre de la lista */}
+            <span className="task-badge work">
+              {list?.title || t("tasks.personalTask")}
+            </span>
+
+            {/* Badge de Classroom si está vinculada */}
+            {task.classroom_integration && (
+              <ClassroomBadge
+                classroomIntegration={task.classroom_integration}
+                task={task}
+              />
             )}
-            <div className="task-due">
-              <Clock className="icon-xs" />
-              <span>{task.dueDate}</span>
-            </div>
+
+            {task.due_date && (
+              <div className="task-due">
+                <Clock className="icon-xs" />
+                <span>{formatDueDate(task.due_date, task.is_all_day)}</span>
+              </div>
+            )}
+
+            {/* Mostrar tags si existen */}
+            {task.tags && task.tags.length > 0 && (
+              <div className="flex gap-1 flex-wrap items-center">
+                {task.tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="text-xs px-2 py-1 rounded-full inline-flex items-center gap-1 shrink-0"
+                    style={{
+                      backgroundColor: tag.color + "20",
+                      color: tag.color,
+                    }}
+                  >
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: tag.color }}
+                    />
+                    <span>{tag.name}</span>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          {task.status === "in-progress" && (
-            <div className="progress-wrapper">
-              <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${task.progress}%` }}
-                />
+          {/* Mostrar assignees si existen */}
+          {task.assignees && task.assignees.length > 0 && (
+            <div className="task-assignees">
+              <div className="task-assignees-stack">
+                {task.assignees.slice(0, 3).map((assignee) => (
+                  <Tooltip key={assignee.id}>
+                    <TooltipTrigger asChild>
+                      <Avatar
+                        data-slot="avatar"
+                        className="h-8 w-8 border-2 border-background"
+                      >
+                        <AvatarImage
+                          src={assignee.avatar_url}
+                          alt={`${assignee.first_name} ${assignee.last_name}`}
+                        />
+                        <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
+                          {getInitials(assignee.first_name, assignee.last_name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        {assignee.id === user?.id
+                          ? t("tasks.you")
+                          : `${assignee.first_name} ${assignee.last_name}`}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+                {task.assignees.length > 3 && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Avatar
+                        data-slot="avatar"
+                        className="task-assignees-more h-8 w-8 border-2 border-background"
+                      >
+                        <AvatarFallback className="text-xs font-semibold">
+                          +{task.assignees.length - 3}
+                        </AvatarFallback>
+                      </Avatar>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64" align="start">
+                      <div className="task-assignees-list">
+                        <p className="task-assignees-list-title">
+                          {t("tasks.assignedTo")}
+                        </p>
+                        {task.assignees.map((assignee) => (
+                          <div
+                            key={assignee.id}
+                            className="task-assignees-list-item"
+                          >
+                            <Avatar
+                              data-slot="avatar"
+                              className="task-assignees-list-avatar h-8 w-8"
+                            >
+                              <AvatarImage
+                                src={assignee.avatar_url}
+                                alt={`${assignee.first_name} ${assignee.last_name}`}
+                              />
+                              <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
+                                {getInitials(
+                                  assignee.first_name,
+                                  assignee.last_name
+                                )}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="task-assignees-list-name">
+                              {assignee.id === user?.id
+                                ? t("tasks.you")
+                                : `${assignee.first_name} ${assignee.last_name}`}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
-              <span className="progress-text">{task.progress}%</span>
             </div>
           )}
         </div>
@@ -399,7 +521,7 @@ export const TaskCard = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-30" align="end">
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDelete}>
                 <Trash />
                 {t("tasks.delete")}
               </DropdownMenuItem>

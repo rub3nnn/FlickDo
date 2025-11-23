@@ -79,9 +79,12 @@
     "classroom": "Classroom",
     "today": "Hoy",
     "urgent": "URGENTE",
+    "overdue": "RETRASADO",
+    "selectList": "Selecciona una lista",
     "taskTitle": "Título de la tarea",
     "project": "Proyecto",
     "selectDate": "Selecciona fecha",
+    "allDay": "Día completo",
     "priority": "Prioridad",
     "priorityLow": "Baja",
     "priorityMedium": "Media",
@@ -89,7 +92,27 @@
     "linkToClassroom": "Vincular a classroom",
     "unlinkFromClassroom": "Desvincular de classroom",
     "delete": "Eliminar",
-    "duplicate": "Duplicar"
+    "duplicate": "Duplicar",
+    "deleted": "Tarea eliminada",
+    "errorDeleting": "Error al eliminar la tarea",
+    "errorUpdating": "Error al actualizar la tarea",
+    "errorCreating": "Error al crear la tarea",
+    "errorToggling": "Error al cambiar el estado de la tarea",
+    "undo": "Deshacer",
+    "restored": "Tarea restaurada",
+    "personalTask": "Tarea personal",
+    "assignedTo": "Asignado a",
+    "you": "Tú",
+    "classroomTask": "Tarea de Classroom",
+    "linkedToClassroom": "Vinculada a Google Classroom",
+    "courseId": "ID del curso",
+    "description": "Descripción",
+    "dueDate": "Fecha de entrega",
+    "classroomId": "ID de Classroom",
+    "lastSynced": "Última sincronización",
+    "openInClassroom": "Abrir en Classroom",
+    "noDate": "Sin fecha",
+    "invalidDate": "Fecha inválida"
   },
   "widgets": {
     "eventsToday": "Eventos Hoy",
@@ -164,5 +187,11 @@
     "createNewList": "Organiza tus tareas en una nueva lista",
     "task": "tarea",
     "tasks": "tareas"
+  },
+  "common": {
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "close": "Cerrar"
   }
 }

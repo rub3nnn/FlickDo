@@ -256,17 +256,18 @@ const getCurrentUser = async (req, res, next) => {
       });
     }
 
-    console.log(userId);
-
     // Obtener perfil del usuario
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .maybeSingle(); // Usa maybeSingle() para evitar error 406
+      .single(); // Cambiar a single() para ver errores reales
 
     if (profileError) {
       console.error("Error obteniendo perfil:", profileError);
+      console.error("Error code:", profileError.code);
+      console.error("Error details:", profileError.details);
+      console.error("Error hint:", profileError.hint);
     }
 
     res.json({

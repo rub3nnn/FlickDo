@@ -5,7 +5,7 @@ const config = {
   nodeEnv: process.env.NODE_ENV || "development",
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
   jwt: {
-    secret: process.env.JWT_SECRET || "change-this-secret-in-production",
+    secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
   supabase: {

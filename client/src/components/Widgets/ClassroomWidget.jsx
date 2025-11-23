@@ -4,6 +4,19 @@ import { GraduationCap, ExternalLink } from "lucide-react";
 
 export const ClassroomWidget = ({ classroomTasks }) => {
   const { t } = useTranslation();
+
+  // Calcular días restantes
+  const getDaysLeft = (dueDate) => {
+    if (!dueDate) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   return (
     <div className="widget classroom-widget">
       <div className="widget-header">
@@ -16,21 +29,28 @@ export const ClassroomWidget = ({ classroomTasks }) => {
         <span className="classroom-badge">{classroomTasks.length}</span>
       </div>
       <div className="classroom-list">
-        {classroomTasks.slice(0, 4).map((task) => (
-          <div key={task.id} className="classroom-card">
-            <p className="classroom-task-title">{task.title}</p>
-            <div className="classroom-task-footer">
-              <span className="classroom-subject">{task.subject}</span>
-              <span
-                className={`classroom-days ${
-                  task.daysLeft === 0 ? "urgent" : ""
-                }`}
-              >
-                {task.daysLeft === 0 ? t("tasks.today") : `${task.daysLeft}d`}
-              </span>
+        {classroomTasks.slice(0, 4).map((task) => {
+          const daysLeft = getDaysLeft(task.due_date);
+          return (
+            <div key={task.id} className="classroom-card">
+              <p className="classroom-task-title">{task.title}</p>
+              <div className="classroom-task-footer">
+                <span className="classroom-subject">
+                  {task.classroom_integration?.course_id || "Classroom"}
+                </span>
+                {daysLeft !== null && (
+                  <span
+                    className={`classroom-days ${
+                      daysLeft === 0 ? "urgent" : ""
+                    }`}
+                  >
+                    {daysLeft === 0 ? t("tasks.today") : `${daysLeft}d`}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <button className="widget-button primary">
         <ExternalLink className="icon-sm" />

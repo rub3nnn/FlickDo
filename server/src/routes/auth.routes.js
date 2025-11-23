@@ -3,26 +3,25 @@ const router = express.Router();
 const authController = require("../controllers/auth.controller");
 const { verifyToken } = require("../middleware/auth.middleware");
 const { validate } = require("../middleware/validation.middleware");
-const {
-  registerValidation,
-  loginValidation,
-  resetPasswordValidation,
-  updatePasswordValidation,
-} = require("../validators/auth.validator");
+const { authValidators } = require("../validators/auth.validator");
 
 /**
  * @route   POST /api/auth/register
  * @desc    Registrar nuevo usuario
  * @access  Public
  */
-router.post("/register", registerValidation, validate, authController.register);
+router.post(
+  "/register",
+  validate(authValidators.register),
+  authController.register
+);
 
 /**
  * @route   POST /api/auth/login
  * @desc    Login de usuario
  * @access  Public
  */
-router.post("/login", loginValidation, validate, authController.login);
+router.post("/login", validate(authValidators.login), authController.login);
 
 /**
  * @route   POST /api/auth/oauth/:provider
@@ -52,8 +51,7 @@ router.post("/logout", verifyToken, authController.logout);
  */
 router.post(
   "/reset-password",
-  resetPasswordValidation,
-  validate,
+  validate(authValidators.resetPassword),
   authController.resetPassword
 );
 
@@ -65,8 +63,7 @@ router.post(
 router.put(
   "/update-password",
   verifyToken,
-  updatePasswordValidation,
-  validate,
+  validate(authValidators.updatePassword),
   authController.updatePassword
 );
 

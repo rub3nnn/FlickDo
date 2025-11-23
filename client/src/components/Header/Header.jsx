@@ -29,7 +29,10 @@ export const Header = ({ onToggleSidebar }) => {
           </button>
 
           <div>
-            <h1 className="header-title">
+            <h1
+              className="header-title"
+              style={profile?.first_name ? { opacity: 1 } : { opacity: 0 }}
+            >
               {t("header.greeting", { name: profile?.first_name })}
             </h1>
             <p className="header-subtitle">{capitalizeFirst(dateString)}</p>
