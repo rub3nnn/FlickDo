@@ -386,6 +386,15 @@ body {
   font-size: 14px;
   font-weight: 600;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .user-info {
@@ -2849,7 +2858,7 @@ body {
 /* Compact List Card - Responsive Width */
 .task-list-card-compact {
   width: 100%;
-  max-height: 700px;
+  height: 700px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 14px;
@@ -3091,6 +3100,8 @@ body {
 
 /* Lista de tareas completadas con scroll */
 .completed-tasks-list-expanded {
+  display: grid;
+  gap: 8px;
   max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;

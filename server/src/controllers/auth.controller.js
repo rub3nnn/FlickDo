@@ -89,10 +89,10 @@ const login = async (req, res, next) => {
 
     // Obtener perfil del usuario
     const { data: profile, error: profileError } = await supabase
-      .from("users")
+      .from("profiles")
       .select("*")
       .eq("id", authData.user.id)
-      .single();
+      .maybeSingle(); // Usa maybeSingle() en lugar de single() para evitar errores si no existe
 
     if (profileError) {
       console.error("Error obteniendo perfil:", profileError);
@@ -256,12 +256,14 @@ const getCurrentUser = async (req, res, next) => {
       });
     }
 
+    console.log(userId);
+
     // Obtener perfil del usuario
     const { data: profile, error: profileError } = await supabase
-      .from("users")
+      .from("profiles")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle(); // Usa maybeSingle() para evitar error 406
 
     if (profileError) {
       console.error("Error obteniendo perfil:", profileError);
@@ -321,10 +323,10 @@ const verifyEmail = async (req, res, next) => {
 
     // Obtener perfil del usuario
     const { data: profile, error: profileError } = await supabase
-      .from("users")
+      .from("profiles")
       .select("*")
       .eq("id", data.user.id)
-      .single();
+      .maybeSingle(); // Usa maybeSingle() para evitar error 406
 
     if (profileError) {
       console.error("Error obteniendo perfil:", profileError);
@@ -383,22 +385,22 @@ const handleOAuthCallback = async (req, res, next) => {
 
     // Obtener o crear el perfil del usuario
     let { data: profile, error: profileError } = await supabase
-      .from("users")
+      .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle(); // Usa maybeSingle() para evitar error 406
 
     // Si no existe el perfil, se creará automáticamente por el trigger
     // Pero si aún no se ha creado, esperar un momento y reintentar
-    if (profileError && profileError.code === "PGRST116") {
+    if (!profile && (!profileError || profileError.code === "PGRST116")) {
       // Esperar 500ms para que el trigger se ejecute
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const { data: retryProfile } = await supabase
-        .from("users")
+        .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle(); // Usa maybeSingle() para evitar error 406
 
       profile = retryProfile;
     }

@@ -14,6 +14,15 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     persistSession: false,
     detectSessionInUrl: false,
   },
+  global: {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  },
+  db: {
+    schema: "public",
+  },
 });
 
 module.exports = { supabase };

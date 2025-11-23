@@ -46,7 +46,17 @@ export const UserMenu = ({ darkMode, onToggleDarkMode }) => {
           <button className="user-menu-button">
             {isInitialized && user ? (
               <>
-                <div className="user-avatar">{getUserInitials()}</div>
+                <div className="user-avatar">
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={`${profile?.first_name} ${profile?.last_name}`}
+                      className="user-avatar-img"
+                    />
+                  ) : (
+                    getUserInitials()
+                  )}
+                </div>
                 <div className="user-info">
                   <p className="user-name">
                     {profile?.first_name} {profile?.last_name}
