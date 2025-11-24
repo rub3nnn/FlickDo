@@ -79,9 +79,12 @@
     "classroom": "Classroom",
     "today": "Today",
     "urgent": "URGENT",
+    "overdue": "OVERDUE",
+    "selectList": "Select a list",
     "taskTitle": "Task title",
     "project": "Project",
     "selectDate": "Select date",
+    "allDay": "All day",
     "priority": "Priority",
     "priorityLow": "Low",
     "priorityMedium": "Medium",
@@ -89,7 +92,27 @@
     "linkToClassroom": "Link to classroom",
     "unlinkFromClassroom": "Unlink from classroom",
     "delete": "Delete",
-    "duplicate": "Duplicate"
+    "duplicate": "Duplicate",
+    "deleted": "Task deleted",
+    "errorDeleting": "Error deleting task",
+    "errorUpdating": "Error updating task",
+    "errorCreating": "Error creating task",
+    "errorToggling": "Error toggling task status",
+    "undo": "Undo",
+    "restored": "Task restored",
+    "personalTask": "Personal task",
+    "assignedTo": "Assigned to",
+    "you": "You",
+    "classroomTask": "Classroom Task",
+    "linkedToClassroom": "Linked to Google Classroom",
+    "courseId": "Course ID",
+    "description": "Description",
+    "dueDate": "Due date",
+    "classroomId": "Classroom ID",
+    "lastSynced": "Last synced",
+    "openInClassroom": "Open in Classroom",
+    "noDate": "No date",
+    "invalidDate": "Invalid date"
   },
   "widgets": {
     "eventsToday": "Events Today",
@@ -119,7 +142,7 @@
     "logout": "Logout"
   },
   "allTasks": {
-    "title": "All Lists",
+    "title": "Your Lists",
     "subtitle": "Manage and organize all your task lists in one place",
     "newList": "New list",
     "newTask": "New task",
@@ -164,5 +187,11 @@
     "createNewList": "Organize your tasks in a new list",
     "task": "task",
     "tasks": "tasks"
+  },
+  "common": {
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close"
   }
 }

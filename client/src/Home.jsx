@@ -1,19 +1,26 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { Header } from "./components/Header/Header";
 import { StatsGrid } from "./components/Stats/StatsGrid";
 import { TasksList } from "./components/Tasks/TasksList";
+import { TasksListSkeleton } from "./components/Tasks/TasksListSkeleton";
 import { EventsWidget } from "./components/Widgets/EventsWidget";
 import { ClassroomWidget } from "./components/Widgets/ClassroomWidget";
 import { QuickActions } from "./components/Widgets/QuickActions";
-import { TASKS, EVENTS } from "./data/constants";
+import { WidgetsSkeleton } from "./components/Widgets/WidgetsSkeleton";
+import { useTasks } from "./contexts/TasksContext";
+import { EVENTS } from "./data/constants";
 import "./styles.css";
 
 export default function Home() {
+  const { t } = useTranslation();
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [tasks, setTasks] = useState(TASKS);
   const [filter, setFilter] = useState("all");
+
+  // Obtener todas las tareas del usuario desde el contexto global
+  const { tasks, lists, loading, error, updateTask, deleteTask } = useTasks();
 
   useEffect(() => {
     if (darkMode) {
@@ -23,22 +30,9 @@ export default function Home() {
     }
   }, [darkMode]);
 
-  const toggleTask = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              status: task.status === "completed" ? "todo" : "completed",
-              progress: task.status === "completed" ? 0 : 100,
-            }
-          : task
-      )
-    );
-  };
-
+  // Filtrar tareas de classroom que no estén completadas
   const classroomTasks = tasks.filter(
-    (t) => t.type === "classroom" && t.status !== "completed"
+    (t) => t.classroom_integration && !t.is_completed
   );
 
   return (
@@ -48,22 +42,51 @@ export default function Home() {
 
         <div className="content-area">
           <div className="content-wrapper">
-            <StatsGrid tasks={tasks} />
-
-            <div className="main-grid">
-              <TasksList
-                tasks={tasks}
-                filter={filter}
-                onFilterChange={setFilter}
-                onToggleTask={toggleTask}
-              />
-
-              <div className="sidebar-column">
-                <EventsWidget events={EVENTS} />
-                <ClassroomWidget classroomTasks={classroomTasks} />
-                <QuickActions />
+            {error && (
+              <div
+                className="error-message"
+                style={{
+                  padding: "1rem",
+                  marginBottom: "1rem",
+                  backgroundColor: "#fee",
+                  borderRadius: "8px",
+                  color: "#c33",
+                }}
+              >
+                Error cargando tareas: {error}
               </div>
-            </div>
+            )}
+
+            {loading ? (
+              <>
+                <StatsGrid loading />
+                <div className="main-grid">
+                  <TasksListSkeleton />
+                  <WidgetsSkeleton />
+                </div>
+              </>
+            ) : (
+              <>
+                <StatsGrid tasks={tasks} />
+
+                <div className="main-grid">
+                  <TasksList
+                    tasks={tasks}
+                    lists={lists}
+                    filter={filter}
+                    onFilterChange={setFilter}
+                    onUpdateTask={updateTask}
+                    onDeleteTask={deleteTask}
+                  />
+
+                  <div className="sidebar-column">
+                    <EventsWidget events={EVENTS} />
+                    <ClassroomWidget classroomTasks={classroomTasks} />
+                    <QuickActions />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>

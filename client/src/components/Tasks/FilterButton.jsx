@@ -14,7 +14,7 @@ export const FilterButton = ({
       className={`filter-button ${active ? "active" : ""}`}
     >
       {Icon && <Icon className="icon-sm filter-icon" />}
-      {label}
+      <span className="filter-label">{label}</span>
       <span className="filter-count">{count}</span>
     </button>
   );

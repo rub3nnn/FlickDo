@@ -4,7 +4,7 @@ const config = require("../config");
 /**
  * Middleware para verificar el token JWT
  */
-const verifyToken = (req, res, next) => {
+const authenticate = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -56,4 +56,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-module.exports = { verifyToken };
+// Alias para compatibilidad
+const verifyToken = authenticate;
+
+module.exports = { authenticate, verifyToken };

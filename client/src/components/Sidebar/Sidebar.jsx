@@ -22,26 +22,28 @@ export const Sidebar = ({}) => {
       label: t("sidebar.dashboard"),
       id: "dashboard",
       path: "/",
+      active: true,
     },
     {
       icon: Inbox,
       label: t("sidebar.allTasks"),
       id: "tasks",
       path: "/all-tasks",
-      badge: 2,
+      active: true,
     },
     {
       icon: Calendar,
       label: t("sidebar.calendar"),
       id: "calendar",
       path: "/calendar",
+      active: false,
     },
     {
       icon: GraduationCap,
       label: t("sidebar.googleClassroom"),
       id: "classroom",
       path: "/classroom",
-      badge: 3,
+      active: false,
     },
   ];
 
@@ -65,6 +67,7 @@ export const Sidebar = ({}) => {
                 badge={item.badge}
                 active={location.pathname === item.path}
                 onClick={() => navigate(item.path)}
+                disabled={!item.active}
               />
             ))}
 
