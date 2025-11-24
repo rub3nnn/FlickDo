@@ -7,6 +7,7 @@ import AllTasks from "./AllTasks";
 import { Sidebar } from "@/components/Sidebar/Sidebar";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { TasksProvider } from "@/contexts/TasksContext";
 
 function App() {
   const location = useLocation();
@@ -19,16 +20,18 @@ function App() {
   return (
     <>
       {!shouldRedirect && shouldShowSidebar ? (
-        <SidebarProvider>
-          <Sidebar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/all-tasks" element={<AllTasks />} />
-            <Route path="/login" element={<Navigate to="/" replace />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </SidebarProvider>
+        <TasksProvider>
+          <SidebarProvider>
+            <Sidebar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/all-tasks" element={<AllTasks />} />
+              <Route path="/login" element={<Navigate to="/" replace />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </SidebarProvider>
+        </TasksProvider>
       ) : (
         <Routes>
           <Route path="/login" element={<Login />} />

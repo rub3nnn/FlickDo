@@ -4,13 +4,16 @@ import { toast } from "sonner";
 import { TaskCard } from "./TaskCard";
 import { TasksFilter } from "./TasksFilter";
 import { tagsApi } from "@/services/api";
+import {
+  prepareTaskForBackend,
+  prepareTaskForOptimisticUpdate,
+} from "@/lib/taskUtils";
 
 export const TasksList = ({
   tasks,
   lists = [],
   filter,
   onFilterChange,
-  onToggleTask,
   onUpdateTask,
   onDeleteTask,
 }) => {
@@ -97,38 +100,20 @@ export const TasksList = ({
     const originalTask = tasks.find((t) => t.id === taskId);
     if (!originalTask) return;
 
-    // Preparar datos para el optimistic update (con objetos completos)
-    const optimisticData = { ...editedData };
+    // Obtener tags disponibles para esta tarea
+    const taskListId = originalTask.list_id;
+    const availableTags = listTagsMap.get(taskListId) || [];
 
-    // Preparar datos para enviar al backend (solo IDs)
-    const backendData = { ...editedData };
+    // Usar utilidades para preparar datos de forma consistente
+    const optimisticData = prepareTaskForOptimisticUpdate(
+      editedData,
+      originalTask,
+      availableTags
+    );
+    const backendData = prepareTaskForBackend(editedData);
 
-    if (editedData.tags && Array.isArray(editedData.tags)) {
-      // Para optimistic update: objetos completos
-      const taskListId = originalTask.list_id;
-      const availableTags = listTagsMap.get(taskListId) || [];
-      optimisticData.tags = availableTags.filter((tag) =>
-        editedData.tags.includes(tag.id)
-      );
-
-      // Para backend: solo IDs
-      backendData.tags = editedData.tags;
-    }
-
-    if (editedData.assignees && Array.isArray(editedData.assignees)) {
-      // Para optimistic update: objetos completos
-      optimisticData.assignees =
-        originalTask.assignees?.filter((assignee) =>
-          editedData.assignees.includes(assignee.id)
-        ) || [];
-
-      // Para backend: solo IDs
-      backendData.assignees = editedData.assignees;
-    }
-
-    // Actualizar inmediatamente con objetos completos
+    // Actualizar con datos normalizados
     if (onUpdateTask) {
-      // Primero actualizamos localmente con optimisticData
       await onUpdateTask(taskId, optimisticData, backendData);
     }
     handleEditEnd();
@@ -307,7 +292,6 @@ export const TasksList = ({
               <TaskCard
                 key={task.id}
                 task={task}
-                onToggle={onToggleTask}
                 isEditing={editingTaskId === task.id}
                 isDeleting={deletingTaskId === task.id}
                 onEditStart={handleEditStart}
@@ -328,7 +312,9 @@ export const TasksList = ({
           <>
             <div className="completed-tasks-separator">
               <span className="separator-line"></span>
-              <span className="separator-text">{t("tasks.completed")}</span>
+              <span className="separator-text">
+                {t("allTasks.sections.completed")}
+              </span>
               <span className="separator-line"></span>
             </div>
             {filteredTasks
@@ -342,7 +328,6 @@ export const TasksList = ({
                   <TaskCard
                     key={task.id}
                     task={task}
-                    onToggle={onToggleTask}
                     isEditing={editingTaskId === task.id}
                     isDeleting={deletingTaskId === task.id}
                     onEditStart={handleEditStart}

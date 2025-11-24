@@ -142,7 +142,7 @@
     "logout": "Cerrar sesión"
   },
   "allTasks": {
-    "title": "Todas las Listas",
+    "title": "Tus listas",
     "subtitle": "Gestiona y organiza todas tus listas de tareas en un solo lugar",
     "newList": "Nueva lista",
     "newTask": "Nueva tarea",

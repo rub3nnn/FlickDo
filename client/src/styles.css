@@ -292,6 +292,12 @@ body {
   color: var(--indigo);
 }
 
+.nav-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .nav-label {
   flex: 1;
   text-align: left;
@@ -1203,8 +1209,25 @@ body {
   transform: scale(1.1);
 }
 
+.task-checkbox:active {
+  transform: scale(0.95);
+}
+
 .task-checkbox .checked {
   color: var(--indigo);
+  animation: checkBounce 0.3s ease-out;
+}
+
+@keyframes checkBounce {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .task-checkbox .unchecked {
@@ -2184,6 +2207,73 @@ body {
     opacity: 0;
     transform: scale(0.95);
   }
+}
+
+/* Task Card Completing Animation */
+.task-card-completing {
+  animation: completeTask 0.8s ease-out forwards;
+  pointer-events: none;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes completeTask {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.03) translateY(-2px);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1.01) translateY(0);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(0.97) translateY(4px);
+    opacity: 0.5;
+  }
+}
+
+/* Efecto de brillo cuando se completa */
+.task-card-completing::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(79, 70, 229, 0.3),
+    rgba(16, 185, 129, 0.3),
+    transparent
+  );
+  animation: shine 0.8s ease-out;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 12px;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Task Card Completed State */
+.task-card-completed {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.task-card-completed:hover {
+  opacity: 0.9;
 }
 
 /* Task Card Syncing State */

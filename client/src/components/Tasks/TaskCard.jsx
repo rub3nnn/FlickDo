@@ -10,11 +10,13 @@ import {
   CalendarIcon,
   Trash,
   Copy,
+  Users,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
+import { useTaskEditor } from "@/hooks/useTaskEditor";
 import {
   Select,
   SelectContent,
@@ -39,6 +41,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -47,26 +50,62 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { useTasks as useTasksContext } from "@/contexts/TasksContext";
 import { TagCombobox } from "./TagCombobox";
 import { DateTimePicker } from "./DateTimePicker";
 import { ClassroomBadge } from "./ClassroomBadge";
+import { toast } from "sonner";
+import {
+  prepareTaskForBackend,
+  prepareTaskForOptimisticUpdate,
+} from "@/lib/taskUtils";
 
 export const TaskCard = ({
   task,
-  onToggle,
-  isEditing,
-  isDeleting,
-  onEditStart,
-  onEditEnd,
-  onSave,
-  onDelete,
-  availableTags = [], // Tags disponibles de la lista (para evitar múltiples peticiones)
-  onCreateTag, // Función para crear un nuevo tag
-  list, // La lista específica a la que pertenece esta tarea
+  // Props opcionales para compatibilidad hacia atrás
+  onToggle: externalOnToggle,
+  isEditing: externalIsEditing,
+  isDeleting: externalIsDeleting,
+  onEditStart: externalOnEditStart,
+  onEditEnd: externalOnEditEnd,
+  onSave: externalOnSave,
+  onDelete: externalOnDelete,
+  availableTags: externalAvailableTags,
+  onCreateTag: externalOnCreateTag,
+  list: externalList,
+  hideListBadge = false,
 }) => {
   const { t, i18n } = useTranslation();
   const cardRef = useRef(null);
   const { user } = useAuth();
+
+  // Obtener funciones y datos del contexto
+  const {
+    updateTask,
+    deleteTask,
+    toggleTaskCompleted,
+    lists,
+    createTag: contextCreateTag,
+  } = useTasksContext();
+
+  // Estado interno para gestión independiente
+  const [internalIsEditing, setInternalIsEditing] = useState(false);
+  const [internalIsDeleting, setInternalIsDeleting] = useState(false);
+
+  // Estados para animaciones y transiciones
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [undoTimeoutId, setUndoTimeoutId] = useState(null);
+
+  // Usar estado externo si está disponible, sino usar interno
+  const isEditing =
+    externalIsEditing !== undefined ? externalIsEditing : internalIsEditing;
+  const isDeleting =
+    externalIsDeleting !== undefined ? externalIsDeleting : internalIsDeleting;
+
+  // Obtener la lista y tags del contexto si no se proporcionan externamente
+  const list = externalList || lists.find((l) => l.id === task.list_id);
+  const availableTags = externalAvailableTags || list?.tags || [];
 
   // Función para obtener iniciales de un nombre
   const getInitials = (firstName, lastName) => {
@@ -120,59 +159,47 @@ export const TaskCard = ({
     return due < now;
   };
 
-  const [date, setDate] = useState(parseInitialDate(task.due_date));
-  const [editedTask, setEditedTask] = useState({
-    title: task.title,
-    description: task.description || "",
-    due_date: task.due_date || "",
-    is_all_day: task.is_all_day || false,
-    assignees: task.assignees?.map((a) => a.id) || [],
-    tags: task.tags?.map((t) => t.id) || [],
-  });
-
-  // Sincronizar el estado editado cuando cambian las props de la tarea
-  useEffect(() => {
-    if (!isEditing) {
-      setEditedTask({
-        title: task.title,
-        description: task.description || "",
-        due_date: task.due_date || "",
-        is_all_day: task.is_all_day || false,
-        assignees: task.assignees?.map((a) => a.id) || [],
-        tags: task.tags?.map((t) => t.id) || [],
-      });
-      setDate(parseInitialDate(task.due_date));
-    }
-  }, [task, isEditing]);
-
-  // Función para comparar si los datos han cambiado
-  const hasChanges = () => {
-    const originalTags = task.tags?.map((t) => t.id) || [];
-    const editedTags = editedTask.tags || [];
-    const originalAssignees = task.assignees?.map((a) => a.id) || [];
-    const editedAssignees = editedTask.assignees || [];
-
-    // Comparar arrays de tags
-    const tagsChanged =
-      originalTags.length !== editedTags.length ||
-      !originalTags.every((tag) => editedTags.includes(tag));
-
-    // Comparar arrays de assignees
-    const assigneesChanged =
-      originalAssignees.length !== editedAssignees.length ||
-      !originalAssignees.every((assignee) =>
-        editedAssignees.includes(assignee)
+  // Función para guardar cambios (compatible con uso externo e interno)
+  const handleSaveTask = async (taskId, editedData) => {
+    if (externalOnSave) {
+      // Si hay callback externo, usarlo
+      await externalOnSave(taskId, editedData);
+    } else {
+      // Sino, gestionar internamente
+      const optimisticData = prepareTaskForOptimisticUpdate(
+        editedData,
+        task,
+        availableTags
       );
+      const backendData = prepareTaskForBackend(editedData);
+      await updateTask(taskId, optimisticData, backendData);
+    }
 
-    return (
-      task.title !== editedTask.title ||
-      (task.description || "") !== editedTask.description ||
-      (task.due_date || "") !== editedTask.due_date ||
-      (task.is_all_day || false) !== editedTask.is_all_day ||
-      assigneesChanged ||
-      tagsChanged
-    );
+    // Llamar a onEditEnd si existe, sino usar interno
+    if (externalOnEditEnd) {
+      externalOnEditEnd();
+    } else {
+      setInternalIsEditing(false);
+    }
   };
+
+  // Usar el hook de edición de tareas
+  const {
+    editedTask,
+    date,
+    setDate,
+    hasChanges,
+    handleSave: handleSaveFromHook,
+    handleChange,
+    handleDateChange,
+    handleAllDayChange,
+    handleDateClear,
+  } = useTaskEditor(
+    task,
+    isEditing,
+    handleSaveTask,
+    externalOnEditEnd || (() => setInternalIsEditing(false))
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -194,7 +221,7 @@ export const TaskCard = ({
           event.target.closest('[data-slot="calendar"]');
 
         if (!isClickInPopover) {
-          handleSave();
+          handleSaveFromHook();
         }
       }
     };
@@ -206,46 +233,26 @@ export const TaskCard = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isEditing, editedTask]);
+  }, [isEditing, editedTask, handleSaveFromHook]);
+
+  // Limpiar timeouts al desmontar
+  useEffect(() => {
+    return () => {
+      if (undoTimeoutId) {
+        clearTimeout(undoTimeoutId);
+      }
+    };
+  }, [undoTimeoutId]);
 
   const handleEditClick = (e) => {
     if (e.target.closest(".task-checkbox") || e.target.closest(".task-menu")) {
       return;
     }
-    onEditStart(task.id);
-  };
-
-  const handleSave = () => {
-    // Verificar si hay cambios antes de guardar
-    if (!hasChanges()) {
-      console.log("✅ No hay cambios en la tarea, no se actualiza");
-      onEditEnd();
-      return;
+    if (externalOnEditStart) {
+      externalOnEditStart(task.id);
+    } else {
+      setInternalIsEditing(true);
     }
-
-    // Guardar los cambios
-    console.log("💾 Guardando cambios:", editedTask);
-    if (onSave) {
-      onSave(task.id, editedTask);
-    }
-    onEditEnd();
-  };
-
-  const handleChange = (field, value) => {
-    setEditedTask((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleDateChange = (newDate) => {
-    handleChange("due_date", newDate);
-  };
-
-  const handleAllDayChange = (newAllDay) => {
-    handleChange("is_all_day", newAllDay);
-  };
-
-  const handleDateClear = () => {
-    handleChange("due_date", null);
-    setDate(undefined);
   };
 
   const handleUnlinkClassroom = () => {
@@ -262,11 +269,117 @@ export const TaskCard = ({
     console.log("Abrir modal para vincular tarea de classroom");
   };
 
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete(task.id);
+  const handleDelete = async () => {
+    if (externalOnDelete) {
+      // Usar callback externo si existe
+      externalOnDelete(task.id);
+    } else {
+      // Gestión interna con animación, toast y undo
+      setInternalIsDeleting(true);
+
+      // Esperar a que termine la animación de fade out (300ms)
+      setTimeout(() => {
+        setIsHidden(true);
+        setInternalIsDeleting(false);
+
+        let undoClicked = false;
+        const TOAST_DURATION = 4000;
+
+        const toastId = toast(t("tasks.deleted"), {
+          description: task.title,
+          duration: TOAST_DURATION,
+          action: {
+            label: t("tasks.undo"),
+            onClick: () => {
+              undoClicked = true;
+
+              // Restaurar visualmente
+              setIsHidden(false);
+
+              // Limpiar el timeout si existe
+              if (undoTimeoutId) {
+                clearTimeout(undoTimeoutId);
+                setUndoTimeoutId(null);
+              }
+
+              toast.success(t("tasks.restored") || "Tarea restaurada");
+            },
+          },
+        });
+
+        // Guardar el timeout para poder cancelarlo si se deshace
+        const timeoutId = setTimeout(async () => {
+          if (!undoClicked) {
+            console.log(
+              "⏱️ Tiempo expirado, eliminando tarea del backend:",
+              task.id
+            );
+
+            const result = await deleteTask(task.id);
+            if (result?.success) {
+              toast.dismiss(toastId);
+            } else {
+              // Si falla, restaurar la tarea
+              setIsHidden(false);
+              toast.error(
+                t("tasks.errorDeleting") || "Error al eliminar tarea"
+              );
+            }
+          }
+          setUndoTimeoutId(null);
+        }, TOAST_DURATION);
+
+        setUndoTimeoutId(timeoutId);
+      }, 300);
     }
   };
+
+  const handleToggle = async () => {
+    if (externalOnToggle) {
+      externalOnToggle(task.id);
+    } else {
+      // Si se está marcando como completada, mostrar animación primero
+      if (!task.is_completed) {
+        setIsCompleting(true);
+
+        // Esperar 800ms para la animación de completado
+        setTimeout(async () => {
+          // Realizar el cambio en el backend
+          const result = await toggleTaskCompleted(task.id, task.is_completed);
+
+          if (result?.success) {
+            // Esperar 400ms más para que termine la animación
+            setTimeout(() => {
+              setIsCompleting(false);
+              // La tarea permanece visible con su nuevo estado completado
+              // El contexto/padre decidirá si filtrarla o no
+            }, 400);
+          } else {
+            // Si falla, revertir la animación
+            setIsCompleting(false);
+          }
+        }, 800);
+      } else {
+        // Si se desmarca, hacerlo inmediatamente
+        setIsCompleting(false);
+        await toggleTaskCompleted(task.id, task.is_completed);
+      }
+    }
+  };
+
+  const handleCreateTag = async (name, color) => {
+    if (externalOnCreateTag) {
+      return await externalOnCreateTag(task.list_id, name, color);
+    } else if (contextCreateTag) {
+      return await contextCreateTag(task.list_id, name, color);
+    }
+    return { success: false, error: "No create tag function available" };
+  };
+
+  // No renderizar si está oculta
+  if (isHidden) {
+    return null;
+  }
 
   if (isEditing) {
     return (
@@ -274,11 +387,12 @@ export const TaskCard = ({
         ref={cardRef}
         className={cn(
           "task-card task-card-editing",
-          isDeleting && "task-card-deleting"
+          isDeleting && "task-card-deleting",
+          isCompleting && "task-card-completing"
         )}
       >
         <div className="task-content">
-          <button onClick={() => onToggle(task.id)} className="task-checkbox">
+          <button onClick={handleToggle} className="task-checkbox">
             {task.is_completed ? (
               <CheckCircle2 className="icon-md checked" />
             ) : (
@@ -306,9 +420,11 @@ export const TaskCard = ({
 
             <div className="task-meta task-meta-edit">
               {/* Badge del nombre de la lista */}
-              <span className="task-badge work">
-                {list?.title || t("tasks.personalTask")}
-              </span>
+              {!hideListBadge && (
+                <span className="task-badge work">
+                  {list?.title || t("tasks.personalTask")}
+                </span>
+              )}
 
               {/* Badge de Classroom si está vinculada */}
               {task.classroom_integration && (
@@ -333,7 +449,7 @@ export const TaskCard = ({
                   tags={availableTags}
                   selectedTags={editedTask.tags}
                   onTagsChange={(newTags) => handleChange("tags", newTags)}
-                  onCreateTag={onCreateTag}
+                  onCreateTag={handleCreateTag}
                 />
               </div>
             </div>
@@ -364,9 +480,16 @@ export const TaskCard = ({
   }
 
   return (
-    <div className={cn("task-card", isDeleting && "task-card-deleting")}>
+    <div
+      className={cn(
+        "task-card",
+        isDeleting && "task-card-deleting",
+        isCompleting && "task-card-completing",
+        task.is_completed && "task-card-completed"
+      )}
+    >
       <div className="task-content">
-        <button onClick={() => onToggle(task.id)} className="task-checkbox">
+        <button onClick={handleToggle} className="task-checkbox">
           {task.is_completed ? (
             <CheckCircle2 className="icon-md checked" />
           ) : (
@@ -389,9 +512,11 @@ export const TaskCard = ({
 
           <div className="task-meta">
             {/* Badge del nombre de la lista */}
-            <span className="task-badge work">
-              {list?.title || t("tasks.personalTask")}
-            </span>
+            {!hideListBadge && (
+              <span className="task-badge work">
+                {list?.title || t("tasks.personalTask")}
+              </span>
+            )}
 
             {/* Badge de Classroom si está vinculada */}
             {task.classroom_integration && (
@@ -413,7 +538,7 @@ export const TaskCard = ({
               <div className="flex gap-1 flex-wrap items-center">
                 {task.tags.map((tag) => (
                   <span
-                    key={tag.id}
+                    key={`tag-${task.id}-${tag.id}`}
                     className="text-xs px-2 py-1 rounded-full inline-flex items-center gap-1 shrink-0"
                     style={{
                       backgroundColor: tag.color + "20",
@@ -435,8 +560,8 @@ export const TaskCard = ({
           {task.assignees && task.assignees.length > 0 && (
             <div className="task-assignees">
               <div className="task-assignees-stack">
-                {task.assignees.slice(0, 3).map((assignee) => (
-                  <Tooltip key={assignee.id}>
+                {task.assignees.slice(0, 12).map((assignee) => (
+                  <Tooltip key={`assignee-${task.id}-${assignee.id}`}>
                     <TooltipTrigger asChild>
                       <Avatar
                         data-slot="avatar"
@@ -479,7 +604,7 @@ export const TaskCard = ({
                         </p>
                         {task.assignees.map((assignee) => (
                           <div
-                            key={assignee.id}
+                            key={`assignee-popover-${task.id}-${assignee.id}`}
                             className="task-assignees-list-item"
                           >
                             <Avatar
@@ -521,13 +646,14 @@ export const TaskCard = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-30" align="end">
             <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <Users />
+                {t("tasks.asigntask")}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleDelete}>
                 <Trash />
                 {t("tasks.delete")}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Copy />
-                {t("tasks.duplicate")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

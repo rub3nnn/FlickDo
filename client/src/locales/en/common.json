@@ -142,7 +142,7 @@
     "logout": "Logout"
   },
   "allTasks": {
-    "title": "All Lists",
+    "title": "Your Lists",
     "subtitle": "Manage and organize all your task lists in one place",
     "newList": "New list",
     "newTask": "New task",

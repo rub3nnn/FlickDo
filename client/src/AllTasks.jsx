@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Header } from "./components/Header/Header";
 import { TaskCard } from "./components/Tasks/TaskCard";
 import { useTranslation } from "react-i18next";
+import { useTasks } from "./contexts/TasksContext";
 import {
   Plus,
   ChevronDown,
@@ -20,6 +21,7 @@ import {
   Trash2,
   Share2,
   Edit3,
+  Settings,
   LayoutGrid,
   Columns3,
 } from "lucide-react";
@@ -32,230 +34,34 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-// Datos de ejemplo con listas
-const TASK_LISTS = [
-  {
-    id: "personal",
-    name: "Personal",
-    icon: Star,
-    color: "#f59e0b",
-    isShared: false,
-    isDefault: true,
-    tasks: [
-      {
-        id: 1,
-        title: "Comprar regalo de cumpleaños",
-        priority: "high",
-        status: "todo",
-        dueDate: "Hoy 18:00",
-        type: "personal",
-        progress: 0,
-      },
-      {
-        id: 2,
-        title: "Renovar suscripción de gimnasio",
-        priority: "medium",
-        status: "todo",
-        dueDate: "Mañana",
-        type: "personal",
-        progress: 0,
-      },
-      {
-        id: 12,
-        title: "Llamar al dentista",
-        priority: "low",
-        status: "completed",
-        dueDate: "Ayer",
-        type: "personal",
-        progress: 100,
-      },
-      {
-        id: 13,
-        title: "Leer artículo sobre productividad",
-        priority: "low",
-        status: "completed",
-        dueDate: "20 Nov",
-        type: "personal",
-        progress: 100,
-      },
-    ],
-  },
-  {
-    id: "work",
-    name: "Proyectos de Trabajo",
-    icon: Briefcase,
-    color: "#9333ea",
-    isShared: true,
-    sharedWith: ["Ana García", "Carlos López", "+3"],
-    tasks: [
-      {
-        id: 3,
-        title: "Diseñar nueva landing page",
-        priority: "high",
-        status: "in-progress",
-        dueDate: "Hoy",
-        type: "work",
-        project: "Marketing",
-        progress: 65,
-      },
-      {
-        id: 4,
-        title: "Reunión con equipo de diseño",
-        priority: "medium",
-        status: "todo",
-        dueDate: "Hoy 16:00",
-        type: "work",
-        project: "Diseño",
-        progress: 0,
-      },
-      {
-        id: 5,
-        title: "Revisar propuesta de cliente",
-        priority: "medium",
-        status: "todo",
-        dueDate: "Mañana",
-        type: "work",
-        project: "Ventas",
-        progress: 0,
-      },
-      {
-        id: 14,
-        title: "Enviar reporte mensual",
-        priority: "high",
-        status: "completed",
-        dueDate: "19 Nov",
-        type: "work",
-        project: "Administración",
-        progress: 100,
-      },
-      {
-        id: 15,
-        title: "Actualizar documentación del proyecto",
-        priority: "medium",
-        status: "completed",
-        dueDate: "18 Nov",
-        type: "work",
-        project: "Desarrollo",
-        progress: 100,
-      },
-      {
-        id: 16,
-        title: "Preparar presentación para cliente",
-        priority: "high",
-        status: "completed",
-        dueDate: "17 Nov",
-        type: "work",
-        project: "Ventas",
-        progress: 100,
-      },
-    ],
-  },
-  {
-    id: "classroom",
-    name: "Google Classroom",
-    icon: GraduationCap,
-    color: "#3b82f6",
-    isShared: false,
-    isSync: true,
-    tasks: [
-      {
-        id: 6,
-        title: "Ensayo sobre literatura medieval",
-        priority: "high",
-        status: "todo",
-        dueDate: "Hoy 23:59",
-        type: "classroom",
-        subject: "Literatura Española",
-        teacher: "Prof. García",
-        progress: 0,
-      },
-      {
-        id: 7,
-        title: "Problemas de cálculo del capítulo 5",
-        priority: "high",
-        status: "in-progress",
-        dueDate: "Mañana 18:00",
-        type: "classroom",
-        subject: "Matemáticas II",
-        teacher: "Dr. Rodríguez",
-        progress: 45,
-      },
-      {
-        id: 8,
-        title: "Proyecto de investigación en grupo",
-        priority: "medium",
-        status: "in-progress",
-        dueDate: "25 Nov",
-        type: "classroom",
-        subject: "Biología",
-        teacher: "Dra. Martínez",
-        progress: 30,
-      },
-    ],
-  },
-  {
-    id: "shopping",
-    name: "Lista de Compras",
-    icon: ListTodo,
-    color: "#10b981",
-    isShared: true,
-    sharedWith: ["Mi familia"],
-    tasks: [
-      {
-        id: 9,
-        title: "Leche y cereales",
-        priority: "low",
-        status: "todo",
-        dueDate: "Hoy",
-        type: "shopping",
-        progress: 0,
-      },
-      {
-        id: 10,
-        title: "Frutas y verduras",
-        priority: "medium",
-        status: "todo",
-        dueDate: "Hoy",
-        type: "shopping",
-        progress: 0,
-      },
-    ],
-  },
-  {
-    id: "events",
-    name: "Eventos y Reuniones",
-    icon: Calendar,
-    color: "#ec4899",
-    isShared: false,
-    tasks: [
-      {
-        id: 11,
-        title: "Cita médica anual",
-        priority: "high",
-        status: "todo",
-        dueDate: "23 Nov 10:00",
-        type: "events",
-        progress: 0,
-      },
-    ],
-  },
-];
-
 export default function AllTasks() {
   const { t } = useTranslation();
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [taskLists, setTaskLists] = useState(TASK_LISTS);
+
+  // Obtener tareas y listas del contexto global
+  const { tasks, lists, loading, error } = useTasks();
+
   const [collapsedCompletedSections, setCollapsedCompletedSections] = useState(
-    // Por defecto, todas las secciones de completadas están colapsadas
-    TASK_LISTS.reduce((acc, list) => ({ ...acc, [list.id]: true }), {})
+    {}
   );
-  const [editingTaskId, setEditingTaskId] = useState(null);
   const [viewMode, setViewMode] = useState(() => {
     // Cargar preferencia de vista desde localStorage
     const savedView = localStorage.getItem("taskListViewMode");
     return savedView || "grid"; // 'grid' o 'columns'
   });
+
+  // Inicializar secciones colapsadas cuando las listas se cargan
+  useEffect(() => {
+    if (
+      lists.length > 0 &&
+      Object.keys(collapsedCompletedSections).length === 0
+    ) {
+      setCollapsedCompletedSections(
+        lists.reduce((acc, list) => ({ ...acc, [list.id]: true }), {})
+      );
+    }
+  }, [lists, collapsedCompletedSections]);
 
   // Guardar preferencia de vista cuando cambie
   useEffect(() => {
@@ -270,28 +76,6 @@ export default function AllTasks() {
     }
   }, [darkMode]);
 
-  const toggleTask = (listId, taskId) => {
-    setTaskLists(
-      taskLists.map((list) =>
-        list.id === listId
-          ? {
-              ...list,
-              tasks: list.tasks.map((task) =>
-                task.id === taskId
-                  ? {
-                      ...task,
-                      status:
-                        task.status === "completed" ? "todo" : "completed",
-                      progress: task.status === "completed" ? 0 : 100,
-                    }
-                  : task
-              ),
-            }
-          : list
-      )
-    );
-  };
-
   const toggleCompletedSection = (listId) => {
     setCollapsedCompletedSections((prev) => ({
       ...prev,
@@ -299,34 +83,19 @@ export default function AllTasks() {
     }));
   };
 
-  const handleEditStart = (taskId) => {
-    setEditingTaskId(taskId);
-  };
-
-  const handleEditEnd = () => {
-    setEditingTaskId(null);
-  };
-
-  const handleSaveTask = (taskId, editedData) => {
-    console.log("Guardar tarea", taskId, editedData);
-  };
+  // Agrupar tareas por lista con useMemo para optimizar
+  const tasksByList = useMemo(() => {
+    return lists.map((list) => ({
+      ...list,
+      tasks: tasks.filter((task) => task.list_id === list.id),
+    }));
+  }, [tasks, lists]);
 
   // Calculate stats
-  const totalTasks = taskLists.reduce(
-    (acc, list) => acc + list.tasks.length,
-    0
-  );
-  const activeTasks = taskLists.reduce(
-    (acc, list) =>
-      acc + list.tasks.filter((t) => t.status !== "completed").length,
-    0
-  );
-  const completedTasks = taskLists.reduce(
-    (acc, list) =>
-      acc + list.tasks.filter((t) => t.status === "completed").length,
-    0
-  );
-  const sharedLists = taskLists.filter((list) => list.isShared).length;
+  const totalTasks = tasks.length;
+  const activeTasks = tasks.filter((t) => !t.is_completed).length;
+  const completedTasks = tasks.filter((t) => t.is_completed).length;
+  const sharedLists = lists.filter((list) => list.is_shared).length;
 
   return (
     <div className="dashboard-container">
@@ -356,7 +125,7 @@ export default function AllTasks() {
                   </h1>
                   <div className="stats-inline-compact">
                     <span className="stat-item-inline">
-                      <strong>{taskLists.length}</strong>{" "}
+                      <strong>{lists.length}</strong>{" "}
                       {t("allTasks.stats.lists")}
                     </span>
                     <span className="stat-divider-inline">•</span>
@@ -426,184 +195,168 @@ export default function AllTasks() {
                       : "task-lists-columns"
                   }
                 >
-                  {taskLists.map((list) => {
-                    const ListIcon = list.icon;
-                    const activeTasksInList = list.tasks.filter(
-                      (t) => t.status !== "completed"
-                    );
-                    const completedTasksInList = list.tasks.filter(
-                      (t) => t.status === "completed"
-                    );
-                    const isCompletedCollapsed =
-                      collapsedCompletedSections[list.id];
+                  {loading ? (
+                    <div className="loading-state">Cargando listas...</div>
+                  ) : error ? (
+                    <div className="error-state">Error: {error}</div>
+                  ) : tasksByList.length === 0 ? (
+                    <div className="empty-state">No hay listas disponibles</div>
+                  ) : (
+                    tasksByList.map((list) => {
+                      const ListIcon = Star; // Puedes mapear iconos según el tipo de lista
+                      const activeTasksInList = list.tasks.filter(
+                        (t) => !t.is_completed
+                      );
+                      const completedTasksInList = list.tasks.filter(
+                        (t) => t.is_completed
+                      );
+                      const isCompletedCollapsed =
+                        collapsedCompletedSections[list.id];
 
-                    return (
-                      <div key={list.id} className="task-list-card-compact">
-                        {/* List Header - Ultra Compact */}
-                        <div className="task-list-header-ultra-compact">
-                          <div className="header-main-row">
-                            <div
-                              className="task-list-icon-mini"
-                              style={{ background: list.color }}
-                            >
-                              <ListIcon className="icon-xs" />
-                            </div>
-                            <h3 className="task-list-title-mini">
-                              {list.name}
-                            </h3>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button className="task-list-menu-btn-mini">
-                                  <MoreVertical className="icon-xs" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuGroup>
-                                  <DropdownMenuItem>
-                                    <Plus className="icon-xs" />
-                                    {t("allTasks.addTask")}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem>
-                                    <Edit3 className="icon-xs" />
-                                    {t("allTasks.editList")}
-                                  </DropdownMenuItem>
-                                  {!list.isShared && (
+                      return (
+                        <div key={list.id} className="task-list-card-compact">
+                          {/* List Header - Ultra Compact */}
+                          <div className="task-list-header-ultra-compact">
+                            <div className="header-main-row">
+                              <div
+                                className="task-list-icon-mini"
+                                style={{ background: list.color || "#9333ea" }}
+                              >
+                                <ListIcon className="icon-xs" />
+                              </div>
+                              <h3 className="task-list-title-mini">
+                                {list.title}
+                              </h3>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button className="task-list-menu-btn-mini">
+                                    <MoreVertical className="icon-xs" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuGroup>
                                     <DropdownMenuItem>
-                                      <Share2 className="icon-xs" />
-                                      {t("allTasks.shareList")}
+                                      <Edit3 className="icon-xs" />
+                                      {t("allTasks.renameList")}
                                     </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuGroup>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive">
-                                  <Trash2 className="icon-xs" />
-                                  {t("allTasks.deleteList")}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-
-                          <div className="header-badges-row">
-                            {list.isDefault && (
-                              <span
-                                className="list-badge-mini default"
-                                title={t("allTasks.default")}
-                              >
-                                <Star className="icon-xs" />
-                              </span>
-                            )}
-                            {list.isShared ? (
-                              <span
-                                className="list-badge-mini shared"
-                                title={`${t("allTasks.sharedWith")} ${
-                                  list.sharedWith[0]
-                                }`}
-                              >
-                                <Users className="icon-xs" />
-                              </span>
-                            ) : (
-                              <span
-                                className="list-badge-mini private"
-                                title={t("allTasks.private")}
-                              >
-                                <Lock className="icon-xs" />
-                              </span>
-                            )}
-                            {list.isSync && (
-                              <span
-                                className="list-badge-mini sync"
-                                title={t("allTasks.synced")}
-                              >
-                                <Globe className="icon-xs" />
-                              </span>
-                            )}
-                            <span className="task-count-mini">
-                              {activeTasksInList.length}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* List Content - Scrollable */}
-                        <div className="task-list-content-compact">
-                          {/* Active Tasks */}
-                          {activeTasksInList.length > 0 ? (
-                            <div className="tasks-list-compact">
-                              {activeTasksInList.map((task) => (
-                                <TaskCard
-                                  key={task.id}
-                                  task={task}
-                                  onToggle={() => toggleTask(list.id, task.id)}
-                                  isEditing={editingTaskId === task.id}
-                                  onEditStart={handleEditStart}
-                                  onEditEnd={handleEditEnd}
-                                  onSave={handleSaveTask}
-                                  availableTags={[]}
-                                  onCreateTag={async () => {}}
-                                />
-                              ))}
+                                    <DropdownMenuItem>
+                                      <Settings className="icon-xs" />
+                                      {t("allTasks.listSettings")}
+                                    </DropdownMenuItem>
+                                    {!list.is_shared && (
+                                      <DropdownMenuItem>
+                                        <Share2 className="icon-xs" />
+                                        {t("allTasks.shareList")}
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuGroup>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem className="text-destructive">
+                                    <Trash2 className="icon-xs" />
+                                    {t("allTasks.deleteList")}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
-                          ) : (
-                            <div className="list-empty-state-compact">
-                              <Circle className="icon-sm" />
-                              <p>{t("allTasks.emptyList")}</p>
-                            </div>
-                          )}
-                        </div>
 
-                        {/* Completed Tasks Section - Between Content and Footer */}
-                        {completedTasksInList.length > 0 && (
-                          <div
-                            className={`completed-section-middle ${
-                              !isCompletedCollapsed ? "expanded" : ""
-                            }`}
-                          >
-                            <button
-                              className="completed-toggle-trigger"
-                              onClick={() => toggleCompletedSection(list.id)}
-                            >
-                              {isCompletedCollapsed ? (
-                                <ChevronDown className="icon-xs" />
-                              ) : (
-                                <ChevronRight className="icon-xs" />
+                            <div className="header-badges-row">
+                              {list.is_default && (
+                                <span
+                                  className="list-badge-mini default"
+                                  title={t("allTasks.default")}
+                                >
+                                  <Star className="icon-xs" />
+                                </span>
                               )}
-                              <CheckCircle2 className="icon-xs completed-icon" />
-                              <span className="completed-text-footer">
-                                {completedTasksInList.length}{" "}
-                                {t("allTasks.stats.completed")}
+                              {list.is_shared ? (
+                                <span
+                                  className="list-badge-mini shared"
+                                  title={t("allTasks.sharedWith")}
+                                >
+                                  <Users className="icon-xs" />
+                                </span>
+                              ) : (
+                                <span
+                                  className="list-badge-mini private"
+                                  title={t("allTasks.private")}
+                                >
+                                  <Lock className="icon-xs" />
+                                </span>
+                              )}
+                              <span className="task-count-mini">
+                                {activeTasksInList.length}
                               </span>
-                            </button>
-                            <div className="completed-tasks-container">
-                              <div className="completed-tasks-list-expanded">
-                                {completedTasksInList.map((task) => (
+                            </div>
+                          </div>
+
+                          {/* List Content - Scrollable */}
+                          <div className="task-list-content-compact">
+                            {/* Active Tasks */}
+                            {activeTasksInList.length > 0 ? (
+                              <div className="tasks-list-compact">
+                                {activeTasksInList.map((task) => (
                                   <TaskCard
                                     key={task.id}
                                     task={task}
-                                    onToggle={() =>
-                                      toggleTask(list.id, task.id)
-                                    }
-                                    isEditing={editingTaskId === task.id}
-                                    onEditStart={handleEditStart}
-                                    onEditEnd={handleEditEnd}
-                                    onSave={handleSaveTask}
-                                    availableTags={[]}
-                                    onCreateTag={async () => {}}
+                                    hideListBadge={true}
                                   />
                                 ))}
                               </div>
-                            </div>
+                            ) : (
+                              <div className="list-empty-state-compact">
+                                <Circle className="icon-sm" />
+                                <p>{t("allTasks.emptyList")}</p>
+                              </div>
+                            )}
                           </div>
-                        )}
 
-                        {/* List Footer */}
-                        <div className="task-list-footer-compact">
-                          <button className="add-task-btn-footer">
-                            <Plus className="icon-xs" />
-                            {t("allTasks.addTask")}
-                          </button>
+                          {/* Completed Tasks Section - Between Content and Footer */}
+                          {completedTasksInList.length > 0 && (
+                            <div
+                              className={`completed-section-middle ${
+                                !isCompletedCollapsed ? "expanded" : ""
+                              }`}
+                            >
+                              <button
+                                className="completed-toggle-trigger"
+                                onClick={() => toggleCompletedSection(list.id)}
+                              >
+                                {isCompletedCollapsed ? (
+                                  <ChevronDown className="icon-xs" />
+                                ) : (
+                                  <ChevronRight className="icon-xs" />
+                                )}
+                                <CheckCircle2 className="icon-xs completed-icon" />
+                                <span className="completed-text-footer">
+                                  {completedTasksInList.length}{" "}
+                                  {t("allTasks.stats.completed")}
+                                </span>
+                              </button>
+                              <div className="completed-tasks-container">
+                                <div className="completed-tasks-list-expanded">
+                                  {completedTasksInList.map((task) => (
+                                    <TaskCard
+                                      key={task.id}
+                                      task={task}
+                                      hideListBadge={true}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* List Footer */}
+                          <div className="task-list-footer-compact">
+                            <button className="add-task-btn-footer">
+                              <Plus className="icon-xs" />
+                              {t("allTasks.addTask")}
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
 
                   {/* Add New List Card */}
                   <div className="task-list-card-compact add-list-card">
@@ -623,7 +376,7 @@ export default function AllTasks() {
               </div>
 
               {/* Empty State for No Lists */}
-              {taskLists.length === 0 && (
+              {lists.length === 0 && !loading && (
                 <div className="empty-state">
                   <div className="empty-state-icon">
                     <ListTodo className="icon-xl" />
