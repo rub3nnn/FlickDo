@@ -8,6 +8,7 @@ import {
 import { tasksApi, tagsApi } from "@/services/api";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "./AuthContext";
 
 const TasksContext = createContext(null);
 
@@ -17,6 +18,7 @@ const TasksContext = createContext(null);
  */
 export function TasksProvider({ children }) {
   const { t } = useTranslation();
+  const { user } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,26 +30,40 @@ export function TasksProvider({ children }) {
   };
 
   // Cargar todas las tareas del usuario
-  const loadAllTasks = useCallback(async (includeCompleted = true) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await tasksApi.getAllUserTasks(includeCompleted);
-      if (response.success) {
-        setTasks(response.data.tasks || []);
-        setLists(response.data.lists || []);
-      } else {
-        setError(response.message || "Error cargando tareas");
-        handleError("errorLoading");
+  const loadAllTasks = useCallback(
+    async (includeCompleted = true) => {
+      // No cargar tareas si no hay usuario autenticado
+      if (!user) {
+        setLoading(false);
+        setTasks([]);
+        setLists([]);
+        return;
       }
-    } catch (err) {
-      setError(err.message);
-      handleError("errorLoading");
-      console.error("Error cargando todas las tareas:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await tasksApi.getAllUserTasks(includeCompleted);
+        if (response.success) {
+          setTasks(response.data.tasks || []);
+          setLists(response.data.lists || []);
+        } else {
+          setError(response.message || "Error cargando tareas");
+          handleError("errorLoading");
+        }
+      } catch (err) {
+        setError(err.message);
+        // Solo mostrar error si el usuario está autenticado
+        if (user) {
+          handleError("errorLoading");
+        }
+        console.error("Error cargando todas las tareas:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
 
   // Actualizar tarea con OPTIMISTIC UPDATE
   const updateTask = useCallback(
@@ -321,10 +337,17 @@ export function TasksProvider({ children }) {
     }
   }, []);
 
-  // Cargar tareas al montar
+  // Cargar tareas al montar y cuando cambia el usuario
   useEffect(() => {
-    loadAllTasks(true); // Incluir completadas
-  }, [loadAllTasks]);
+    if (user) {
+      loadAllTasks(true); // Incluir completadas
+    } else {
+      // Limpiar tareas cuando no hay usuario
+      setTasks([]);
+      setLists([]);
+      setLoading(false);
+    }
+  }, [user, loadAllTasks]);
 
   const value = {
     tasks,
