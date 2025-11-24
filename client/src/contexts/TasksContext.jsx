@@ -18,10 +18,10 @@ const TasksContext = createContext(null);
  */
 export function TasksProvider({ children }) {
   const { t } = useTranslation();
-  const { user } = useContext(AuthContext);
+  const { user, isInitialized } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Iniciar en true para evitar flash de contenido vacío
   const [error, setError] = useState(null);
 
   // Función para mostrar errores
@@ -34,9 +34,9 @@ export function TasksProvider({ children }) {
     async (includeCompleted = true) => {
       // No cargar tareas si no hay usuario autenticado
       if (!user) {
-        setLoading(false);
         setTasks([]);
         setLists([]);
+        setLoading(false);
         return;
       }
 
@@ -339,6 +339,11 @@ export function TasksProvider({ children }) {
 
   // Cargar tareas al montar y cuando cambia el usuario
   useEffect(() => {
+    // Esperar a que AuthContext esté inicializado
+    if (!isInitialized) {
+      return;
+    }
+
     if (user) {
       loadAllTasks(true); // Incluir completadas
     } else {
@@ -347,7 +352,7 @@ export function TasksProvider({ children }) {
       setLists([]);
       setLoading(false);
     }
-  }, [user, loadAllTasks]);
+  }, [user, isInitialized, loadAllTasks]);
 
   const value = {
     tasks,

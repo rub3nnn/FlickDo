@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Header } from "./components/Header/Header";
 import { TaskCard } from "./components/Tasks/TaskCard";
+import { EmptyState } from "./components/EmptyState/EmptyState";
 import { useTranslation } from "react-i18next";
 import { useTasks } from "./contexts/TasksContext";
 import {
@@ -10,14 +11,9 @@ import {
   MoreVertical,
   Users,
   Lock,
-  Globe,
   Star,
   Circle,
   CheckCircle2,
-  Briefcase,
-  GraduationCap,
-  ListTodo,
-  Calendar,
   Trash2,
   Share2,
   Edit3,
@@ -112,284 +108,336 @@ export default function AllTasks() {
             }
           >
             <div className="all-tasks-container-horizontal">
-              {/* Compact Header with Stats */}
-              <div
-                className="all-tasks-header-compact-new"
-                style={{
-                  padding: "0 24px 0 24px",
-                }}
-              >
-                <div className="header-left-compact">
-                  <h1 className="all-tasks-title-compact-new">
-                    {t("allTasks.title")}
-                  </h1>
-                  <div className="stats-inline-compact">
-                    <span className="stat-item-inline">
-                      <strong>{lists.length}</strong>{" "}
-                      {t("allTasks.stats.lists")}
-                    </span>
-                    <span className="stat-divider-inline">•</span>
-                    <span className="stat-item-inline">
-                      <strong>{activeTasks}</strong>{" "}
-                      {t("allTasks.stats.active")}
-                    </span>
-                    <span className="stat-divider-inline">•</span>
-                    <span className="stat-item-inline">
-                      <strong>{completedTasks}</strong>{" "}
-                      {t("allTasks.stats.completed")}
-                    </span>
-                    {sharedLists > 0 && (
-                      <>
+              {/* Empty State for No Lists */}
+              {!loading && lists.length === 0 ? (
+                <EmptyState
+                  onCreateList={(listName) =>
+                    console.log("Create list:", listName)
+                  }
+                />
+              ) : (
+                <>
+                  {/* Compact Header with Stats */}
+                  <div
+                    className="all-tasks-header-compact-new"
+                    style={{
+                      padding: "0 24px 0 24px",
+                    }}
+                  >
+                    <div className="header-left-compact">
+                      <h1 className="all-tasks-title-compact-new">
+                        {t("allTasks.title")}
+                      </h1>
+                      <div className="stats-inline-compact">
+                        <span className="stat-item-inline">
+                          <strong>{lists.length}</strong>{" "}
+                          {t("allTasks.stats.lists")}
+                        </span>
                         <span className="stat-divider-inline">•</span>
                         <span className="stat-item-inline">
-                          <strong>{sharedLists}</strong>{" "}
-                          {t("allTasks.stats.shared")}
+                          <strong>{activeTasks}</strong>{" "}
+                          {t("allTasks.stats.active")}
                         </span>
-                      </>
-                    )}
+                        <span className="stat-divider-inline">•</span>
+                        <span className="stat-item-inline">
+                          <strong>{completedTasks}</strong>{" "}
+                          {t("allTasks.stats.completed")}
+                        </span>
+                        {sharedLists > 0 && (
+                          <>
+                            <span className="stat-divider-inline">•</span>
+                            <span className="stat-item-inline">
+                              <strong>{sharedLists}</strong>{" "}
+                              {t("allTasks.stats.shared")}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="header-right-actions">
+                      {/* View Mode Toggle */}
+                      <div className="view-mode-toggle">
+                        <button
+                          className={`view-toggle-btn ${
+                            viewMode === "grid" ? "active" : ""
+                          }`}
+                          onClick={() => setViewMode("grid")}
+                          title={
+                            t("allTasks.gridView") || "Vista de cuadrícula"
+                          }
+                        >
+                          <LayoutGrid className="icon-sm" />
+                        </button>
+                        <button
+                          className={`view-toggle-btn ${
+                            viewMode === "columns" ? "active" : ""
+                          }`}
+                          onClick={() => setViewMode("columns")}
+                          title={
+                            t("allTasks.columnView") || "Vista de columnas"
+                          }
+                        >
+                          <Columns3 className="icon-sm" />
+                        </button>
+                      </div>
+                      <button className="add-list-btn-compact-header">
+                        <Plus className="icon-sm" />
+                        <span className="desktop-only">
+                          {t("allTasks.newList")}
+                        </span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="header-right-actions">
-                  {/* View Mode Toggle */}
-                  <div className="view-mode-toggle">
-                    <button
-                      className={`view-toggle-btn ${
-                        viewMode === "grid" ? "active" : ""
-                      }`}
-                      onClick={() => setViewMode("grid")}
-                      title={t("allTasks.gridView") || "Vista de cuadrícula"}
+
+                  {/* Task Lists - Dynamic Layout */}
+                  <div
+                    className={
+                      viewMode === "grid"
+                        ? "task-lists-grid-wrapper"
+                        : "task-lists-columns-wrapper"
+                    }
+                  >
+                    <div
+                      className={
+                        viewMode === "grid"
+                          ? "task-lists-grid"
+                          : "task-lists-columns"
+                      }
                     >
-                      <LayoutGrid className="icon-sm" />
-                    </button>
-                    <button
-                      className={`view-toggle-btn ${
-                        viewMode === "columns" ? "active" : ""
-                      }`}
-                      onClick={() => setViewMode("columns")}
-                      title={t("allTasks.columnView") || "Vista de columnas"}
-                    >
-                      <Columns3 className="icon-sm" />
-                    </button>
-                  </div>
-                  <button className="add-list-btn-compact-header">
-                    <Plus className="icon-sm" />
-                    <span className="desktop-only">
-                      {t("allTasks.newList")}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Task Lists - Dynamic Layout */}
-              <div
-                className={
-                  viewMode === "grid"
-                    ? "task-lists-grid-wrapper"
-                    : "task-lists-columns-wrapper"
-                }
-              >
-                <div
-                  className={
-                    viewMode === "grid"
-                      ? "task-lists-grid"
-                      : "task-lists-columns"
-                  }
-                >
-                  {loading ? (
-                    <div className="loading-state">Cargando listas...</div>
-                  ) : error ? (
-                    <div className="error-state">Error: {error}</div>
-                  ) : tasksByList.length === 0 ? (
-                    <div className="empty-state">No hay listas disponibles</div>
-                  ) : (
-                    tasksByList.map((list) => {
-                      const ListIcon = Star; // Puedes mapear iconos según el tipo de lista
-                      const activeTasksInList = list.tasks.filter(
-                        (t) => !t.is_completed
-                      );
-                      const completedTasksInList = list.tasks.filter(
-                        (t) => t.is_completed
-                      );
-                      const isCompletedCollapsed =
-                        collapsedCompletedSections[list.id];
-
-                      return (
-                        <div key={list.id} className="task-list-card-compact">
-                          {/* List Header - Ultra Compact */}
-                          <div className="task-list-header-ultra-compact">
-                            <div className="header-main-row">
-                              <div
-                                className="task-list-icon-mini"
-                                style={{ background: list.color || "#9333ea" }}
-                              >
-                                <ListIcon className="icon-xs" />
-                              </div>
-                              <h3 className="task-list-title-mini">
-                                {list.title}
-                              </h3>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <button className="task-list-menu-btn-mini">
-                                    <MoreVertical className="icon-xs" />
-                                  </button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuGroup>
-                                    <DropdownMenuItem>
-                                      <Edit3 className="icon-xs" />
-                                      {t("allTasks.renameList")}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <Settings className="icon-xs" />
-                                      {t("allTasks.listSettings")}
-                                    </DropdownMenuItem>
-                                    {!list.is_shared && (
-                                      <DropdownMenuItem>
-                                        <Share2 className="icon-xs" />
-                                        {t("allTasks.shareList")}
-                                      </DropdownMenuItem>
-                                    )}
-                                  </DropdownMenuGroup>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem className="text-destructive">
-                                    <Trash2 className="icon-xs" />
-                                    {t("allTasks.deleteList")}
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-
-                            <div className="header-badges-row">
-                              {list.is_default && (
-                                <span
-                                  className="list-badge-mini default"
-                                  title={t("allTasks.default")}
-                                >
-                                  <Star className="icon-xs" />
-                                </span>
-                              )}
-                              {list.is_shared ? (
-                                <span
-                                  className="list-badge-mini shared"
-                                  title={t("allTasks.sharedWith")}
-                                >
-                                  <Users className="icon-xs" />
-                                </span>
-                              ) : (
-                                <span
-                                  className="list-badge-mini private"
-                                  title={t("allTasks.private")}
-                                >
-                                  <Lock className="icon-xs" />
-                                </span>
-                              )}
-                              <span className="task-count-mini">
-                                {activeTasksInList.length}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* List Content - Scrollable */}
-                          <div className="task-list-content-compact">
-                            {/* Active Tasks */}
-                            {activeTasksInList.length > 0 ? (
-                              <div className="tasks-list-compact">
-                                {activeTasksInList.map((task) => (
-                                  <TaskCard
-                                    key={task.id}
-                                    task={task}
-                                    hideListBadge={true}
-                                  />
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="list-empty-state-compact">
-                                <Circle className="icon-sm" />
-                                <p>{t("allTasks.emptyList")}</p>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Completed Tasks Section - Between Content and Footer */}
-                          {completedTasksInList.length > 0 && (
+                      {loading ? (
+                        // Skeleton Loader
+                        <>
+                          {[1, 2, 3, 4].map((skeletonId) => (
                             <div
-                              className={`completed-section-middle ${
-                                !isCompletedCollapsed ? "expanded" : ""
-                              }`}
+                              key={skeletonId}
+                              className="task-list-card-compact skeleton-card"
                             >
-                              <button
-                                className="completed-toggle-trigger"
-                                onClick={() => toggleCompletedSection(list.id)}
-                              >
-                                {isCompletedCollapsed ? (
-                                  <ChevronDown className="icon-xs" />
-                                ) : (
-                                  <ChevronRight className="icon-xs" />
-                                )}
-                                <CheckCircle2 className="icon-xs completed-icon" />
-                                <span className="completed-text-footer">
-                                  {completedTasksInList.length}{" "}
-                                  {t("allTasks.stats.completed")}
-                                </span>
-                              </button>
-                              <div className="completed-tasks-container">
-                                <div className="completed-tasks-list-expanded">
-                                  {completedTasksInList.map((task) => (
-                                    <TaskCard
-                                      key={task.id}
-                                      task={task}
-                                      hideListBadge={true}
-                                    />
+                              {/* Skeleton Header */}
+                              <div className="task-list-header-ultra-compact">
+                                <div className="header-main-row">
+                                  <div className="skeleton skeleton-icon-mini"></div>
+                                  <div className="skeleton skeleton-title-mini"></div>
+                                  <div className="skeleton skeleton-menu-btn"></div>
+                                </div>
+                                <div className="header-badges-row">
+                                  <div className="skeleton skeleton-badge"></div>
+                                  <div className="skeleton skeleton-badge"></div>
+                                  <div className="skeleton skeleton-count"></div>
+                                </div>
+                              </div>
+
+                              {/* Skeleton Content */}
+                              <div className="task-list-content-compact">
+                                <div className="tasks-list-compact">
+                                  {[1, 2, 3].map((taskSkeleton) => (
+                                    <div
+                                      key={taskSkeleton}
+                                      className="skeleton-task-card"
+                                    >
+                                      <div className="skeleton skeleton-task-checkbox"></div>
+                                      <div className="skeleton-task-content">
+                                        <div className="skeleton skeleton-task-title"></div>
+                                        <div className="skeleton skeleton-task-subtitle"></div>
+                                      </div>
+                                    </div>
                                   ))}
                                 </div>
                               </div>
+
+                              {/* Skeleton Footer */}
+                              <div className="task-list-footer-compact">
+                                <div className="skeleton skeleton-footer-btn"></div>
+                              </div>
                             </div>
-                          )}
-
-                          {/* List Footer */}
-                          <div className="task-list-footer-compact">
-                            <button className="add-task-btn-footer">
-                              <Plus className="icon-xs" />
-                              {t("allTasks.addTask")}
-                            </button>
-                          </div>
+                          ))}
+                        </>
+                      ) : error ? (
+                        <div className="error-state">Error: {error}</div>
+                      ) : tasksByList.length === 0 ? (
+                        <div className="empty-state">
+                          No hay listas disponibles
                         </div>
-                      );
-                    })
-                  )}
+                      ) : (
+                        tasksByList.map((list) => {
+                          const ListIcon = Star; // Puedes mapear iconos según el tipo de lista
+                          const activeTasksInList = list.tasks.filter(
+                            (t) => !t.is_completed
+                          );
+                          const completedTasksInList = list.tasks.filter(
+                            (t) => t.is_completed
+                          );
+                          const isCompletedCollapsed =
+                            collapsedCompletedSections[list.id];
 
-                  {/* Add New List Card */}
-                  <div className="task-list-card-compact add-list-card">
-                    <div className="add-list-content">
-                      <div className="add-list-icon">
-                        <Plus className="icon-lg" />
+                          return (
+                            <div
+                              key={list.id}
+                              className="task-list-card-compact"
+                            >
+                              {/* List Header - Ultra Compact */}
+                              <div className="task-list-header-ultra-compact">
+                                <div className="header-main-row">
+                                  <div
+                                    className="task-list-icon-mini"
+                                    style={{
+                                      background: list.color || "#9333ea",
+                                    }}
+                                  >
+                                    <ListIcon className="icon-xs" />
+                                  </div>
+                                  <h3 className="task-list-title-mini">
+                                    {list.title}
+                                  </h3>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <button className="task-list-menu-btn-mini">
+                                        <MoreVertical className="icon-xs" />
+                                      </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuGroup>
+                                        <DropdownMenuItem>
+                                          <Edit3 className="icon-xs" />
+                                          {t("allTasks.renameList")}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                          <Settings className="icon-xs" />
+                                          {t("allTasks.listSettings")}
+                                        </DropdownMenuItem>
+                                        {!list.is_shared && (
+                                          <DropdownMenuItem>
+                                            <Share2 className="icon-xs" />
+                                            {t("allTasks.shareList")}
+                                          </DropdownMenuItem>
+                                        )}
+                                      </DropdownMenuGroup>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem className="text-destructive">
+                                        <Trash2 className="icon-xs" />
+                                        {t("allTasks.deleteList")}
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+
+                                <div className="header-badges-row">
+                                  {list.is_default && (
+                                    <span
+                                      className="list-badge-mini default"
+                                      title={t("allTasks.default")}
+                                    >
+                                      <Star className="icon-xs" />
+                                    </span>
+                                  )}
+                                  {list.is_shared ? (
+                                    <span
+                                      className="list-badge-mini shared"
+                                      title={t("allTasks.sharedWith")}
+                                    >
+                                      <Users className="icon-xs" />
+                                    </span>
+                                  ) : (
+                                    <span
+                                      className="list-badge-mini private"
+                                      title={t("allTasks.private")}
+                                    >
+                                      <Lock className="icon-xs" />
+                                    </span>
+                                  )}
+                                  <span className="task-count-mini">
+                                    {activeTasksInList.length}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* List Content - Scrollable */}
+                              <div className="task-list-content-compact">
+                                {/* Active Tasks */}
+                                {activeTasksInList.length > 0 ? (
+                                  <div className="tasks-list-compact">
+                                    {activeTasksInList.map((task) => (
+                                      <TaskCard
+                                        key={task.id}
+                                        task={task}
+                                        hideListBadge={true}
+                                      />
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="list-empty-state-compact">
+                                    <Circle className="icon-sm" />
+                                    <p>{t("allTasks.emptyList")}</p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Completed Tasks Section - Between Content and Footer */}
+                              {completedTasksInList.length > 0 && (
+                                <div
+                                  className={`completed-section-middle ${
+                                    !isCompletedCollapsed ? "expanded" : ""
+                                  }`}
+                                >
+                                  <button
+                                    className="completed-toggle-trigger"
+                                    onClick={() =>
+                                      toggleCompletedSection(list.id)
+                                    }
+                                  >
+                                    {isCompletedCollapsed ? (
+                                      <ChevronDown className="icon-xs" />
+                                    ) : (
+                                      <ChevronRight className="icon-xs" />
+                                    )}
+                                    <CheckCircle2 className="icon-xs completed-icon" />
+                                    <span className="completed-text-footer">
+                                      {completedTasksInList.length}{" "}
+                                      {t("allTasks.stats.completed")}
+                                    </span>
+                                  </button>
+                                  <div className="completed-tasks-container">
+                                    <div className="completed-tasks-list-expanded">
+                                      {completedTasksInList.map((task) => (
+                                        <TaskCard
+                                          key={task.id}
+                                          task={task}
+                                          hideListBadge={true}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* List Footer */}
+                              <div className="task-list-footer-compact">
+                                <button className="add-task-btn-footer">
+                                  <Plus className="icon-xs" />
+                                  {t("allTasks.addTask")}
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+
+                      {/* Add New List Card */}
+                      <div className="task-list-card-compact add-list-card">
+                        <div className="add-list-content">
+                          <div className="add-list-icon">
+                            <Plus className="icon-lg" />
+                          </div>
+                          <h3 className="add-list-title">
+                            {t("allTasks.newList")}
+                          </h3>
+                          <p className="add-list-description">
+                            {t("allTasks.createNewList")}
+                          </p>
+                        </div>
                       </div>
-                      <h3 className="add-list-title">
-                        {t("allTasks.newList")}
-                      </h3>
-                      <p className="add-list-description">
-                        {t("allTasks.createNewList")}
-                      </p>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Empty State for No Lists */}
-              {lists.length === 0 && !loading && (
-                <div className="empty-state">
-                  <div className="empty-state-icon">
-                    <ListTodo className="icon-xl" />
-                  </div>
-                  <h3 className="empty-state-title">{t("allTasks.noLists")}</h3>
-                  <p className="empty-state-description">
-                    {t("allTasks.createFirstList")}
-                  </p>
-                  <button className="add-task-button-large">
-                    <Plus className="icon-md" />
-                    {t("allTasks.newList")}
-                  </button>
-                </div>
+                </>
               )}
             </div>
           </div>
