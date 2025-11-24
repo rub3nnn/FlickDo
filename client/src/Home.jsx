@@ -5,6 +5,7 @@ import { Header } from "./components/Header/Header";
 import { StatsGrid } from "./components/Stats/StatsGrid";
 import { TasksList } from "./components/Tasks/TasksList";
 import { TasksListSkeleton } from "./components/Tasks/TasksListSkeleton";
+import { EmptyState } from "./components/EmptyState/EmptyState";
 import { EventsWidget } from "./components/Widgets/EventsWidget";
 import { ClassroomWidget } from "./components/Widgets/ClassroomWidget";
 import { QuickActions } from "./components/Widgets/QuickActions";
@@ -65,6 +66,12 @@ export default function Home() {
                   <WidgetsSkeleton />
                 </div>
               </>
+            ) : !loading && lists.length === 0 ? (
+              <EmptyState
+                onCreateList={(listName) =>
+                  console.log("Create list:", listName)
+                }
+              />
             ) : (
               <>
                 <StatsGrid tasks={tasks} />
