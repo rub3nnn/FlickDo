@@ -34,6 +34,7 @@ import { useListMembers } from "@/hooks/useListMembers";
 export function AssignTaskCommand({
   listId,
   assignedUsers = [],
+  initialAssignees = [],
   onAssigneeChange,
   currentUserId,
   disabled = false,
@@ -43,7 +44,18 @@ export function AssignTaskCommand({
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  const { members, loading } = useListMembers(listId);
+  // Usar modo lazy para cargar miembros solo cuando se abre el popover
+  const { members, loading, loadMembers } = useListMembers(listId, {
+    lazy: true,
+  });
+
+  // Cargar miembros cuando se abre el popover
+  const handleOpenChange = (isOpen) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      loadMembers();
+    }
+  };
 
   // Filtrar miembros por búsqueda
   const filteredMembers = useMemo(() => {
@@ -60,7 +72,11 @@ export function AssignTaskCommand({
   // Verificar si un usuario está asignado
   const isAssigned = useCallback(
     (userId) => {
-      return assignedUsers.some((u) => u.id === userId || u === userId);
+      if (!userId || !assignedUsers || assignedUsers.length === 0) return false;
+      return assignedUsers.some((u) => {
+        const assigneeId = typeof u === "object" ? u.id : u;
+        return String(assigneeId) === String(userId);
+      });
     },
     [assignedUsers]
   );
@@ -125,9 +141,25 @@ export function AssignTaskCommand({
 
   // Obtener datos de usuario asignado
   const getAssignedUserData = (assignee) => {
-    if (typeof assignee === "object") return assignee;
-    const member = members.find((m) => m.profiles?.id === assignee);
-    return member?.profiles || { id: assignee };
+    // Si ya es un objeto con datos, usarlo directamente
+    if (typeof assignee === "object" && assignee.first_name) return assignee;
+
+    const assigneeId = typeof assignee === "object" ? assignee.id : assignee;
+
+    // Primero buscar en initialAssignees (datos originales de la tarea)
+    const initialUser = initialAssignees?.find(
+      (a) => String(a.id) === String(assigneeId)
+    );
+    if (initialUser) return initialUser;
+
+    // Si no, buscar en members (cargados del servidor)
+    const member = members.find(
+      (m) => String(m.profiles?.id) === String(assigneeId)
+    );
+    if (member?.profiles) return member.profiles;
+
+    // Fallback: retornar objeto mínimo con el ID
+    return { id: assigneeId };
   };
 
   // Trigger por defecto
@@ -175,7 +207,7 @@ export function AssignTaskCommand({
   );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>{trigger || defaultTrigger}</PopoverTrigger>
       <PopoverContent className="assign-popover" align="start">
         <Command className="assign-command" shouldFilter={false}>

@@ -570,20 +570,23 @@ export const TaskCard = ({
               </div>
             </div>
 
-            {/* Segunda línea: Asignados */}
-            <div className="task-assignees-edit">
-              <AssignTaskCommand
-                listId={currentTask.list_id || propListId}
-                assignedUsers={editedTask.assignees}
-                onAssigneeChange={(newAssignees) => {
-                  const assigneeIds = newAssignees.map((a) =>
-                    typeof a === "object" ? a.id : a
-                  );
-                  handleChange("assignees", assigneeIds);
-                }}
-                currentUserId={user?.id}
-              />
-            </div>
+            {/* Segunda línea: Asignados (solo si la lista está compartida) */}
+            {list?.is_shared && (
+              <div className="task-assignees-edit">
+                <AssignTaskCommand
+                  listId={currentTask.list_id || propListId}
+                  assignedUsers={editedTask.assignees}
+                  initialAssignees={currentTask.assignees}
+                  onAssigneeChange={(newAssignees) => {
+                    const assigneeIds = newAssignees.map((a) =>
+                      typeof a === "object" ? a.id : a
+                    );
+                    handleChange("assignees", assigneeIds);
+                  }}
+                  currentUserId={user?.id}
+                />
+              </div>
+            )}
           </div>
 
           {/* Solo mostrar menú si no es modo creación */}
@@ -803,11 +806,15 @@ export const TaskCard = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="dropdown-width-sm" align="end">
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={handleEditClick}>
-                <Users />
-                {t("assign.assignTask")}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              {list?.is_shared && (
+                <>
+                  <DropdownMenuItem onClick={handleEditClick}>
+                    <Users />
+                    {t("assign.assignTask")}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem onClick={handleDelete}>
                 <Trash />
                 {t("tasks.delete")}
