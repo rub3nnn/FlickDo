@@ -69,17 +69,17 @@ export const UserMenu = ({ darkMode, onToggleDarkMode }) => {
               </>
             ) : (
               <>
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="user-info flex-1">
-                  <Skeleton className="h-4 w-24 mb-1" />
-                  <Skeleton className="h-3 w-32" />
+                <Skeleton className="user-skeleton-avatar" />
+                <div className="user-info user-info-skeleton">
+                  <Skeleton className="user-skeleton-name" />
+                  <Skeleton className="user-skeleton-email" />
                 </div>
-                <Skeleton className="h-4 w-4" />
+                <Skeleton className="user-skeleton-chevron" />
               </>
             )}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="center">
+        <DropdownMenuContent className="dropdown-width-lg" align="center">
           <DropdownMenuLabel>{t("userMenu.myAccount")}</DropdownMenuLabel>
           <DropdownMenuGroup>
             <DropdownMenuItem disabled>

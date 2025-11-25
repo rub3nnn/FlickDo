@@ -1698,6 +1698,140 @@ body {
 /* Left Side - Hero Section */
 .auth-left {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+
+  /* Utility / semantic classes added to replace Tailwind utilities */
+
+  /* Dropdown widths (replaces Tailwind widths like w-30, w-56, w-64) */
+  .dropdown-width-sm {
+    width: 7.5rem;
+  }
+  .dropdown-width-lg {
+    width: 14rem;
+  }
+  .dropdown-width-xl {
+    width: 16rem;
+  }
+
+  /* Task title spacing toggles */
+  .task-no-description {
+    margin-bottom: 0 !important;
+  }
+
+  /* Task date input: replace Tailwind flex/gap/align utilities */
+  .task-date-input {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    text-align: left;
+    font-weight: 400;
+  }
+  .muted-foreground {
+    color: var(--text-tertiary);
+  }
+
+  /* Full width button replacement for w-full */
+  .full-width-btn {
+    width: 100%;
+  }
+
+  /* Tooltip max width */
+  .tooltip-max-w {
+    max-width: 250px;
+  }
+
+  /* Tag combobox check state */
+  .tag-combobox-check {
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .tag-combobox-check.selected {
+    opacity: 1;
+  }
+
+  /* Classroom badge open button wrapper (replaces w-full + mt-2) */
+  .classroom-badge-open-wrapper {
+    width: 100%;
+    margin-top: 8px;
+  }
+  .classroom-badge-open-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Destructive button and text (replaces shadcn/tailwind destructive tokens) */
+  .btn-destructive {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn-destructive:hover {
+    background: color-mix(in srgb, var(--red) 90%, black 10%);
+  }
+  .text-destructive {
+    color: var(--red);
+  }
+
+  /* Tooltip/combobox related */
+  .tag-combobox-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Toggle switch states */
+  .toggle-switch {
+    width: 40px;
+    height: 22px;
+    background: var(--bg-tertiary);
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+  }
+  .toggle-switch-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.15s ease;
+  }
+  .toggle-switch.toggle-on {
+    background: var(--accent);
+  }
+  .toggle-switch.toggle-on .toggle-switch-thumb {
+    transform: translateX(18px);
+  }
+  .toggle-switch.toggle-off {
+    background: var(--bg-tertiary);
+  }
+
+  /* Small utility shims for migrated components (avoid Tailwind runtime) */
+  .mt-4 {
+    margin-top: 1rem;
+  }
+  .mr-2 {
+    margin-right: 0.5rem;
+  }
+  .w-56 {
+    width: 14rem;
+  }
+  .w-30 {
+    width: 7.5rem;
+  }
+  .w-64 {
+    width: 16rem;
+  }
+  .w-full {
+    width: 100%;
+  }
+
   padding: 4rem 3rem;
   display: flex;
   flex-direction: column;
@@ -5884,4 +6018,798 @@ body {
     width: 32px;
     height: 32px;
   }
+}
+
+/* ================================================================
+   ESTILOS ADICIONALES PARA EVITAR TAILWIND EN COMPONENTES
+   ================================================================ */
+
+/* Task Description (modo no edición) */
+.task-description {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+/* Task Description Input (modo edición) */
+.task-description-input {
+  width: 100%;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.task-description-input::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.6;
+}
+
+.task-description-input:focus {
+  border-color: var(--border-hover);
+}
+
+/* Task Tags Container */
+.task-tags-container {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Task Tag Item */
+.task-tag-item {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.task-tag-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* TasksListSkeleton styles */
+.skeleton-title {
+  height: 28px;
+  width: 128px;
+}
+
+.skeleton-count-badge {
+  height: 24px;
+  width: 32px;
+  border-radius: 9999px;
+  margin-left: 8px;
+}
+
+.skeleton-add-btn {
+  height: 36px;
+  width: 128px;
+  border-radius: 8px;
+}
+
+.skeleton-filter-btn {
+  height: 32px;
+  width: 96px;
+  border-radius: 9999px;
+}
+
+.skeleton-task-checkbox {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-task-details {
+  flex: 1;
+}
+
+.skeleton-task-title {
+  height: 20px;
+  width: 75%;
+  margin-bottom: 8px;
+}
+
+.skeleton-task-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.skeleton-task-badge {
+  height: 24px;
+  width: 80px;
+  border-radius: 9999px;
+}
+
+.skeleton-task-date {
+  height: 16px;
+  width: 96px;
+}
+
+.skeleton-task-menu {
+  height: 32px;
+  width: 32px;
+  border-radius: 6px;
+}
+
+/* Stats Grid Skeleton overrides */
+.stats-grid .stat-card-skeleton {
+  height: 106px;
+}
+
+/* StatCard Skeleton styles */
+.stat-skeleton-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.stat-skeleton-label {
+  height: 14px;
+  width: 64px;
+  border-radius: 4px;
+}
+
+.stat-skeleton-value {
+  height: 32px;
+  width: 40px;
+  border-radius: 4px;
+}
+
+.stat-skeleton-description {
+  height: 12px;
+  width: 80px;
+  border-radius: 4px;
+}
+
+/* Task Assignee Avatar styles */
+.task-assignee-avatar {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--bg-primary);
+}
+
+.task-assignee-fallback {
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--indigo);
+  color: white;
+}
+
+.task-assignee-fallback-more {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.task-assignees-more {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--bg-primary);
+}
+
+.task-assignees-list-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+/* Spinner animation */
+.spin-animation {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Widget Skeleton Styles */
+.widget-skeleton-title {
+  height: 20px;
+  width: 128px;
+}
+
+.widget-skeleton-subtitle {
+  height: 16px;
+  width: 64px;
+}
+
+.widget-skeleton-time {
+  height: 20px;
+  width: 32px;
+  margin-bottom: 4px;
+}
+
+.widget-skeleton-time-sm {
+  height: 16px;
+  width: 32px;
+}
+
+.widget-skeleton-text {
+  height: 16px;
+  width: 160px;
+  margin-bottom: 8px;
+}
+
+.widget-skeleton-dot {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+}
+
+.widget-skeleton-label-sm {
+  height: 12px;
+  width: 32px;
+}
+
+.widget-skeleton-label-md {
+  height: 12px;
+  width: 64px;
+}
+
+.widget-skeleton-icon {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+}
+
+.widget-skeleton-button-text {
+  height: 16px;
+  width: 112px;
+}
+
+.widget-skeleton-icon-lg {
+  height: 32px;
+  width: 32px;
+  border-radius: 8px;
+}
+
+.widget-skeleton-title-sm {
+  height: 20px;
+  width: 96px;
+}
+
+.widget-skeleton-badge {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+}
+
+.widget-skeleton-task {
+  height: 16px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.widget-skeleton-date {
+  height: 12px;
+  width: 80px;
+}
+
+.widget-skeleton-count {
+  height: 12px;
+  width: 32px;
+}
+
+.widget-skeleton-button-lg {
+  height: 16px;
+  width: 128px;
+}
+
+.widget-skeleton-action-icon {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+}
+
+.widget-skeleton-action-text {
+  height: 20px;
+  width: 128px;
+}
+
+.widget-skeleton-action-item {
+  height: 16px;
+  width: 96px;
+}
+
+/* UserMenu Skeleton Styles */
+.user-skeleton-avatar {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+}
+
+.user-skeleton-name {
+  height: 16px;
+  width: 96px;
+  margin-bottom: 4px;
+}
+
+.user-skeleton-email {
+  height: 12px;
+  width: 128px;
+}
+
+.user-skeleton-chevron {
+  height: 16px;
+  width: 16px;
+}
+
+.user-info-skeleton {
+  flex: 1;
+}
+
+/* TagCombobox Styles */
+.tag-combobox-trigger {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.tag-combobox-content {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+
+.tag-combobox-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.tag-combobox-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.tag-combobox-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80px;
+}
+
+.tag-combobox-remove {
+  border-radius: 50%;
+  padding: 2px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.tag-combobox-remove:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.tag-combobox-remove-icon {
+  width: 10px;
+  height: 10px;
+}
+
+.tag-combobox-more {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  cursor: help;
+}
+
+.tag-combobox-tooltip-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tag-combobox-tooltip-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.tag-combobox-placeholder {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-combobox-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tag-combobox-chevron {
+  margin-left: 8px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.tag-combobox-popover {
+  width: 300px;
+  padding: 0;
+}
+
+.tag-combobox-create {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 14px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.tag-combobox-create:hover {
+  background: var(--bg-hover);
+}
+
+.tag-combobox-create-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tag-combobox-empty {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.tag-combobox-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-combobox-check {
+  width: 16px;
+  height: 16px;
+}
+
+.tag-combobox-option-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* DateTimePicker Styles */
+.datetime-picker-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.datetime-picker-clear {
+  width: 12px;
+  height: 12px;
+  margin-left: auto;
+}
+
+.datetime-picker-clear:hover {
+  color: var(--red);
+}
+
+.datetime-picker-popover {
+  width: auto;
+  padding: 0;
+}
+
+.datetime-picker-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.datetime-picker-separator {
+  border-top: 1px solid var(--border-color);
+}
+
+.datetime-picker-options {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.datetime-picker-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.datetime-picker-toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.datetime-picker-time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.datetime-picker-time-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+}
+
+.datetime-picker-time-input {
+  flex: 1;
+  height: 32px;
+  font-size: 14px;
+}
+
+/* ClassroomBadge Styles */
+.classroom-badge-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #dbeafe;
+  color: #1d4ed8;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.classroom-badge-trigger:hover {
+  background: #bfdbfe;
+}
+
+.dark .classroom-badge-trigger {
+  background: rgba(30, 64, 175, 0.3);
+  color: #60a5fa;
+}
+
+.dark .classroom-badge-trigger:hover {
+  background: rgba(30, 64, 175, 0.5);
+}
+
+.classroom-badge-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.classroom-badge-popover {
+  width: 320px;
+}
+
+.classroom-badge-card {
+  border: none;
+  box-shadow: none;
+}
+
+.classroom-badge-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.classroom-badge-header-content {
+  flex: 1;
+}
+
+.classroom-badge-title {
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.classroom-badge-title-icon {
+  width: 16px;
+  height: 16px;
+  color: #2563eb;
+}
+
+.dark .classroom-badge-title-icon {
+  color: #60a5fa;
+}
+
+.classroom-badge-subtitle {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.classroom-badge-external-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.classroom-badge-external-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.classroom-badge-section {
+  margin-bottom: 12px;
+}
+
+.classroom-badge-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.classroom-badge-value {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.classroom-badge-value-secondary {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.classroom-badge-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.classroom-badge-date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.classroom-badge-date-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+}
+
+.classroom-badge-date-content {
+  flex: 1;
+}
+
+.classroom-badge-id-section {
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.classroom-badge-id-value {
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text-secondary);
+}
+
+.classroom-badge-sync-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.classroom-badge-sync-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--text-secondary);
+}
+
+.classroom-badge-sync-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.classroom-badge-open-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Destructive Button Style */
+.btn-destructive {
+  background: var(--red);
+  color: white;
+}
+
+.btn-destructive:hover {
+  background: #dc2626;
+}
+
+/* Link Button Inline */
+.link-button.link-button-inline {
+  display: inline;
+}
+
+/* Utility Classes */
+.mt-4 {
+  margin-top: 16px;
+}
+
+.mr-2 {
+  margin-right: 8px;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.w-56 {
+  width: 224px;
+}
+
+/* Custom Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  height: 20px;
+  width: 36px;
+  align-items: center;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.toggle-switch.toggle-off {
+  background: var(--bg-tertiary);
+}
+
+.toggle-switch.toggle-on {
+  background: var(--indigo);
+}
+
+.toggle-switch-thumb {
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  transform: translateX(2px);
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s ease;
+}
+
+.toggle-switch.toggle-on .toggle-switch-thumb {
+  transform: translateX(18px);
 }

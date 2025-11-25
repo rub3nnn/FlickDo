@@ -135,28 +135,22 @@ export const DateTimePicker = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn(
-            "task-date-input justify-start text-left font-normal gap-2",
-            !date && "text-muted-foreground"
-          )}
+          className={cn("task-date-input", !date && "muted-foreground")}
           size="sm"
         >
-          <CalendarIcon className="h-4 w-4" />
+          <CalendarIcon className="datetime-picker-icon" />
           {date ? (
             <>
               <span>{formatDisplayDate()}</span>
-              <X
-                className="h-3 w-3 ml-auto hover:text-destructive"
-                onClick={handleClear}
-              />
+              <X className="datetime-picker-clear" onClick={handleClear} />
             </>
           ) : (
             <span>{t("tasks.selectDate")}</span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <div className="flex flex-col">
+      <PopoverContent className="datetime-picker-popover" align="start">
+        <div className="datetime-picker-content">
           {/* Calendario */}
           <Calendar
             mode="single"
@@ -167,14 +161,14 @@ export const DateTimePicker = ({
           />
 
           {/* Separador */}
-          <div className="border-t border-border"></div>
+          <div className="datetime-picker-separator"></div>
 
           {/* Opciones de tiempo */}
-          <div className="p-3 space-y-3">
+          <div className="datetime-picker-options">
             {/* Toggle día completo */}
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Clock className="h-4 w-4" />
+            <div className="datetime-picker-toggle-row">
+              <label className="datetime-picker-toggle-label">
+                <Clock className="datetime-picker-icon" />
                 {t("tasks.allDay")}
               </label>
               <button
@@ -183,34 +177,33 @@ export const DateTimePicker = ({
                 aria-checked={isAllDay}
                 onClick={handleAllDayToggle}
                 className={cn(
-                  "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-                  isAllDay ? "bg-primary" : "bg-muted"
+                  "toggle-switch",
+                  isAllDay ? "toggle-on" : "toggle-off"
                 )}
               >
-                <span
-                  className={cn(
-                    "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                    isAllDay ? "translate-x-5" : "translate-x-0.5"
-                  )}
-                />
+                <span className="toggle-switch-thumb" />
               </button>
             </div>
 
             {/* Selector de hora (solo si no es día completo) */}
             {!isAllDay && (
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+              <div className="datetime-picker-time-row">
+                <Clock className="datetime-picker-time-icon" />
                 <Input
                   type="time"
                   value={time}
                   onChange={(e) => handleTimeChange(e.target.value)}
-                  className="flex-1 h-8 text-sm"
+                  className="datetime-picker-time-input"
                 />
               </div>
             )}
 
             {/* Botón para aplicar y cerrar */}
-            <Button size="sm" className="w-full" onClick={() => setOpen(false)}>
+            <Button
+              size="sm"
+              className="full-width-btn"
+              onClick={() => setOpen(false)}
+            >
               {t("common.apply") || "Aplicar"}
             </Button>
           </div>

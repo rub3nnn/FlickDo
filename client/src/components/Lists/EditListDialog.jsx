@@ -278,7 +278,7 @@ export function EditListDialog({ open, onOpenChange, list, onUpdateList }) {
             <Button type="submit" disabled={!title.trim() || isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="icon-sm animate-spin" />
+                  <Loader2 className="icon-sm spin-animation" />
                   {t("common.saving")}
                 </>
               ) : (

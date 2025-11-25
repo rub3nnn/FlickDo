@@ -6,27 +6,27 @@ export const WidgetsSkeleton = () => {
       {/* Events Widget Skeleton */}
       <div className="widget events-widget">
         <div className="widget-header">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-4 w-16" />
+          <Skeleton className="widget-skeleton-title" />
+          <Skeleton className="widget-skeleton-subtitle" />
         </div>
         <div className="events-list">
           {[1, 2, 3].map((i) => (
             <div key={i} className="event-card">
               <div className="event-time">
-                <Skeleton className="h-5 w-8 mb-1" />
-                <Skeleton className="h-4 w-8" />
+                <Skeleton className="widget-skeleton-time" />
+                <Skeleton className="widget-skeleton-time-sm" />
               </div>
               <div className="event-details">
-                <Skeleton className="h-4 w-40 mb-2" />
+                <Skeleton className="widget-skeleton-text" />
                 <div className="event-meta">
                   <div className="event-meta-item">
-                    <Skeleton className="h-3 w-3 rounded-full" />
-                    <Skeleton className="h-3 w-8" />
+                    <Skeleton className="widget-skeleton-dot" />
+                    <Skeleton className="widget-skeleton-label-sm" />
                   </div>
                   <span>•</span>
                   <div className="event-meta-item">
-                    <Skeleton className="h-3 w-3 rounded-full" />
-                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="widget-skeleton-dot" />
+                    <Skeleton className="widget-skeleton-label-md" />
                   </div>
                 </div>
               </div>
@@ -42,8 +42,8 @@ export const WidgetsSkeleton = () => {
             justifyContent: "center",
           }}
         >
-          <Skeleton className="h-4 w-4 rounded-full" />
-          <Skeleton className="h-4 w-28" />
+          <Skeleton className="widget-skeleton-icon" />
+          <Skeleton className="widget-skeleton-button-text" />
         </div>
       </div>
 
@@ -51,18 +51,18 @@ export const WidgetsSkeleton = () => {
       <div className="widget classroom-widget">
         <div className="widget-header">
           <div className="widget-title-group">
-            <Skeleton className="h-8 w-8 rounded-lg" />
-            <Skeleton className="h-5 w-24" />
+            <Skeleton className="widget-skeleton-icon-lg" />
+            <Skeleton className="widget-skeleton-title-sm" />
           </div>
-          <Skeleton className="h-5 w-5 rounded-full" />
+          <Skeleton className="widget-skeleton-badge" />
         </div>
         <div className="classroom-list">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="classroom-card">
-              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="widget-skeleton-task" />
               <div className="classroom-task-footer">
-                <Skeleton className="h-3 w-20" />
-                <Skeleton className="h-3 w-8" />
+                <Skeleton className="widget-skeleton-date" />
+                <Skeleton className="widget-skeleton-count" />
               </div>
             </div>
           ))}
@@ -76,16 +76,16 @@ export const WidgetsSkeleton = () => {
             justifyContent: "center",
           }}
         >
-          <Skeleton className="h-4 w-4 rounded-full" />
-          <Skeleton className="h-4 w-32" />
+          <Skeleton className="widget-skeleton-icon" />
+          <Skeleton className="widget-skeleton-button-lg" />
         </div>
       </div>
 
       {/* Quick Actions Skeleton */}
       <div className="widget quick-actions">
         <div className="quick-actions-header">
-          <Skeleton className="h-5 w-5 rounded-full" />
-          <Skeleton className="h-5 w-32" />
+          <Skeleton className="widget-skeleton-action-icon" />
+          <Skeleton className="widget-skeleton-action-text" />
         </div>
         <div className="quick-actions-list">
           {[1, 2, 3].map((i) => (
@@ -94,8 +94,8 @@ export const WidgetsSkeleton = () => {
               className="quick-action-button"
               style={{ display: "flex", gap: "8px", alignItems: "center" }}
             >
-              <Skeleton className="h-4 w-4 rounded-full" />
-              <Skeleton className="h-4 w-24" />
+              <Skeleton className="widget-skeleton-icon" />
+              <Skeleton className="widget-skeleton-action-item" />
             </div>
           ))}
         </div>

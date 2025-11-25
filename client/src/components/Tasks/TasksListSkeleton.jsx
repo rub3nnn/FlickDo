@@ -6,15 +6,15 @@ export const TasksListSkeleton = () => {
       <div className="tasks-header">
         <div className="tasks-title-wrapper">
           <div className="tasks-title-group">
-            <Skeleton className="h-7 w-32" />
-            <Skeleton className="h-6 w-8 rounded-full ml-2" />
+            <Skeleton className="skeleton-title" />
+            <Skeleton className="skeleton-count-badge" />
           </div>
-          <Skeleton className="h-9 w-32 rounded-lg" />
+          <Skeleton className="skeleton-add-btn" />
         </div>
 
         <div className="filter-buttons">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-8 w-24 rounded-full" />
+            <Skeleton key={i} className="skeleton-filter-btn" />
           ))}
         </div>
       </div>
@@ -23,15 +23,15 @@ export const TasksListSkeleton = () => {
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="task-card">
             <div className="task-content">
-              <Skeleton className="h-5 w-5 rounded-full shrink-0" />
-              <div className="task-details flex-1">
-                <Skeleton className="h-5 w-3/4 mb-2" />
-                <div className="flex gap-2 items-center">
-                  <Skeleton className="h-6 w-20 rounded-full" />
-                  <Skeleton className="h-4 w-24" />
+              <Skeleton className="skeleton-task-checkbox" />
+              <div className="skeleton-task-details">
+                <Skeleton className="skeleton-task-title" />
+                <div className="skeleton-task-meta">
+                  <Skeleton className="skeleton-task-badge" />
+                  <Skeleton className="skeleton-task-date" />
                 </div>
               </div>
-              <Skeleton className="h-8 w-8 rounded" />
+              <Skeleton className="skeleton-task-menu" />
             </div>
           </div>
         ))}

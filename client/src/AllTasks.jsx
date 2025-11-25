@@ -690,7 +690,7 @@ export default function AllTasks() {
               <AlertDialogAction
                 onClick={handleDeleteList}
                 disabled={isDeletingList}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="btn-destructive"
               >
                 {isDeletingList
                   ? t("common.deleting") || "Eliminando..."

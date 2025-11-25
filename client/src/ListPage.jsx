@@ -556,7 +556,7 @@ export default function ListPage() {
               <AlertDialogAction
                 onClick={handleDeleteList}
                 disabled={isDeleting}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="btn-destructive"
               >
                 {isDeleting
                   ? t("common.deleting") || "Eliminando..."
