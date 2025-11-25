@@ -95,7 +95,7 @@ export function AssignTaskCommand({
     onAssigneeChange(newAssignees);
   };
 
-  const getInitials = (profile) => {
+  function getInitials(profile) {
     if (profile?.first_name && profile?.last_name) {
       return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase();
     }
@@ -103,14 +103,14 @@ export function AssignTaskCommand({
       return profile.email[0].toUpperCase();
     }
     return "?";
-  };
+  }
 
-  const getDisplayName = (profile) => {
+  function getDisplayName(profile) {
     if (profile?.first_name && profile?.last_name) {
       return `${profile.first_name} ${profile.last_name}`;
     }
     return profile?.email || t("assign.unknownUser");
-  };
+  }
 
   const getRoleIcon = (role) => {
     switch (role) {
