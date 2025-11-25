@@ -575,6 +575,7 @@ export const TaskCard = ({
               <AssignTaskCommand
                 listId={currentTask.list_id || propListId}
                 assignedUsers={editedTask.assignees}
+                initialAssignees={currentTask.assignees}
                 onAssigneeChange={(newAssignees) => {
                   const assigneeIds = newAssignees.map((a) =>
                     typeof a === "object" ? a.id : a

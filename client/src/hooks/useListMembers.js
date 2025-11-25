@@ -4,15 +4,21 @@ import { listsApi } from "@/services/api";
 
 /**
  * Hook personalizado para manejar miembros de una lista
+ * @param {string|number} listId - ID de la lista
+ * @param {object} options - Opciones de configuración
+ * @param {boolean} options.lazy - Si es true, no carga automáticamente al montar
  */
-export function useListMembers(listId) {
+export function useListMembers(listId, options = {}) {
+  const { lazy = false } = options;
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
   // Cargar miembros
   const loadMembers = useCallback(async () => {
     if (!listId) return;
+    if (loaded && members.length > 0) return; // Ya cargados
 
     try {
       setLoading(true);
@@ -20,6 +26,7 @@ export function useListMembers(listId) {
       const response = await listsApi.getListMembers(listId);
       if (response.success) {
         setMembers(response.data);
+        setLoaded(true);
       }
     } catch (err) {
       setError(err.message);
@@ -27,7 +34,7 @@ export function useListMembers(listId) {
     } finally {
       setLoading(false);
     }
-  }, [listId]);
+  }, [listId, loaded, members.length]);
 
   // Agregar miembro por email
   const addMember = useCallback(
@@ -89,17 +96,18 @@ export function useListMembers(listId) {
     [listId]
   );
 
-  // Cargar miembros al montar
+  // Cargar miembros al montar (solo si no es lazy)
   useEffect(() => {
-    if (listId) {
+    if (listId && !lazy) {
       loadMembers();
     }
-  }, [listId, loadMembers]);
+  }, [listId, lazy, loadMembers]);
 
   return {
     members,
     loading,
     error,
+    loaded,
     loadMembers,
     addMember,
     updateMemberRole,
