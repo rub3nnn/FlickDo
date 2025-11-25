@@ -72,6 +72,7 @@
     "completedDesc": "This week"
   },
   "tasks": {
+    "tasks": "Tasks",
     "myTasks": "My Tasks",
     "newTask": "New task",
     "all": "All",
@@ -112,7 +113,11 @@
     "lastSynced": "Last synced",
     "openInClassroom": "Open in Classroom",
     "noDate": "No date",
-    "invalidDate": "Invalid date"
+    "invalidDate": "Invalid date",
+    "selectTagsPlaceholder": "Select tags...",
+    "searchOrCreateTagPlaceholder": "Search or create tag...",
+    "createTag": "Create \"{{value}}\"",
+    "noTagsFound": "No tags found"
   },
   "widgets": {
     "eventsToday": "Events Today",
@@ -188,7 +193,8 @@
     "createFirstList": "Create your first list to get started",
     "createNewList": "Organize your tasks in a new list",
     "task": "task",
-    "tasks": "tasks"
+    "tasks": "tasks",
+    "shared": "Shared"
   },
   "common": {
     "apply": "Apply",

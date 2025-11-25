@@ -112,7 +112,12 @@
     "lastSynced": "Última sincronización",
     "openInClassroom": "Abrir en Classroom",
     "noDate": "Sin fecha",
-    "invalidDate": "Fecha inválida"
+    "invalidDate": "Fecha inválida",
+    "descriptionPlaceholder": "Descripción de la tarea",
+    "selectTagsPlaceholder": "Seleccionar etiquetas...",
+    "searchOrCreateTagPlaceholder": "Buscar o crear etiqueta...",
+    "createTag": "Crear \"{{value}}\"",
+    "noTagsFound": "No se encontraron etiquetas"
   },
   "widgets": {
     "eventsToday": "Eventos Hoy",

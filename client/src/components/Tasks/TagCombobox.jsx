@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Check, ChevronsUpDown, Plus, Tag, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -39,6 +40,7 @@ export const TagCombobox = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const { t } = useTranslation();
 
   const handleSelect = (tagId) => {
     const isSelected = selectedTags.includes(tagId);
@@ -147,7 +149,7 @@ export const TagCombobox = ({
           ) : (
             <span className="tag-combobox-placeholder">
               <Tag className="tag-combobox-icon" />
-              Seleccionar etiquetas...
+              {t("tasks.selectTagsPlaceholder")}
             </span>
           )}
           <ChevronsUpDown className="tag-combobox-chevron" />
@@ -156,7 +158,7 @@ export const TagCombobox = ({
       <PopoverContent className="tag-combobox-popover" align="start">
         <Command>
           <CommandInput
-            placeholder="Buscar o crear etiqueta..."
+            placeholder={t("tasks.searchOrCreateTagPlaceholder")}
             value={searchValue}
             onValueChange={setSearchValue}
           />
@@ -165,11 +167,11 @@ export const TagCombobox = ({
               {searchValue.trim() && onCreateTag ? (
                 <div onClick={handleCreateTag} className="tag-combobox-create">
                   <Plus className="tag-combobox-create-icon" />
-                  Crear "{searchValue}"
+                  {t("tasks.createTag", { value: searchValue })}
                 </div>
               ) : (
                 <span className="tag-combobox-empty">
-                  No se encontraron etiquetas
+                  {t("tasks.noTagsFound")}
                 </span>
               )}
             </CommandEmpty>
