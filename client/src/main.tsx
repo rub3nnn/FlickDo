@@ -16,12 +16,14 @@ i18n.on &&
   }); // { changed code }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <AuthProvider>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <App />
-        <Toaster />
-      </ThemeProvider>
-    </AuthProvider>
-  </BrowserRouter>
+  <StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+          <App />
+          <Toaster />
+        </ThemeProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  </StrictMode>
 );
