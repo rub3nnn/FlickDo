@@ -558,7 +558,10 @@ const SignupPage = ({ onSwitchToLogin }) => {
                     />
                     <span className="checkbox-text">
                       {t("auth.signup.acceptTerms")}{" "}
-                      <button type="button" className="link-button inline">
+                      <button
+                        type="button"
+                        className="link-button link-button-inline"
+                      >
                         {t("auth.signup.termsAndConditions")}
                       </button>
                     </span>

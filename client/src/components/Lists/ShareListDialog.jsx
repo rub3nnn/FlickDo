@@ -304,7 +304,7 @@ export function ShareListDialog({ open, onOpenChange, list, currentUserId }) {
                           disabled={loadingMemberId === member.profiles?.id}
                         >
                           {loadingMemberId === member.profiles?.id ? (
-                            <Loader2 className="share-remove-icon animate-spin" />
+                            <Loader2 className="share-remove-icon spin-animation" />
                           ) : (
                             <X className="share-remove-icon" />
                           )}

@@ -46,27 +46,27 @@ export const ClassroomBadge = ({ classroomIntegration, task }) => {
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className="task-badge classroom inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors cursor-pointer dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+          className="classroom-badge-trigger"
           onClick={(e) => e.stopPropagation()}
         >
-          <BookOpen className="w-3.5 h-3.5" />
+          <BookOpen className="classroom-badge-icon" />
           Classroom
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-80"
+        className="classroom-badge-popover"
         align="start"
         onClick={(e) => e.stopPropagation()}
       >
-        <Card className="border-0 shadow-none">
+        <Card className="classroom-badge-card">
           <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <div className="classroom-badge-header">
+              <div className="classroom-badge-header-content">
+                <CardTitle className="classroom-badge-title">
+                  <BookOpen className="classroom-badge-title-icon" />
                   {t("tasks.classroomTask")}
                 </CardTitle>
-                <CardDescription className="text-xs mt-1">
+                <CardDescription className="classroom-badge-subtitle">
                   {t("tasks.linkedToClassroom")}
                 </CardDescription>
               </div>
@@ -74,7 +74,7 @@ export const ClassroomBadge = ({ classroomIntegration, task }) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0"
+                  className="classroom-badge-external-btn"
                   asChild
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -83,38 +83,36 @@ export const ClassroomBadge = ({ classroomIntegration, task }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="classroom-badge-external-icon" />
                   </a>
                 </Button>
               )}
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="classroom-badge-content">
             {/* Título de la tarea */}
-            <div>
-              <p className="text-xs font-medium text-muted-foreground mb-1">
-                {t("tasks.taskTitle")}
-              </p>
-              <p className="text-sm font-medium">{task.title}</p>
+            <div className="classroom-badge-section">
+              <p className="classroom-badge-label">{t("tasks.taskTitle")}</p>
+              <p className="classroom-badge-value">{task.title}</p>
             </div>
 
             {/* ID del curso */}
             {classroomIntegration.course_id && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-1">
-                  {t("tasks.courseId")}
+              <div className="classroom-badge-section">
+                <p className="classroom-badge-label">{t("tasks.courseId")}</p>
+                <p className="classroom-badge-value-secondary">
+                  {classroomIntegration.course_id}
                 </p>
-                <p className="text-sm">{classroomIntegration.course_id}</p>
               </div>
             )}
 
             {/* Descripción de la tarea si existe */}
             {task.description && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-1">
+              <div className="classroom-badge-section">
+                <p className="classroom-badge-label">
                   {t("tasks.description")}
                 </p>
-                <p className="text-sm text-muted-foreground line-clamp-3">
+                <p className="classroom-badge-description">
                   {task.description}
                 </p>
               </div>
@@ -122,24 +120,24 @@ export const ClassroomBadge = ({ classroomIntegration, task }) => {
 
             {/* Fecha de entrega */}
             {task.due_date && (
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {t("tasks.dueDate")}
+              <div className="classroom-badge-date-row classroom-badge-section">
+                <Calendar className="classroom-badge-date-icon" />
+                <div className="classroom-badge-date-content">
+                  <p className="classroom-badge-label">{t("tasks.dueDate")}</p>
+                  <p className="classroom-badge-value-secondary">
+                    {formatDate(task.due_date)}
                   </p>
-                  <p className="text-sm">{formatDate(task.due_date)}</p>
                 </div>
               </div>
             )}
 
             {/* ID de la tarea de Classroom */}
             {classroomIntegration.course_work_id && (
-              <div className="pt-2 border-t">
-                <p className="text-xs font-medium text-muted-foreground mb-1">
+              <div className="classroom-badge-id-section classroom-badge-section">
+                <p className="classroom-badge-label">
                   {t("tasks.classroomId")}
                 </p>
-                <p className="text-xs font-mono text-muted-foreground">
+                <p className="classroom-badge-id-value">
                   {classroomIntegration.course_work_id}
                 </p>
               </div>
@@ -147,9 +145,9 @@ export const ClassroomBadge = ({ classroomIntegration, task }) => {
 
             {/* Última sincronización */}
             {classroomIntegration.last_synced_at && (
-              <div className="flex items-center gap-2 pt-2 border-t">
-                <Link2 className="w-3.5 h-3.5 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">
+              <div className="classroom-badge-sync-row">
+                <Link2 className="classroom-badge-sync-icon" />
+                <p className="classroom-badge-sync-text">
                   {t("tasks.lastSynced")}:{" "}
                   {formatDate(classroomIntegration.last_synced_at)}
                 </p>
@@ -158,22 +156,19 @@ export const ClassroomBadge = ({ classroomIntegration, task }) => {
 
             {/* Botón para abrir en Classroom */}
             {classroomIntegration.alternate_link && (
-              <Button
-                className="w-full mt-2"
-                size="sm"
-                asChild
-                onClick={(e) => e.stopPropagation()}
-              >
-                <a
-                  href={classroomIntegration.alternate_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  {t("tasks.openInClassroom")}
-                </a>
-              </Button>
+              <div className="classroom-badge-open-wrapper">
+                <Button size="sm" asChild onClick={(e) => e.stopPropagation()}>
+                  <a
+                    href={classroomIntegration.alternate_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="classroom-badge-open-btn"
+                  >
+                    <ExternalLink className="classroom-badge-external-icon" />
+                    {t("tasks.openInClassroom")}
+                  </a>
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>

@@ -502,7 +502,7 @@ export const TaskCard = ({
           </button>
 
           <div className="task-details">
-            <div className="task-title-row mb-0!">
+            <div className="task-title-row task-no-description">
               <Input
                 ref={titleInputRef}
                 type="text"
@@ -529,10 +529,8 @@ export const TaskCard = ({
               type="text"
               value={editedTask.description || ""}
               onChange={(e) => handleChange("description", e.target.value)}
-              className="w-full text-xs text-muted-foreground bg-muted/30 rounded px-2 py-1 mt-1 border border-transparent focus:border-muted-foreground/20 outline-none placeholder:text-muted-foreground/40 transition-colors mb-2"
-              placeholder={
-                t("tasks.descriptionPlaceholder") || "Añadir descripción..."
-              }
+              className="task-description-input"
+              placeholder={t("tasks.descriptionPlaceholder")}
             />
 
             {/* Primera línea: Lista, Classroom, Fecha y Tags */}
@@ -596,7 +594,7 @@ export const TaskCard = ({
                   <MoreHorizontal className="icon-sm" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-30" align="end">
+              <DropdownMenuContent className="dropdown-width-sm" align="end">
                 <DropdownMenuGroup>
                   <DropdownMenuItem onClick={handleDelete}>
                     <Trash />
@@ -641,7 +639,10 @@ export const TaskCard = ({
 
         <div className="task-details" onClick={handleEditClick}>
           <div
-            className={cn("task-title-row", currentTask.description && "mb-0!")}
+            className={cn(
+              "task-title-row",
+              currentTask.description && "task-no-description"
+            )}
           >
             <h4
               className={cn(
@@ -661,9 +662,7 @@ export const TaskCard = ({
 
           {/* Descripción de la tarea */}
           {currentTask.description && (
-            <p className="text-xs text-muted-foreground/70 line-clamp-1 mb-2">
-              {currentTask.description}
-            </p>
+            <p className="task-description">{currentTask.description}</p>
           )}
 
           <div className="task-meta">
@@ -693,18 +692,18 @@ export const TaskCard = ({
 
             {/* Mostrar tags si existen */}
             {currentTask.tags && currentTask.tags.length > 0 && (
-              <div className="flex gap-1 flex-wrap items-center">
+              <div className="task-tags-container">
                 {currentTask.tags.map((tag) => (
                   <span
                     key={`tag-${currentTask.id}-${tag.id}`}
-                    className="text-xs px-2 py-1 rounded-full inline-flex items-center gap-1 shrink-0"
+                    className="task-tag-item"
                     style={{
                       backgroundColor: tag.color + "20",
                       color: tag.color,
                     }}
                   >
                     <div
-                      className="w-2 h-2 rounded-full"
+                      className="task-tag-dot"
                       style={{ backgroundColor: tag.color }}
                     />
                     <span>{tag.name}</span>
@@ -723,13 +722,13 @@ export const TaskCard = ({
                     <TooltipTrigger asChild>
                       <Avatar
                         data-slot="avatar"
-                        className="h-8 w-8 border-2 border-background"
+                        className="task-assignee-avatar"
                       >
                         <AvatarImage
                           src={assignee.avatar_url}
                           alt={`${assignee.first_name} ${assignee.last_name}`}
                         />
-                        <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
+                        <AvatarFallback className="task-assignee-fallback">
                           {getInitials(assignee.first_name, assignee.last_name)}
                         </AvatarFallback>
                       </Avatar>
@@ -748,14 +747,14 @@ export const TaskCard = ({
                     <PopoverTrigger asChild>
                       <Avatar
                         data-slot="avatar"
-                        className="task-assignees-more h-8 w-8 border-2 border-background"
+                        className="task-assignees-more"
                       >
-                        <AvatarFallback className="text-xs font-semibold">
+                        <AvatarFallback className="task-assignee-fallback-more">
                           +{currentTask.assignees.length - 3}
                         </AvatarFallback>
                       </Avatar>
                     </PopoverTrigger>
-                    <PopoverContent className="w-64" align="start">
+                    <PopoverContent className="dropdown-width-xl" align="start">
                       <div className="task-assignees-list">
                         <p className="task-assignees-list-title">
                           {t("tasks.assignedTo")}
@@ -767,13 +766,13 @@ export const TaskCard = ({
                           >
                             <Avatar
                               data-slot="avatar"
-                              className="task-assignees-list-avatar h-8 w-8"
+                              className="task-assignees-list-avatar"
                             >
                               <AvatarImage
                                 src={assignee.avatar_url}
                                 alt={`${assignee.first_name} ${assignee.last_name}`}
                               />
-                              <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
+                              <AvatarFallback className="task-assignee-fallback">
                                 {getInitials(
                                   assignee.first_name,
                                   assignee.last_name
@@ -802,7 +801,7 @@ export const TaskCard = ({
               <MoreHorizontal className="icon-sm" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-30" align="end">
+          <DropdownMenuContent className="dropdown-width-sm" align="end">
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={handleEditClick}>
                 <Users />

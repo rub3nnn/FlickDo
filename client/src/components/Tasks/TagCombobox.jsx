@@ -86,54 +86,54 @@ export const TagCombobox = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="tag-combobox-trigger"
           size="sm"
           disabled={disabled}
         >
           {selectedTagsData.length > 0 ? (
-            <div className="flex gap-1 items-center overflow-hidden flex-1 min-w-0">
+            <div className="tag-combobox-content">
               {selectedTagsData.slice(0, MAX_VISIBLE_TAGS).map((tag) => (
                 <span
                   key={tag.id}
-                  className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full shrink-0"
+                  className="tag-combobox-item"
                   style={{
                     backgroundColor: tag.color + "20",
                     color: tag.color,
                   }}
                 >
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="tag-combobox-dot"
                     style={{ backgroundColor: tag.color }}
                   />
-                  <span className="truncate max-w-20">{tag.name}</span>
+                  <span className="tag-combobox-name">{tag.name}</span>
                   <span
                     onClick={(e) => handleRemoveTag(tag.id, e)}
-                    className="hover:bg-black/10 rounded-full p-0.5 transition-colors cursor-pointer"
+                    className="tag-combobox-remove"
                   >
-                    <X className="h-2.5 w-2.5" />
+                    <X className="tag-combobox-remove-icon" />
                   </span>
                 </span>
               ))}
               {selectedTagsData.length > MAX_VISIBLE_TAGS && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0 cursor-help">
+                    <span className="tag-combobox-more">
                       +{selectedTagsData.length - MAX_VISIBLE_TAGS}
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[250px]">
-                    <div className="flex flex-wrap gap-1">
+                  <TooltipContent side="top" className="tooltip-max-w">
+                    <div className="tag-combobox-tooltip-content">
                       {selectedTagsData.slice(MAX_VISIBLE_TAGS).map((tag) => (
                         <span
                           key={tag.id}
-                          className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
+                          className="tag-combobox-tooltip-item"
                           style={{
                             backgroundColor: tag.color + "20",
                             color: tag.color,
                           }}
                         >
                           <div
-                            className="w-2 h-2 rounded-full"
+                            className="tag-combobox-dot"
                             style={{ backgroundColor: tag.color }}
                           />
                           {tag.name}
@@ -145,15 +145,15 @@ export const TagCombobox = ({
               )}
             </div>
           ) : (
-            <span className="text-muted-foreground flex items-center gap-2">
-              <Tag className="h-4 w-4" />
+            <span className="tag-combobox-placeholder">
+              <Tag className="tag-combobox-icon" />
               Seleccionar etiquetas...
             </span>
           )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="tag-combobox-chevron" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="start">
+      <PopoverContent className="tag-combobox-popover" align="start">
         <Command>
           <CommandInput
             placeholder="Buscar o crear etiqueta..."
@@ -163,15 +163,12 @@ export const TagCombobox = ({
           <CommandList>
             <CommandEmpty>
               {searchValue.trim() && onCreateTag ? (
-                <div
-                  onClick={handleCreateTag}
-                  className="w-full px-2 py-1.5 text-sm hover:bg-accent rounded-sm flex items-center gap-2 cursor-pointer"
-                >
-                  <Plus className="h-4 w-4" />
+                <div onClick={handleCreateTag} className="tag-combobox-create">
+                  <Plus className="tag-combobox-create-icon" />
                   Crear "{searchValue}"
                 </div>
               ) : (
-                <span className="text-sm text-muted-foreground">
+                <span className="tag-combobox-empty">
                   No se encontraron etiquetas
                 </span>
               )}
@@ -184,16 +181,16 @@ export const TagCombobox = ({
                     key={tag.id}
                     value={tag.name}
                     onSelect={() => handleSelect(tag.id)}
-                    className="flex items-center gap-2"
+                    className="tag-combobox-option"
                   >
                     <Check
                       className={cn(
-                        "h-4 w-4",
-                        isSelected ? "opacity-100" : "opacity-0"
+                        "tag-combobox-check",
+                        isSelected && "selected"
                       )}
                     />
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="tag-combobox-option-dot"
                       style={{ backgroundColor: tag.color }}
                     />
                     <span>{tag.name}</span>
