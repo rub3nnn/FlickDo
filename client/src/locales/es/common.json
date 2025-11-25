@@ -73,6 +73,7 @@
   },
   "tasks": {
     "myTasks": "Mis Tareas",
+    "tasks": "Tareas",
     "newTask": "Nueva tarea",
     "all": "Todas",
     "work": "Trabajo",
@@ -89,8 +90,8 @@
     "priorityLow": "Baja",
     "priorityMedium": "Media",
     "priorityHigh": "Alta",
-    "linkToClassroom": "Vincular a classroom",
-    "unlinkFromClassroom": "Desvincular de classroom",
+    "linkToClassroom": "Vincular a Classroom",
+    "unlinkFromClassroom": "Desvincular de Classroom",
     "delete": "Eliminar",
     "duplicate": "Duplicar",
     "deleted": "Tarea eliminada",
@@ -193,7 +194,8 @@
     "createFirstList": "Crea tu primera lista para empezar a organizarte",
     "createNewList": "Organiza tus tareas en una nueva lista",
     "task": "tarea",
-    "tasks": "tareas"
+    "tasks": "tareas",
+    "shared": "Compartidas"
   },
   "common": {
     "apply": "Aplicar",
