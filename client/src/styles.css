@@ -2368,15 +2368,55 @@ body {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.task-meta-edit > .flex-1 {
+/* Altura uniforme para todos los elementos en modo edición */
+.task-meta-edit .task-badge-edit,
+.task-meta-edit .task-badge.classroom,
+.task-meta-edit .task-date-input,
+.task-meta-edit .task-tags-edit-wrapper button,
+.task-assignees-edit .assign-trigger {
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  border-radius: 6px;
+}
+
+/* Badge de lista en modo edición */
+.task-badge-edit {
+  line-height: 1;
+  border: 1px solid rgba(147, 51, 234, 0.2);
+}
+
+/* Wrapper para el selector de tags */
+.task-tags-edit-wrapper {
   flex: 1;
-  min-width: 200px;
+  min-width: 180px;
   max-width: 100%;
+}
+
+.task-tags-edit-wrapper button {
+  width: 100%;
+}
+
+/* Línea separada para asignados */
+.task-assignees-edit {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.task-assignees-edit .assign-trigger {
+  width: auto;
+  min-width: 160px;
 }
 
 @keyframes fadeIn {

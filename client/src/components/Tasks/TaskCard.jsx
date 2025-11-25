@@ -535,10 +535,11 @@ export const TaskCard = ({
               }
             />
 
+            {/* Primera línea: Lista, Classroom, Fecha y Tags */}
             <div className="task-meta task-meta-edit">
               {/* Badge del nombre de la lista */}
               {!hideListBadge && (
-                <span className="task-badge work">
+                <span className="task-badge task-badge-edit work">
                   {list?.title || t("tasks.personalTask")}
                 </span>
               )}
@@ -560,8 +561,8 @@ export const TaskCard = ({
                 onClear={handleDateClear}
               />
 
-              {/* Selector de tags - ahora en la misma línea */}
-              <div className="flex-1 min-w-[200px]">
+              {/* Selector de tags */}
+              <div className="task-tags-edit-wrapper">
                 <TagCombobox
                   tags={availableTags}
                   selectedTags={editedTask.tags}
@@ -569,8 +570,10 @@ export const TaskCard = ({
                   onCreateTag={handleCreateTag}
                 />
               </div>
+            </div>
 
-              {/* Selector de asignados */}
+            {/* Segunda línea: Asignados */}
+            <div className="task-assignees-edit">
               <AssignTaskCommand
                 listId={currentTask.list_id || propListId}
                 assignedUsers={editedTask.assignees}
