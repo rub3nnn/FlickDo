@@ -244,10 +244,17 @@ export const TaskCard = ({
       return;
     }
 
-    // Modo edición normal
+    // Cerrar modo edición inmediatamente (antes de esperar la respuesta del backend)
+    if (externalOnEditEnd) {
+      externalOnEditEnd();
+    } else {
+      setInternalIsEditing(false);
+    }
+
+    // Modo edición normal - procesar en segundo plano
     if (externalOnSave) {
-      // Si hay callback externo, usarlo
-      await externalOnSave(taskId, editedData);
+      // Si hay callback externo, usarlo (sin await para no bloquear)
+      externalOnSave(taskId, editedData);
     } else {
       // Sino, gestionar internamente
       const optimisticData = prepareTaskForOptimisticUpdate(
@@ -256,14 +263,8 @@ export const TaskCard = ({
         availableTags
       );
       const backendData = prepareTaskForBackend(editedData);
-      await updateTask(taskId, optimisticData, backendData);
-    }
-
-    // Llamar a onEditEnd si existe, sino usar interno
-    if (externalOnEditEnd) {
-      externalOnEditEnd();
-    } else {
-      setInternalIsEditing(false);
+      // No usar await - la actualización optimista ya muestra el cambio
+      updateTask(taskId, optimisticData, backendData);
     }
   };
 
@@ -501,7 +502,7 @@ export const TaskCard = ({
           </button>
 
           <div className="task-details">
-            <div className="task-title-row">
+            <div className="task-title-row mb-0!">
               <Input
                 ref={titleInputRef}
                 type="text"
@@ -522,6 +523,17 @@ export const TaskCard = ({
                 </div>
               )}
             </div>
+
+            {/* Descripción de la tarea */}
+            <input
+              type="text"
+              value={editedTask.description || ""}
+              onChange={(e) => handleChange("description", e.target.value)}
+              className="w-full text-xs text-muted-foreground bg-muted/30 rounded px-2 py-1 mt-1 border border-transparent focus:border-muted-foreground/20 outline-none placeholder:text-muted-foreground/40 transition-colors mb-2"
+              placeholder={
+                t("tasks.descriptionPlaceholder") || "Añadir descripción..."
+              }
+            />
 
             <div className="task-meta task-meta-edit">
               {/* Badge del nombre de la lista */}
@@ -625,7 +637,9 @@ export const TaskCard = ({
         </button>
 
         <div className="task-details" onClick={handleEditClick}>
-          <div className="task-title-row">
+          <div
+            className={cn("task-title-row", currentTask.description && "mb-0!")}
+          >
             <h4
               className={cn(
                 "task-title",
@@ -641,6 +655,13 @@ export const TaskCard = ({
               </div>
             )}
           </div>
+
+          {/* Descripción de la tarea */}
+          {currentTask.description && (
+            <p className="text-xs text-muted-foreground/70 line-clamp-1 mb-2">
+              {currentTask.description}
+            </p>
+          )}
 
           <div className="task-meta">
             {/* Badge del nombre de la lista */}
