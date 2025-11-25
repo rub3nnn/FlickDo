@@ -177,6 +177,8 @@
     "tasksActive": "tareas activas",
     "addTask": "Añadir tarea",
     "editList": "Editar lista",
+    "renameList": "Renombrar lista",
+    "listSettings": "Ajustes de lista",
     "shareList": "Compartir lista",
     "deleteList": "Eliminar lista",
     "completed": "Completadas",
@@ -192,6 +194,70 @@
     "apply": "Aplicar",
     "cancel": "Cancelar",
     "save": "Guardar",
-    "close": "Cerrar"
+    "saving": "Guardando...",
+    "close": "Cerrar",
+    "creating": "Creando..."
+  },
+  "lists": {
+    "createTitle": "Crear nueva lista",
+    "createDescription": "Crea una lista para organizar tus tareas",
+    "editTitle": "Editar lista",
+    "editDescription": "Modifica el nombre y ajustes de tu lista",
+    "titleLabel": "Nombre de la lista",
+    "titlePlaceholder": "Ej: Trabajo, Personal, Compras...",
+    "iconLabel": "Icono",
+    "colorLabel": "Color",
+    "setAsDefault": "Establecer como predeterminada",
+    "setAsDefaultDescription": "Las nuevas tareas se añadirán a esta lista",
+    "createButton": "Crear lista",
+    "untitled": "Sin título",
+    "created": "Lista creada correctamente",
+    "updated": "Lista actualizada correctamente",
+    "errorCreating": "Error al crear la lista",
+    "errorUpdating": "Error al actualizar la lista",
+    "advancedSettings": "Ajustes avanzados",
+    "settings": {
+      "showDates": "Mostrar fechas",
+      "showDatesDescription": "Mostrar fechas de vencimiento en las tareas",
+      "enableAssignments": "Habilitar asignaciones",
+      "enableAssignmentsDescription": "Permitir asignar tareas a miembros",
+      "restrictEditing": "Restringir edición",
+      "restrictEditingDescription": "Solo los asignados pueden editar sus tareas"
+    }
+  },
+  "share": {
+    "title": "Compartir lista",
+    "description": "Invita a colaboradores a \"{{listName}}\"",
+    "emailPlaceholder": "Introduce un email para invitar",
+    "invite": "Invitar",
+    "copyLink": "Copiar enlace de invitación",
+    "linkCopied": "¡Enlace copiado!",
+    "members": "Miembros",
+    "roles": {
+      "owner": "Propietario",
+      "editor": "Editor",
+      "viewer": "Visualizador"
+    },
+    "you": "Tú",
+    "noCollaborators": "Sin colaboradores",
+    "noCollaboratorsDescription": "Invita a personas para colaborar en esta lista",
+    "unknownUser": "Usuario desconocido",
+    "memberAdded": "Miembro añadido",
+    "memberRemoved": "Miembro eliminado",
+    "roleUpdated": "Rol actualizado",
+    "errorInviting": "Error al invitar",
+    "error": "Error"
+  },
+  "assign": {
+    "title": "Asignar tarea",
+    "searchPlaceholder": "Buscar miembros...",
+    "listMembers": "Miembros de la lista",
+    "assignTask": "Asignar",
+    "assignToMe": "Asignarme a mí",
+    "multipleAssigned": "{{count}} asignados",
+    "noResults": "No se encontraron miembros",
+    "loading": "Cargando miembros...",
+    "you": "Tú",
+    "unknownUser": "Usuario desconocido"
   }
 }

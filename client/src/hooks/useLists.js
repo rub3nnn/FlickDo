@@ -30,9 +30,9 @@ export function useLists(includeArchived = false, includeTasks = false) {
   }, [includeTasks]);
 
   // Crear lista
-  const createList = useCallback(async (title, configuration = null) => {
+  const createList = useCallback(async (listData) => {
     try {
-      const response = await listsApi.createList(title, configuration);
+      const response = await listsApi.createList(listData);
       if (response.success) {
         setLists((prev) => [...prev, response.data]);
         return { success: true, data: response.data };

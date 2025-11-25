@@ -186,11 +186,14 @@ const getListById = async (req, res, next) => {
 /**
  * Crear una nueva lista
  * POST /api/lists
+ *
+ * NOTA: El trigger `on_list_created` en la base de datos se encarga
+ * de crear automáticamente el registro en list_members para el owner
  */
 const createList = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { title, configuration } = req.body;
+    const { title, icon, color, configuration } = req.body;
 
     // Configuración por defecto si no se proporciona
     const defaultConfiguration = {
@@ -205,21 +208,16 @@ const createList = async (req, res, next) => {
       .insert({
         title,
         owner_id: userId,
-        configuration: configuration || defaultConfiguration,
+        icon: icon || "list",
+        color: color || "#3B82F6",
+        configuration: { ...defaultConfiguration, ...configuration },
       })
       .select()
       .single();
 
     if (error) throw error;
 
-    // Crear entrada en list_members para el owner
-    const { error: memberError } = await supabase.from("list_members").insert({
-      list_id: list.id,
-      user_id: userId,
-      role: "owner",
-    });
-
-    if (memberError) throw memberError;
+    // El trigger on_list_created se encarga de crear el list_member automáticamente
 
     res.status(201).json({
       success: true,
@@ -227,6 +225,7 @@ const createList = async (req, res, next) => {
       data: {
         ...list,
         role: "owner",
+        tasks: [], // Lista nueva sin tareas
       },
     });
   } catch (error) {
@@ -242,7 +241,7 @@ const updateList = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const { title, configuration, is_archived } = req.body;
+    const { title, icon, color, configuration, is_archived } = req.body;
 
     // Verificar permisos (solo owner o editor)
     const { data: member, error: memberError } = await supabase
@@ -262,6 +261,8 @@ const updateList = async (req, res, next) => {
     // Preparar datos de actualización
     const updateData = {};
     if (title !== undefined) updateData.title = title;
+    if (icon !== undefined) updateData.icon = icon;
+    if (color !== undefined) updateData.color = color;
     if (configuration !== undefined) updateData.configuration = configuration;
     if (is_archived !== undefined) updateData.is_archived = is_archived;
 
@@ -380,14 +381,14 @@ const getListMembers = async (req, res, next) => {
 };
 
 /**
- * Agregar miembro a una lista
+ * Agregar miembro a una lista por email
  * POST /api/lists/:id/members
  */
 const addListMember = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const { user_id, role = "viewer" } = req.body;
+    const { email, role = "viewer" } = req.body;
 
     // Verificar que el usuario actual sea owner
     const { data: list } = await supabase
@@ -403,12 +404,34 @@ const addListMember = async (req, res, next) => {
       });
     }
 
+    // Buscar el usuario por email
+    const { data: targetUser, error: userError } = await supabase
+      .from("profiles")
+      .select("id, email, first_name, last_name, avatar_url")
+      .eq("email", email.toLowerCase())
+      .single();
+
+    if (userError || !targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado con ese email",
+      });
+    }
+
+    // Verificar que no se intente añadir al owner
+    if (targetUser.id === userId) {
+      return res.status(400).json({
+        success: false,
+        message: "No puedes añadirte a ti mismo como miembro",
+      });
+    }
+
     // Agregar miembro
     const { data: newMember, error } = await supabase
       .from("list_members")
       .insert({
         list_id: id,
-        user_id,
+        user_id: targetUser.id,
         role,
       })
       .select(

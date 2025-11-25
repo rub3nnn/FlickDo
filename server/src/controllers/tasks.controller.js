@@ -514,32 +514,34 @@ const getSubtasks = async (req, res, next) => {
 };
 
 /**
- * Obtener todas las tareas del usuario (de todas sus listas)
+ * Obtener todas las listas del usuario con sus tareas
  * GET /api/tasks
  *
  * VERSIÓN OPTIMIZADA: Usa función de PostgreSQL que devuelve:
- * - tasks: Array de tareas con list_id (sin duplicar info de lista)
- * - lists: Array de listas únicas con sus tags incluidos
+ * - lists: Array de listas con sus tareas incluidas
  * - metadata: Información adicional de la consulta
+ *
+ * ENFOQUE: Listas primero, las tareas están dentro de cada lista
+ * Así las listas vacías también se devuelven
  */
 const getAllUserTasks = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { include_completed = true, parent_id = null } = req.query;
+    const { include_completed = true, include_archived = false } = req.query;
 
     // Llamar a la función de PostgreSQL optimizada
-    const { data, error } = await supabase.rpc("get_user_tasks_with_lists", {
+    const { data, error } = await supabase.rpc("get_user_lists_with_tasks", {
       p_user_id: userId,
       p_include_completed:
         include_completed === "true" || include_completed === true,
-      p_parent_id:
-        parent_id === "null" || parent_id === null ? null : parent_id,
+      p_include_archived:
+        include_archived === "true" || include_archived === true,
     });
 
     if (error) throw error;
 
-    // La función ya devuelve el formato optimizado:
-    // { tasks: [...], lists: [...], metadata: {...} }
+    // La función devuelve: { lists: [...], metadata: {...} }
+    // Cada lista tiene sus tareas en list.tasks
     res.json({
       success: true,
       data: data,

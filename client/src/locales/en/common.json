@@ -177,6 +177,8 @@
     "tasksActive": "active tasks",
     "addTask": "Add task",
     "editList": "Edit list",
+    "renameList": "Rename list",
+    "listSettings": "List settings",
     "shareList": "Share list",
     "deleteList": "Delete list",
     "completed": "Completed",
@@ -192,6 +194,70 @@
     "apply": "Apply",
     "cancel": "Cancel",
     "save": "Save",
-    "close": "Close"
+    "saving": "Saving...",
+    "close": "Close",
+    "creating": "Creating..."
+  },
+  "lists": {
+    "createTitle": "Create new list",
+    "createDescription": "Create a list to organize your tasks",
+    "editTitle": "Edit list",
+    "editDescription": "Modify your list name and settings",
+    "titleLabel": "List name",
+    "titlePlaceholder": "E.g: Work, Personal, Shopping...",
+    "iconLabel": "Icon",
+    "colorLabel": "Color",
+    "setAsDefault": "Set as default",
+    "setAsDefaultDescription": "New tasks will be added to this list",
+    "createButton": "Create list",
+    "untitled": "Untitled",
+    "created": "List created successfully",
+    "updated": "List updated successfully",
+    "errorCreating": "Error creating list",
+    "errorUpdating": "Error updating list",
+    "advancedSettings": "Advanced settings",
+    "settings": {
+      "showDates": "Show dates",
+      "showDatesDescription": "Display due dates on tasks",
+      "enableAssignments": "Enable assignments",
+      "enableAssignmentsDescription": "Allow assigning tasks to members",
+      "restrictEditing": "Restrict editing",
+      "restrictEditingDescription": "Only assignees can edit their tasks"
+    }
+  },
+  "share": {
+    "title": "Share list",
+    "description": "Invite collaborators to \"{{listName}}\"",
+    "emailPlaceholder": "Enter an email to invite",
+    "invite": "Invite",
+    "copyLink": "Copy invitation link",
+    "linkCopied": "Link copied!",
+    "members": "Members",
+    "roles": {
+      "owner": "Owner",
+      "editor": "Editor",
+      "viewer": "Viewer"
+    },
+    "you": "You",
+    "noCollaborators": "No collaborators",
+    "noCollaboratorsDescription": "Invite people to collaborate on this list",
+    "unknownUser": "Unknown user",
+    "memberAdded": "Member added",
+    "memberRemoved": "Member removed",
+    "roleUpdated": "Role updated",
+    "errorInviting": "Error inviting",
+    "error": "Error"
+  },
+  "assign": {
+    "title": "Assign task",
+    "searchPlaceholder": "Search members...",
+    "listMembers": "List members",
+    "assignTask": "Assign",
+    "assignToMe": "Assign to me",
+    "multipleAssigned": "{{count}} assigned",
+    "noResults": "No members found",
+    "loading": "Loading members...",
+    "you": "You",
+    "unknownUser": "Unknown user"
   }
 }

@@ -172,6 +172,59 @@ export const listsApi = {
     });
     return handleResponse(response);
   },
+
+  // Obtener miembros de una lista
+  getListMembers: async (listId) => {
+    const response = await fetch(`${API_URL}/lists/${listId}/members`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+    return handleResponse(response);
+  },
+
+  // Añadir miembro a una lista por email
+  addListMember: async (listId, email, role = "viewer") => {
+    const response = await fetch(`${API_URL}/lists/${listId}/members`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ email, role }),
+    });
+    return handleResponse(response);
+  },
+
+  // Actualizar rol de miembro
+  updateListMember: async (listId, userId, role) => {
+    const response = await fetch(
+      `${API_URL}/lists/${listId}/members/${userId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ role }),
+      }
+    );
+    return handleResponse(response);
+  },
+
+  // Eliminar miembro de una lista
+  removeListMember: async (listId, userId) => {
+    const response = await fetch(
+      `${API_URL}/lists/${listId}/members/${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }
+    );
+    return handleResponse(response);
+  },
 };
 
 // API de tareas

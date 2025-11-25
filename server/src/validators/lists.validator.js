@@ -8,6 +8,19 @@ const listValidators = {
       .withMessage("El título es requerido")
       .isLength({ max: 255 })
       .withMessage("El título no puede exceder 255 caracteres"),
+    body("icon")
+      .optional()
+      .isString()
+      .withMessage("El icono debe ser un string"),
+    body("color")
+      .optional()
+      .isString()
+      .matches(/^#[0-9A-Fa-f]{6}$/)
+      .withMessage("El color debe ser un código hexadecimal válido (#RRGGBB)"),
+    body("is_default")
+      .optional()
+      .isBoolean()
+      .withMessage("is_default debe ser booleano"),
     body("configuration")
       .optional()
       .isObject()
@@ -39,6 +52,15 @@ const listValidators = {
       .withMessage("El título no puede estar vacío")
       .isLength({ max: 255 })
       .withMessage("El título no puede exceder 255 caracteres"),
+    body("icon")
+      .optional()
+      .isString()
+      .withMessage("El icono debe ser un string"),
+    body("color")
+      .optional()
+      .isString()
+      .matches(/^#[0-9A-Fa-f]{6}$/)
+      .withMessage("El color debe ser un código hexadecimal válido (#RRGGBB)"),
     body("configuration")
       .optional()
       .isObject()
@@ -55,11 +77,11 @@ const listValidators = {
 
   addMember: [
     param("id").isInt({ min: 1 }).withMessage("ID de lista inválido"),
-    body("user_id")
+    body("email")
       .notEmpty()
-      .withMessage("user_id es requerido")
-      .isUUID()
-      .withMessage("user_id debe ser un UUID válido"),
+      .withMessage("El email es requerido")
+      .isEmail()
+      .withMessage("Debe ser un email válido"),
     body("role")
       .optional()
       .isIn(["owner", "editor", "viewer"])

@@ -4,8 +4,9 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
-import { tasksApi, tagsApi } from "@/services/api";
+import { tasksApi, tagsApi, listsApi } from "@/services/api";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "./AuthContext";
@@ -13,28 +14,34 @@ import { AuthContext } from "./AuthContext";
 const TasksContext = createContext(null);
 
 /**
- * Provider global para manejar todas las tareas y listas de la aplicación
- * Evita múltiples llamadas al backend desde diferentes componentes
+ * Provider global para manejar todas las listas y tareas de la aplicación
+ *
+ * ESTRUCTURA DE DATOS:
+ * - lists: Array de listas, cada lista tiene sus tareas en list.tasks
+ * - tasks: Computed property que extrae todas las tareas de las listas (para compatibilidad)
  */
 export function TasksProvider({ children }) {
   const { t } = useTranslation();
   const { user, isInitialized } = useContext(AuthContext);
-  const [tasks, setTasks] = useState([]);
   const [lists, setLists] = useState([]);
-  const [loading, setLoading] = useState(true); // Iniciar en true para evitar flash de contenido vacío
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Computed: extraer todas las tareas de todas las listas (para compatibilidad)
+  const tasks = useMemo(() => {
+    return lists.flatMap((list) => list.tasks || []);
+  }, [lists]);
 
   // Función para mostrar errores
   const handleError = (errorKey) => {
     toast.error(t(`tasks.${errorKey}`));
   };
 
-  // Cargar todas las tareas del usuario
+  // Cargar todas las listas del usuario (con sus tareas incluidas)
   const loadAllTasks = useCallback(
     async (includeCompleted = true) => {
-      // No cargar tareas si no hay usuario autenticado
+      // No cargar si no hay usuario autenticado
       if (!user) {
-        setTasks([]);
         setLists([]);
         setLoading(false);
         return;
@@ -45,19 +52,19 @@ export function TasksProvider({ children }) {
         setError(null);
         const response = await tasksApi.getAllUserTasks(includeCompleted);
         if (response.success) {
-          setTasks(response.data.tasks || []);
+          // La nueva estructura devuelve { lists: [...] }
+          // Cada lista tiene sus tareas en list.tasks
           setLists(response.data.lists || []);
         } else {
-          setError(response.message || "Error cargando tareas");
+          setError(response.message || "Error cargando listas");
           handleError("errorLoading");
         }
       } catch (err) {
         setError(err.message);
-        // Solo mostrar error si el usuario está autenticado
         if (user) {
           handleError("errorLoading");
         }
-        console.error("Error cargando todas las tareas:", err);
+        console.error("Error cargando listas:", err);
       } finally {
         setLoading(false);
       }
@@ -68,9 +75,8 @@ export function TasksProvider({ children }) {
   // Actualizar tarea con OPTIMISTIC UPDATE
   const updateTask = useCallback(
     async (id, optimisticData, backendData = null) => {
-      // Si no se proporciona backendData, usar optimisticData
       const dataToSend = backendData || optimisticData;
-      let previousTask = null;
+      let previousLists = null;
 
       console.log("🔄 TasksContext.updateTask called:", {
         id,
@@ -80,52 +86,39 @@ export function TasksProvider({ children }) {
       });
 
       // Actualizar inmediatamente (optimistic update)
-      setTasks((prev) => {
-        const taskIndex = prev.findIndex((task) => task.id === id);
-        if (taskIndex === -1) {
-          console.warn("⚠️ Tarea no encontrada en el contexto:", id);
-          return prev;
-        }
-
-        previousTask = prev[taskIndex];
-        const updatedTask = { ...previousTask, ...optimisticData };
-
-        console.log("✨ Optimistic update aplicado:", {
-          before: previousTask,
-          after: updatedTask,
-        });
-
-        const newTasks = [...prev];
-        newTasks[taskIndex] = updatedTask;
-        return newTasks;
+      setLists((prev) => {
+        previousLists = prev;
+        return prev.map((list) => ({
+          ...list,
+          tasks: (list.tasks || []).map((task) =>
+            task.id === id ? { ...task, ...optimisticData } : task
+          ),
+        }));
       });
 
       try {
         const response = await tasksApi.updateTask(id, dataToSend);
         if (response.success) {
           console.log("✅ Backend confirmó actualización:", response.data);
-          setTasks((prev) =>
-            prev.map((task) => (task.id === id ? response.data : task))
+          // Actualizar con los datos reales del servidor
+          setLists((prev) =>
+            prev.map((list) => ({
+              ...list,
+              tasks: (list.tasks || []).map((task) =>
+                task.id === id ? response.data : task
+              ),
+            }))
           );
           return { success: true, data: response.data };
         } else {
           console.error("❌ Backend rechazó actualización:", response.message);
-          // Revertir al estado anterior si falla
-          if (previousTask) {
-            setTasks((prev) =>
-              prev.map((task) => (task.id === id ? previousTask : task))
-            );
-          }
+          if (previousLists) setLists(previousLists);
           handleError("errorUpdating");
           return { success: false, error: response.message };
         }
       } catch (err) {
         console.error("❌ Error actualizando tarea:", err);
-        if (previousTask) {
-          setTasks((prev) =>
-            prev.map((task) => (task.id === id ? previousTask : task))
-          );
-        }
+        if (previousLists) setLists(previousLists);
         handleError("errorUpdating");
         return { success: false, error: err.message };
       }
@@ -141,43 +134,72 @@ export function TasksProvider({ children }) {
       list_id: listId,
       is_completed: false,
       created_at: new Date().toISOString(),
+      assignees: [],
+      tags: [],
       ...data,
     };
 
+    let previousLists = null;
+
     try {
       // Actualizar inmediatamente (optimistic update)
-      setTasks((prev) => {
-        if (
-          insertIndex !== null &&
-          insertIndex >= 0 &&
-          insertIndex <= prev.length
-        ) {
-          return [
-            ...prev.slice(0, insertIndex),
-            tempTask,
-            ...prev.slice(insertIndex),
-          ];
-        }
-        return [...prev, tempTask];
+      setLists((prev) => {
+        previousLists = prev;
+        return prev.map((list) => {
+          if (list.id !== listId) return list;
+          const tasks = list.tasks || [];
+          if (
+            insertIndex !== null &&
+            insertIndex >= 0 &&
+            insertIndex <= tasks.length
+          ) {
+            return {
+              ...list,
+              tasks: [
+                ...tasks.slice(0, insertIndex),
+                tempTask,
+                ...tasks.slice(insertIndex),
+              ],
+            };
+          }
+          return { ...list, tasks: [...tasks, tempTask] };
+        });
       });
 
       const response = await tasksApi.createTask(listId, data);
 
       if (response.success) {
-        // Reemplazar la tarea temporal con la tarea real del servidor
-        setTasks((prev) =>
-          prev.map((task) => (task.id === tempId ? response.data : task))
+        // Reemplazar la tarea temporal con la real, marcándola como nueva para animación
+        setLists((prev) =>
+          prev.map((list) => ({
+            ...list,
+            tasks: (list.tasks || []).map((task) =>
+              task.id === tempId ? { ...response.data, _isNew: true } : task
+            ),
+          }))
         );
+
+        // Quitar el flag _isNew después de la animación
+        setTimeout(() => {
+          setLists((prev) =>
+            prev.map((list) => ({
+              ...list,
+              tasks: (list.tasks || []).map((task) =>
+                task._isNew ? { ...task, _isNew: false } : task
+              ),
+            }))
+          );
+        }, 400);
+
         return { success: true, data: response.data };
       } else {
-        // Eliminar la tarea temporal si falla
-        setTasks((prev) => prev.filter((task) => task.id !== tempId));
+        if (previousLists) setLists(previousLists);
         handleError("errorCreating");
         return { success: false, error: response.message };
       }
     } catch (err) {
       console.error("Error creando tarea:", err);
-      setTasks((prev) => prev.filter((task) => task.id !== tempId));
+      if (previousLists) setLists(previousLists);
       handleError("errorCreating");
       return { success: false, error: err.message };
     }
@@ -185,15 +207,15 @@ export function TasksProvider({ children }) {
 
   // Eliminar tarea con OPTIMISTIC UPDATE
   const deleteTask = useCallback(async (id) => {
-    let previousTask = null;
+    let previousLists = null;
 
     // Eliminar inmediatamente (optimistic update)
-    setTasks((prev) => {
-      const taskIndex = prev.findIndex((task) => task.id === id);
-      if (taskIndex !== -1) {
-        previousTask = prev[taskIndex];
-      }
-      return prev.filter((task) => task.id !== id);
+    setLists((prev) => {
+      previousLists = prev;
+      return prev.map((list) => ({
+        ...list,
+        tasks: (list.tasks || []).filter((task) => task.id !== id),
+      }));
     });
 
     try {
@@ -201,18 +223,13 @@ export function TasksProvider({ children }) {
       if (response.success) {
         return { success: true };
       } else {
-        // Revertir al estado anterior si falla
-        if (previousTask) {
-          setTasks((prev) => [...prev, previousTask]);
-        }
+        if (previousLists) setLists(previousLists);
         handleError("errorDeleting");
         return { success: false, error: response.message };
       }
     } catch (err) {
       console.error("Error eliminando tarea:", err);
-      if (previousTask) {
-        setTasks((prev) => [...prev, previousTask]);
-      }
+      if (previousLists) setLists(previousLists);
       handleError("errorDeleting");
       return { success: false, error: err.message };
     }
@@ -220,19 +237,17 @@ export function TasksProvider({ children }) {
 
   // Toggle tarea completada con OPTIMISTIC UPDATE
   const toggleTaskCompleted = useCallback(async (id, isCompleted) => {
-    let previousTask = null;
+    let previousLists = null;
 
     // Actualizar inmediatamente (optimistic update)
-    setTasks((prev) => {
-      const taskIndex = prev.findIndex((task) => task.id === id);
-      if (taskIndex === -1) return prev;
-
-      previousTask = prev[taskIndex];
-      const updatedTask = { ...previousTask, is_completed: !isCompleted };
-
-      const newTasks = [...prev];
-      newTasks[taskIndex] = updatedTask;
-      return newTasks;
+    setLists((prev) => {
+      previousLists = prev;
+      return prev.map((list) => ({
+        ...list,
+        tasks: (list.tasks || []).map((task) =>
+          task.id === id ? { ...task, is_completed: !isCompleted } : task
+        ),
+      }));
     });
 
     try {
@@ -240,26 +255,23 @@ export function TasksProvider({ children }) {
         is_completed: !isCompleted,
       });
       if (response.success) {
-        setTasks((prev) =>
-          prev.map((task) => (task.id === id ? response.data : task))
+        setLists((prev) =>
+          prev.map((list) => ({
+            ...list,
+            tasks: (list.tasks || []).map((task) =>
+              task.id === id ? response.data : task
+            ),
+          }))
         );
         return { success: true, data: response.data };
       } else {
-        if (previousTask) {
-          setTasks((prev) =>
-            prev.map((task) => (task.id === id ? previousTask : task))
-          );
-        }
+        if (previousLists) setLists(previousLists);
         handleError("errorToggling");
         return { success: false, error: response.message };
       }
     } catch (err) {
       console.error("Error cambiando estado de tarea:", err);
-      if (previousTask) {
-        setTasks((prev) =>
-          prev.map((task) => (task.id === id ? previousTask : task))
-        );
-      }
+      if (previousLists) setLists(previousLists);
       handleError("errorToggling");
       return { success: false, error: err.message };
     }
@@ -274,25 +286,27 @@ export function TasksProvider({ children }) {
     const tempId = `temp-tag-${Date.now()}`;
     const tempTag = {
       id: tempId,
-      list_id: listId,
       name,
       color,
       created_at: new Date().toISOString(),
     };
 
-    // Actualizar inmediatamente la lista con el nuevo tag (optimistic update)
-    setLists((prev) =>
-      prev.map((list) =>
+    let previousLists = null;
+
+    // Actualizar inmediatamente la lista con el nuevo tag
+    setLists((prev) => {
+      previousLists = prev;
+      return prev.map((list) =>
         list.id === listId
           ? { ...list, tags: [...(list.tags || []), tempTag] }
           : list
-      )
-    );
+      );
+    });
 
     try {
       const response = await tagsApi.createTag(listId, name, color);
       if (response.success) {
-        // Reemplazar el tag temporal con el tag real del servidor
+        // Reemplazar el tag temporal con el real
         setLists((prev) =>
           prev.map((list) =>
             list.id === listId
@@ -307,37 +321,126 @@ export function TasksProvider({ children }) {
         );
         return { success: true, data: response.data };
       } else {
-        // Eliminar el tag temporal si falla
-        setLists((prev) =>
-          prev.map((list) =>
-            list.id === listId
-              ? {
-                  ...list,
-                  tags: (list.tags || []).filter((tag) => tag.id !== tempId),
-                }
-              : list
-          )
-        );
+        if (previousLists) setLists(previousLists);
         return { success: false, error: response.message };
       }
     } catch (err) {
       console.error("Error creando tag:", err);
-      // Eliminar el tag temporal si hay una excepción
-      setLists((prev) =>
-        prev.map((list) =>
-          list.id === listId
-            ? {
-                ...list,
-                tags: (list.tags || []).filter((tag) => tag.id !== tempId),
-              }
-            : list
-        )
-      );
+      if (previousLists) setLists(previousLists);
       return { success: false, error: err.message };
     }
   }, []);
 
-  // Cargar tareas al montar y cuando cambia el usuario
+  // Crear lista con OPTIMISTIC UPDATE
+  const createList = useCallback(async (listData) => {
+    const tempId = `temp-list-${Date.now()}`;
+    const tempList = {
+      id: tempId,
+      title: listData.title,
+      icon: listData.icon || "list",
+      color: listData.color || "#3B82F6",
+      configuration: listData.configuration || {
+        type: "standard",
+        show_dates: true,
+        enable_assignments: true,
+        restrict_editing_to_assignee: false,
+      },
+      is_shared: false,
+      is_archived: false,
+      created_at: new Date().toISOString(),
+      tags: [],
+      tasks: [], // Lista vacía de tareas
+    };
+
+    let previousLists = null;
+
+    // Actualizar inmediatamente (optimistic update)
+    setLists((prev) => {
+      previousLists = prev;
+      return [tempList, ...prev]; // Añadir al principio
+    });
+
+    try {
+      const response = await listsApi.createList(listData);
+      if (response.success) {
+        // Reemplazar la lista temporal con la real
+        setLists((prev) =>
+          prev.map((list) =>
+            list.id === tempId
+              ? { ...response.data, tasks: [], tags: [] }
+              : list
+          )
+        );
+        return { success: true, data: response.data };
+      } else {
+        if (previousLists) setLists(previousLists);
+        return { success: false, error: response.message };
+      }
+    } catch (err) {
+      console.error("Error creando lista:", err);
+      if (previousLists) setLists(previousLists);
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  // Actualizar lista
+  const updateList = useCallback(async (id, data) => {
+    let previousLists = null;
+
+    // Actualizar inmediatamente (optimistic update)
+    setLists((prev) => {
+      previousLists = prev;
+      return prev.map((list) => (list.id === id ? { ...list, ...data } : list));
+    });
+
+    try {
+      const response = await listsApi.updateList(id, data);
+      if (response.success) {
+        // Mantener las tareas y tags existentes
+        setLists((prev) =>
+          prev.map((list) =>
+            list.id === id
+              ? { ...response.data, tasks: list.tasks, tags: list.tags }
+              : list
+          )
+        );
+        return { success: true, data: response.data };
+      } else {
+        if (previousLists) setLists(previousLists);
+        return { success: false, error: response.message };
+      }
+    } catch (err) {
+      console.error("Error actualizando lista:", err);
+      if (previousLists) setLists(previousLists);
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  // Eliminar lista
+  const deleteList = useCallback(async (id) => {
+    let previousLists = null;
+
+    setLists((prev) => {
+      previousLists = prev;
+      return prev.filter((list) => list.id !== id);
+    });
+
+    try {
+      const response = await listsApi.deleteList(id);
+      if (response.success) {
+        return { success: true };
+      } else {
+        if (previousLists) setLists(previousLists);
+        return { success: false, error: response.message };
+      }
+    } catch (err) {
+      console.error("Error eliminando lista:", err);
+      if (previousLists) setLists(previousLists);
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  // Cargar listas al montar y cuando cambia el usuario
   useEffect(() => {
     // Esperar a que AuthContext esté inicializado
     if (!isInitialized) {
@@ -347,16 +450,15 @@ export function TasksProvider({ children }) {
     if (user) {
       loadAllTasks(true); // Incluir completadas
     } else {
-      // Limpiar tareas cuando no hay usuario
-      setTasks([]);
+      // Limpiar cuando no hay usuario
       setLists([]);
       setLoading(false);
     }
   }, [user, isInitialized, loadAllTasks]);
 
   const value = {
-    tasks,
-    lists,
+    tasks, // Computed: todas las tareas extraídas de las listas
+    lists, // Listas con sus tareas anidadas en list.tasks
     loading,
     error,
     loadAllTasks,
@@ -365,6 +467,9 @@ export function TasksProvider({ children }) {
     deleteTask,
     toggleTaskCompleted,
     createTag,
+    createList,
+    updateList,
+    deleteList,
   };
 
   return (

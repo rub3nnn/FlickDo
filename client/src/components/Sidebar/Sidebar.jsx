@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Logo } from "./Logo";
 import { NavItem } from "./NavItem";
 import { ProjectItem } from "./ProjectItem";
+import { useTasks } from "../../contexts/TasksContext";
 import { UserMenu } from "./UserMenu";
 import {
   Sidebar as SidebarLibrary,
@@ -47,6 +48,8 @@ export const Sidebar = ({}) => {
     },
   ];
 
+  const { lists } = useTasks();
+
   return (
     <>
       {/* Esto debería ser un aside, pero le pongo Sidebar para que la librería shadcn lo haga 
@@ -73,17 +76,24 @@ export const Sidebar = ({}) => {
 
             <div className="nav-section">
               <div className="nav-section-header">
-                <h3 className="nav-section-title">{t("sidebar.projects")}</h3>
+                <h3 className="nav-section-title">{t("allTasks.title")}</h3>
               </div>
               <div className="nav-section-items">
-                {PROJECTS.map((project) => (
-                  <ProjectItem
-                    key={project.name}
-                    name={project.name}
-                    count={project.count}
-                    color={project.color}
-                  />
-                ))}
+                {lists.map((list) => {
+                  // Contar tareas activas directamente de list.tasks
+                  const count = (list.tasks || []).filter(
+                    (t) => !t.is_completed
+                  ).length;
+                  return (
+                    <ProjectItem
+                      key={list.id}
+                      id={list.id}
+                      name={list.title}
+                      count={count}
+                      color={list.color}
+                    />
+                  );
+                })}
                 <button className="nav-item secondary">
                   <Plus className="icon-sm" />
                   <span>{t("sidebar.new")}</span>

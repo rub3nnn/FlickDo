@@ -2,8 +2,13 @@ import { useState, useEffect, useMemo } from "react";
 import { Header } from "./components/Header/Header";
 import { TaskCard } from "./components/Tasks/TaskCard";
 import { EmptyState } from "./components/EmptyState/EmptyState";
+import { CreateListDialog } from "./components/Lists/CreateListDialog";
+import { EditListDialog } from "./components/Lists/EditListDialog";
+import { ShareListDialog } from "./components/Lists/ShareListDialog";
 import { useTranslation } from "react-i18next";
 import { useTasks } from "./contexts/TasksContext";
+import { useAuth } from "./hooks/useAuth";
+import { toast } from "sonner";
 import {
   Plus,
   ChevronDown,
@@ -17,9 +22,28 @@ import {
   Trash2,
   Share2,
   Edit3,
-  Settings,
   LayoutGrid,
   Columns3,
+  List,
+  Calendar,
+  Tag,
+  Briefcase,
+  Home,
+  Heart,
+  Zap,
+  Target,
+  BookOpen,
+  ShoppingCart,
+  Music,
+  Camera,
+  Plane,
+  Coffee,
+  Gift,
+  Gamepad2,
+  Palette,
+  Dumbbell,
+  Lightbulb,
+  Code,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,13 +54,47 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
+// Mapeo de iconos por nombre (debe coincidir con AVAILABLE_ICONS en CreateListDialog)
+const ICON_MAP = {
+  list: List,
+  star: Star,
+  briefcase: Briefcase,
+  home: Home,
+  heart: Heart,
+  book: BookOpen,
+  cart: ShoppingCart,
+  plane: Plane,
+  music: Music,
+  camera: Camera,
+  coffee: Coffee,
+  gamepad: Gamepad2,
+  palette: Palette,
+  dumbbell: Dumbbell,
+  gift: Gift,
+  lightbulb: Lightbulb,
+  code: Code,
+  calendar: Calendar,
+  tag: Tag,
+  zap: Zap,
+  target: Target,
+};
+
 export default function AllTasks() {
   const { t } = useTranslation();
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Obtener tareas y listas del contexto global
-  const { tasks, lists, loading, error } = useTasks();
+  // Obtener listas del contexto global (las tareas están dentro de cada lista)
+  const { lists, loading, error, createList, updateList } = useTasks();
+  const { user } = useAuth();
+
+  // Estados para los dialogs
+  const [createListOpen, setCreateListOpen] = useState(false);
+  const [editListOpen, setEditListOpen] = useState(false);
+  const [shareListOpen, setShareListOpen] = useState(false);
+  const [selectedListForEdit, setSelectedListForEdit] = useState(null);
+  const [selectedListForShare, setSelectedListForShare] = useState(null);
+  const [isCreatingList, setIsCreatingList] = useState(false);
 
   const [collapsedCompletedSections, setCollapsedCompletedSections] = useState(
     {}
@@ -46,6 +104,8 @@ export default function AllTasks() {
     const savedView = localStorage.getItem("taskListViewMode");
     return savedView || "grid"; // 'grid' o 'columns'
   });
+  // Estado para controlar qué lista tiene el TaskCard de creación visible
+  const [addingTaskToListId, setAddingTaskToListId] = useState(null);
 
   // Inicializar secciones colapsadas cuando las listas se cargan
   useEffect(() => {
@@ -79,19 +139,69 @@ export default function AllTasks() {
     }));
   };
 
-  // Agrupar tareas por lista con useMemo para optimizar
-  const tasksByList = useMemo(() => {
-    return lists.map((list) => ({
-      ...list,
-      tasks: tasks.filter((task) => task.list_id === list.id),
-    }));
-  }, [tasks, lists]);
+  // Manejar creación de lista
+  const handleCreateList = async (listData) => {
+    setIsCreatingList(true);
+    try {
+      const result = await createList(listData);
+      if (result?.success) {
+        toast.success(t("lists.created"));
+        return { success: true };
+      } else {
+        toast.error(t("lists.errorCreating"));
+        return { success: false };
+      }
+    } catch (err) {
+      toast.error(t("lists.errorCreating"));
+      return { success: false };
+    } finally {
+      setIsCreatingList(false);
+    }
+  };
 
-  // Calculate stats
-  const totalTasks = tasks.length;
-  const activeTasks = tasks.filter((t) => !t.is_completed).length;
-  const completedTasks = tasks.filter((t) => t.is_completed).length;
-  const sharedLists = lists.filter((list) => list.is_shared).length;
+  // Abrir dialog de compartir
+  const handleShareList = (list) => {
+    setSelectedListForShare(list);
+    setShareListOpen(true);
+  };
+
+  // Abrir dialog de editar
+  const handleEditList = (list) => {
+    setSelectedListForEdit(list);
+    setEditListOpen(true);
+  };
+
+  // Manejar actualización de lista
+  const handleUpdateList = async (listId, listData) => {
+    try {
+      const result = await updateList(listId, listData);
+      return result;
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Estadísticas calculadas desde las listas
+  const stats = useMemo(() => {
+    const allTasks = lists.flatMap((list) => list.tasks || []);
+    return {
+      totalTasks: allTasks.length,
+      activeTasks: allTasks.filter((t) => !t.is_completed).length,
+      completedTasks: allTasks.filter((t) => t.is_completed).length,
+      sharedLists: lists.filter((list) => list.is_shared).length,
+    };
+  }, [lists]);
+
+  // Obtener icono de lista (ahora es campo directo, no en configuration)
+  const getListIcon = (list) => {
+    const iconName = list.icon || "list";
+    return ICON_MAP[iconName] || List;
+  };
+
+  // Obtener color de lista (ahora es campo directo, no en configuration)
+  const getListColor = (list) => {
+    return list.color || "#3B82F6";
+  };
 
   return (
     <div className="dashboard-container">
@@ -135,19 +245,19 @@ export default function AllTasks() {
                         </span>
                         <span className="stat-divider-inline">•</span>
                         <span className="stat-item-inline">
-                          <strong>{activeTasks}</strong>{" "}
+                          <strong>{stats.activeTasks}</strong>{" "}
                           {t("allTasks.stats.active")}
                         </span>
                         <span className="stat-divider-inline">•</span>
                         <span className="stat-item-inline">
-                          <strong>{completedTasks}</strong>{" "}
+                          <strong>{stats.completedTasks}</strong>{" "}
                           {t("allTasks.stats.completed")}
                         </span>
-                        {sharedLists > 0 && (
+                        {stats.sharedLists > 0 && (
                           <>
                             <span className="stat-divider-inline">•</span>
                             <span className="stat-item-inline">
-                              <strong>{sharedLists}</strong>{" "}
+                              <strong>{stats.sharedLists}</strong>{" "}
                               {t("allTasks.stats.shared")}
                             </span>
                           </>
@@ -180,7 +290,10 @@ export default function AllTasks() {
                           <Columns3 className="icon-sm" />
                         </button>
                       </div>
-                      <button className="add-list-btn-compact-header">
+                      <button
+                        className="add-list-btn-compact-header"
+                        onClick={() => setCreateListOpen(true)}
+                      >
                         <Plus className="icon-sm" />
                         <span className="desktop-only">
                           {t("allTasks.newList")}
@@ -253,17 +366,19 @@ export default function AllTasks() {
                         </>
                       ) : error ? (
                         <div className="error-state">Error: {error}</div>
-                      ) : tasksByList.length === 0 ? (
+                      ) : lists.length === 0 ? (
                         <div className="empty-state">
                           No hay listas disponibles
                         </div>
                       ) : (
-                        tasksByList.map((list) => {
-                          const ListIcon = Star; // Puedes mapear iconos según el tipo de lista
-                          const activeTasksInList = list.tasks.filter(
+                        lists.map((list) => {
+                          const ListIcon = getListIcon(list);
+                          const listColor = getListColor(list);
+                          const listTasks = list.tasks || [];
+                          const activeTasksInList = listTasks.filter(
                             (t) => !t.is_completed
                           );
-                          const completedTasksInList = list.tasks.filter(
+                          const completedTasksInList = listTasks.filter(
                             (t) => t.is_completed
                           );
                           const isCompletedCollapsed =
@@ -280,7 +395,7 @@ export default function AllTasks() {
                                   <div
                                     className="task-list-icon-mini"
                                     style={{
-                                      background: list.color || "#9333ea",
+                                      background: listColor,
                                     }}
                                   >
                                     <ListIcon className="icon-xs" />
@@ -296,20 +411,18 @@ export default function AllTasks() {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                       <DropdownMenuGroup>
-                                        <DropdownMenuItem>
+                                        <DropdownMenuItem
+                                          onClick={() => handleEditList(list)}
+                                        >
                                           <Edit3 className="icon-xs" />
-                                          {t("allTasks.renameList")}
+                                          {t("allTasks.editList")}
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                          <Settings className="icon-xs" />
-                                          {t("allTasks.listSettings")}
+                                        <DropdownMenuItem
+                                          onClick={() => handleShareList(list)}
+                                        >
+                                          <Share2 className="icon-xs" />
+                                          {t("allTasks.shareList")}
                                         </DropdownMenuItem>
-                                        {!list.is_shared && (
-                                          <DropdownMenuItem>
-                                            <Share2 className="icon-xs" />
-                                            {t("allTasks.shareList")}
-                                          </DropdownMenuItem>
-                                        )}
                                       </DropdownMenuGroup>
                                       <DropdownMenuSeparator />
                                       <DropdownMenuItem className="text-destructive">
@@ -321,14 +434,6 @@ export default function AllTasks() {
                                 </div>
 
                                 <div className="header-badges-row">
-                                  {list.is_default && (
-                                    <span
-                                      className="list-badge-mini default"
-                                      title={t("allTasks.default")}
-                                    >
-                                      <Star className="icon-xs" />
-                                    </span>
-                                  )}
                                   {list.is_shared ? (
                                     <span
                                       className="list-badge-mini shared"
@@ -411,10 +516,28 @@ export default function AllTasks() {
 
                               {/* List Footer */}
                               <div className="task-list-footer-compact">
-                                <button className="add-task-btn-footer">
-                                  <Plus className="icon-xs" />
-                                  {t("allTasks.addTask")}
-                                </button>
+                                {addingTaskToListId === list.id ? (
+                                  <TaskCard
+                                    isNew
+                                    listId={list.id}
+                                    hideListBadge
+                                    onCreate={() => setAddingTaskToListId(null)}
+                                    onEditEnd={() =>
+                                      setAddingTaskToListId(null)
+                                    }
+                                    availableTags={list.tags || []}
+                                  />
+                                ) : (
+                                  <button
+                                    className="add-task-btn-footer"
+                                    onClick={() =>
+                                      setAddingTaskToListId(list.id)
+                                    }
+                                  >
+                                    <Plus className="icon-xs" />
+                                    {t("allTasks.addTask")}
+                                  </button>
+                                )}
                               </div>
                             </div>
                           );
@@ -422,7 +545,11 @@ export default function AllTasks() {
                       )}
 
                       {/* Add New List Card */}
-                      <div className="task-list-card-compact add-list-card">
+                      <div
+                        className="task-list-card-compact add-list-card"
+                        onClick={() => setCreateListOpen(true)}
+                        style={{ cursor: "pointer" }}
+                      >
                         <div className="add-list-content">
                           <div className="add-list-icon">
                             <Plus className="icon-lg" />
@@ -442,6 +569,28 @@ export default function AllTasks() {
             </div>
           </div>
         </div>
+
+        {/* Dialogs */}
+        <CreateListDialog
+          open={createListOpen}
+          onOpenChange={setCreateListOpen}
+          onCreateList={handleCreateList}
+          isLoading={isCreatingList}
+        />
+
+        <EditListDialog
+          open={editListOpen}
+          onOpenChange={setEditListOpen}
+          list={selectedListForEdit}
+          onUpdateList={handleUpdateList}
+        />
+
+        <ShareListDialog
+          open={shareListOpen}
+          onOpenChange={setShareListOpen}
+          list={selectedListForShare}
+          currentUserId={user?.id}
+        />
       </main>
     </div>
   );

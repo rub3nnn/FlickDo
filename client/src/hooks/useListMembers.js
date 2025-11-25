@@ -29,15 +29,16 @@ export function useListMembers(listId) {
     }
   }, [listId]);
 
-  // Agregar miembro
+  // Agregar miembro por email
   const addMember = useCallback(
-    async (userId, role = "viewer") => {
+    async (email, role = "viewer") => {
       try {
-        const response = await listsApi.addListMember(listId, userId, role);
+        const response = await listsApi.addListMember(listId, email, role);
         if (response.success) {
           setMembers((prev) => [...prev, response.data]);
           return { success: true, data: response.data };
         }
+        return { success: false, error: response.message };
       } catch (err) {
         console.error("Error agregando miembro:", err);
         return { success: false, error: err.message };
@@ -59,6 +60,7 @@ export function useListMembers(listId) {
           );
           return { success: true, data: response.data };
         }
+        return { success: false, error: response.message };
       } catch (err) {
         console.error("Error actualizando rol de miembro:", err);
         return { success: false, error: err.message };
@@ -78,6 +80,7 @@ export function useListMembers(listId) {
           );
           return { success: true };
         }
+        return { success: false, error: response.message };
       } catch (err) {
         console.error("Error eliminando miembro:", err);
         return { success: false, error: err.message };

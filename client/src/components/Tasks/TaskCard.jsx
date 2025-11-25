@@ -54,6 +54,7 @@ import { useTasks as useTasksContext } from "@/contexts/TasksContext";
 import { TagCombobox } from "./TagCombobox";
 import { DateTimePicker } from "./DateTimePicker";
 import { ClassroomBadge } from "./ClassroomBadge";
+import { AssignTaskCommand } from "./AssignTaskCommand";
 import { toast } from "sonner";
 import {
   prepareTaskForBackend,
@@ -62,6 +63,10 @@ import {
 
 export const TaskCard = ({
   task,
+  // Props para modo creación de nueva tarea
+  isNew = false,
+  onCreate,
+  listId: propListId,
   // Props opcionales para compatibilidad hacia atrás
   onToggle: externalOnToggle,
   isEditing: externalIsEditing,
@@ -77,6 +82,7 @@ export const TaskCard = ({
 }) => {
   const { t, i18n } = useTranslation();
   const cardRef = useRef(null);
+  const titleInputRef = useRef(null);
   const { user } = useAuth();
 
   // Obtener funciones y datos del contexto
@@ -84,13 +90,31 @@ export const TaskCard = ({
     updateTask,
     deleteTask,
     toggleTaskCompleted,
+    createTask,
     lists,
     createTag: contextCreateTag,
   } = useTasksContext();
 
+  // Tarea vacía para modo creación
+  const emptyTask = {
+    id: "new",
+    title: "",
+    description: "",
+    is_completed: false,
+    due_date: null,
+    is_all_day: false,
+    tags: [],
+    assignees: [],
+    list_id: propListId,
+  };
+
+  // Usar tarea vacía si es modo creación
+  const currentTask = isNew ? emptyTask : task;
+
   // Estado interno para gestión independiente
-  const [internalIsEditing, setInternalIsEditing] = useState(false);
+  const [internalIsEditing, setInternalIsEditing] = useState(isNew);
   const [internalIsDeleting, setInternalIsDeleting] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   // Estados para animaciones y transiciones
   const [isCompleting, setIsCompleting] = useState(false);
@@ -104,7 +128,9 @@ export const TaskCard = ({
     externalIsDeleting !== undefined ? externalIsDeleting : internalIsDeleting;
 
   // Obtener la lista y tags del contexto si no se proporcionan externamente
-  const list = externalList || lists.find((l) => l.id === task.list_id);
+  const list =
+    externalList ||
+    lists.find((l) => l.id === (currentTask?.list_id || propListId));
   const availableTags = externalAvailableTags || list?.tags || [];
 
   // Función para obtener iniciales de un nombre
@@ -153,14 +179,72 @@ export const TaskCard = ({
   };
 
   const isOverdue = () => {
-    if (!task.due_date || task.is_completed) return false;
+    if (!currentTask?.due_date || currentTask?.is_completed) return false;
     const now = new Date();
-    const due = new Date(task.due_date);
+    const due = new Date(currentTask.due_date);
     return due < now;
   };
 
   // Función para guardar cambios (compatible con uso externo e interno)
   const handleSaveTask = async (taskId, editedData) => {
+    // Modo creación de nueva tarea
+    if (isNew) {
+      // No crear si no hay título
+      if (!editedData.title?.trim()) {
+        return;
+      }
+
+      setIsCreating(true);
+      try {
+        const taskData = {
+          title: editedData.title.trim(),
+        };
+
+        // Solo añadir campos opcionales si tienen valor
+        if (editedData.description) {
+          taskData.description = editedData.description;
+        }
+        if (editedData.due_date) {
+          taskData.due_date = editedData.due_date;
+          taskData.is_all_day = editedData.is_all_day || false;
+        }
+        if (editedData.tags?.length > 0) {
+          taskData.tags = editedData.tags.map((t) =>
+            typeof t === "object" ? t.id : t
+          );
+        }
+        if (editedData.assignees?.length > 0) {
+          taskData.assignees = editedData.assignees.map((a) =>
+            typeof a === "object" ? a.id : a
+          );
+        }
+
+        // Usar createTask del contexto (asegurar que listId sea número)
+        const result = await createTask(Number(propListId), taskData);
+        if (result?.success) {
+          // Cerrar el TaskCard de creación
+          if (externalOnEditEnd) {
+            externalOnEditEnd();
+          } else {
+            setInternalIsEditing(false);
+          }
+          // Llamar a onCreate si existe
+          if (onCreate) {
+            onCreate();
+          }
+        } else {
+          toast.error(t("tasks.errorCreating") || "Error al crear la tarea");
+        }
+      } catch (error) {
+        console.error("Error creando tarea:", error);
+        toast.error(t("tasks.errorCreating") || "Error al crear la tarea");
+      } finally {
+        setIsCreating(false);
+      }
+      return;
+    }
+
+    // Modo edición normal
     if (externalOnSave) {
       // Si hay callback externo, usarlo
       await externalOnSave(taskId, editedData);
@@ -168,7 +252,7 @@ export const TaskCard = ({
       // Sino, gestionar internamente
       const optimisticData = prepareTaskForOptimisticUpdate(
         editedData,
-        task,
+        currentTask,
         availableTags
       );
       const backendData = prepareTaskForBackend(editedData);
@@ -195,10 +279,11 @@ export const TaskCard = ({
     handleAllDayChange,
     handleDateClear,
   } = useTaskEditor(
-    task,
+    currentTask,
     isEditing,
     handleSaveTask,
-    externalOnEditEnd || (() => setInternalIsEditing(false))
+    externalOnEditEnd || (() => setInternalIsEditing(false)),
+    isNew
   );
 
   useEffect(() => {
@@ -249,7 +334,7 @@ export const TaskCard = ({
       return;
     }
     if (externalOnEditStart) {
-      externalOnEditStart(task.id);
+      externalOnEditStart(currentTask.id);
     } else {
       setInternalIsEditing(true);
     }
@@ -270,9 +355,12 @@ export const TaskCard = ({
   };
 
   const handleDelete = async () => {
+    // No permitir eliminar en modo creación
+    if (isNew) return;
+
     if (externalOnDelete) {
       // Usar callback externo si existe
-      externalOnDelete(task.id);
+      externalOnDelete(currentTask.id);
     } else {
       // Gestión interna con animación, toast y undo
       setInternalIsDeleting(true);
@@ -286,7 +374,7 @@ export const TaskCard = ({
         const TOAST_DURATION = 4000;
 
         const toastId = toast(t("tasks.deleted"), {
-          description: task.title,
+          description: currentTask.title,
           duration: TOAST_DURATION,
           action: {
             label: t("tasks.undo"),
@@ -312,10 +400,10 @@ export const TaskCard = ({
           if (!undoClicked) {
             console.log(
               "⏱️ Tiempo expirado, eliminando tarea del backend:",
-              task.id
+              currentTask.id
             );
 
-            const result = await deleteTask(task.id);
+            const result = await deleteTask(currentTask.id);
             if (result?.success) {
               toast.dismiss(toastId);
             } else {
@@ -335,17 +423,23 @@ export const TaskCard = ({
   };
 
   const handleToggle = async () => {
+    // No permitir toggle en modo creación
+    if (isNew) return;
+
     if (externalOnToggle) {
-      externalOnToggle(task.id);
+      externalOnToggle(currentTask.id);
     } else {
       // Si se está marcando como completada, mostrar animación primero
-      if (!task.is_completed) {
+      if (!currentTask.is_completed) {
         setIsCompleting(true);
 
         // Esperar 800ms para la animación de completado
         setTimeout(async () => {
           // Realizar el cambio en el backend
-          const result = await toggleTaskCompleted(task.id, task.is_completed);
+          const result = await toggleTaskCompleted(
+            currentTask.id,
+            currentTask.is_completed
+          );
 
           if (result?.success) {
             // Esperar 400ms más para que termine la animación
@@ -362,16 +456,17 @@ export const TaskCard = ({
       } else {
         // Si se desmarca, hacerlo inmediatamente
         setIsCompleting(false);
-        await toggleTaskCompleted(task.id, task.is_completed);
+        await toggleTaskCompleted(currentTask.id, currentTask.is_completed);
       }
     }
   };
 
   const handleCreateTag = async (name, color) => {
+    const taskListId = currentTask?.list_id || propListId;
     if (externalOnCreateTag) {
-      return await externalOnCreateTag(task.list_id, name, color);
+      return await externalOnCreateTag(taskListId, name, color);
     } else if (contextCreateTag) {
-      return await contextCreateTag(task.list_id, name, color);
+      return await contextCreateTag(taskListId, name, color);
     }
     return { success: false, error: "No create tag function available" };
   };
@@ -387,13 +482,18 @@ export const TaskCard = ({
         ref={cardRef}
         className={cn(
           "task-card task-card-editing",
+          isNew && "task-card-new",
           isDeleting && "task-card-deleting",
           isCompleting && "task-card-completing"
         )}
       >
         <div className="task-content">
-          <button onClick={handleToggle} className="task-checkbox">
-            {task.is_completed ? (
+          <button
+            onClick={handleToggle}
+            className="task-checkbox"
+            disabled={isNew}
+          >
+            {currentTask.is_completed ? (
               <CheckCircle2 className="icon-md checked" />
             ) : (
               <Circle className="icon-md unchecked" />
@@ -403,14 +503,19 @@ export const TaskCard = ({
           <div className="task-details">
             <div className="task-title-row">
               <Input
+                ref={titleInputRef}
                 type="text"
                 value={editedTask.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 className="task-title-input"
-                placeholder={t("tasks.taskTitle")}
+                placeholder={
+                  isNew
+                    ? t("tasks.newTaskPlaceholder") || "¿Qué necesitas hacer?"
+                    : t("tasks.taskTitle")
+                }
                 autoFocus
               />
-              {isOverdue() && (
+              {!isNew && isOverdue() && (
                 <div className="urgent-badge">
                   <Flag className="icon-xs" />
                   <span>{t("tasks.overdue")}</span>
@@ -427,10 +532,10 @@ export const TaskCard = ({
               )}
 
               {/* Badge de Classroom si está vinculada */}
-              {task.classroom_integration && (
+              {currentTask.classroom_integration && (
                 <ClassroomBadge
-                  classroomIntegration={task.classroom_integration}
-                  task={task}
+                  classroomIntegration={currentTask.classroom_integration}
+                  task={currentTask}
                 />
               )}
 
@@ -452,31 +557,52 @@ export const TaskCard = ({
                   onCreateTag={handleCreateTag}
                 />
               </div>
+
+              {/* Selector de asignados */}
+              <AssignTaskCommand
+                listId={currentTask.list_id || propListId}
+                assignedUsers={editedTask.assignees}
+                onAssigneeChange={(newAssignees) => {
+                  const assigneeIds = newAssignees.map((a) =>
+                    typeof a === "object" ? a.id : a
+                  );
+                  handleChange("assignees", assigneeIds);
+                }}
+                currentUserId={user?.id}
+              />
             </div>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="task-menu">
-                <MoreHorizontal className="icon-sm" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-30" align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuItem onClick={handleDelete}>
-                  <Trash />
-                  {t("tasks.delete")}
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Copy />
-                  {t("tasks.duplicate")}
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Solo mostrar menú si no es modo creación */}
+          {!isNew && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="task-menu">
+                  <MoreHorizontal className="icon-sm" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-30" align="end">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={handleDelete}>
+                    <Trash />
+                    {t("tasks.delete")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Copy />
+                    {t("tasks.duplicate")}
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     );
+  }
+
+  // No renderizar vista normal en modo creación (siempre está en modo edición)
+  if (isNew) {
+    return null;
   }
 
   return (
@@ -485,12 +611,13 @@ export const TaskCard = ({
         "task-card",
         isDeleting && "task-card-deleting",
         isCompleting && "task-card-completing",
-        task.is_completed && "task-card-completed"
+        currentTask.is_completed && "task-card-completed",
+        currentTask._isNew && "task-new"
       )}
     >
       <div className="task-content">
         <button onClick={handleToggle} className="task-checkbox">
-          {task.is_completed ? (
+          {currentTask.is_completed ? (
             <CheckCircle2 className="icon-md checked" />
           ) : (
             <Circle className="icon-md unchecked" />
@@ -499,8 +626,13 @@ export const TaskCard = ({
 
         <div className="task-details" onClick={handleEditClick}>
           <div className="task-title-row">
-            <h4 className={cn("task-title", task.is_completed && "completed")}>
-              {task.title}
+            <h4
+              className={cn(
+                "task-title",
+                currentTask.is_completed && "completed"
+              )}
+            >
+              {currentTask.title}
             </h4>
             {isOverdue() && (
               <div className="urgent-badge">
@@ -519,26 +651,28 @@ export const TaskCard = ({
             )}
 
             {/* Badge de Classroom si está vinculada */}
-            {task.classroom_integration && (
+            {currentTask.classroom_integration && (
               <ClassroomBadge
-                classroomIntegration={task.classroom_integration}
-                task={task}
+                classroomIntegration={currentTask.classroom_integration}
+                task={currentTask}
               />
             )}
 
-            {task.due_date && (
+            {currentTask.due_date && (
               <div className="task-due">
                 <Clock className="icon-xs" />
-                <span>{formatDueDate(task.due_date, task.is_all_day)}</span>
+                <span>
+                  {formatDueDate(currentTask.due_date, currentTask.is_all_day)}
+                </span>
               </div>
             )}
 
             {/* Mostrar tags si existen */}
-            {task.tags && task.tags.length > 0 && (
+            {currentTask.tags && currentTask.tags.length > 0 && (
               <div className="flex gap-1 flex-wrap items-center">
-                {task.tags.map((tag) => (
+                {currentTask.tags.map((tag) => (
                   <span
-                    key={`tag-${task.id}-${tag.id}`}
+                    key={`tag-${currentTask.id}-${tag.id}`}
                     className="text-xs px-2 py-1 rounded-full inline-flex items-center gap-1 shrink-0"
                     style={{
                       backgroundColor: tag.color + "20",
@@ -557,11 +691,11 @@ export const TaskCard = ({
           </div>
 
           {/* Mostrar assignees si existen */}
-          {task.assignees && task.assignees.length > 0 && (
+          {currentTask.assignees && currentTask.assignees.length > 0 && (
             <div className="task-assignees">
               <div className="task-assignees-stack">
-                {task.assignees.slice(0, 12).map((assignee) => (
-                  <Tooltip key={`assignee-${task.id}-${assignee.id}`}>
+                {currentTask.assignees.slice(0, 12).map((assignee) => (
+                  <Tooltip key={`assignee-${currentTask.id}-${assignee.id}`}>
                     <TooltipTrigger asChild>
                       <Avatar
                         data-slot="avatar"
@@ -585,7 +719,7 @@ export const TaskCard = ({
                     </TooltipContent>
                   </Tooltip>
                 ))}
-                {task.assignees.length > 3 && (
+                {currentTask.assignees.length > 3 && (
                   <Popover>
                     <PopoverTrigger asChild>
                       <Avatar
@@ -593,7 +727,7 @@ export const TaskCard = ({
                         className="task-assignees-more h-8 w-8 border-2 border-background"
                       >
                         <AvatarFallback className="text-xs font-semibold">
-                          +{task.assignees.length - 3}
+                          +{currentTask.assignees.length - 3}
                         </AvatarFallback>
                       </Avatar>
                     </PopoverTrigger>
@@ -602,9 +736,9 @@ export const TaskCard = ({
                         <p className="task-assignees-list-title">
                           {t("tasks.assignedTo")}
                         </p>
-                        {task.assignees.map((assignee) => (
+                        {currentTask.assignees.map((assignee) => (
                           <div
-                            key={`assignee-popover-${task.id}-${assignee.id}`}
+                            key={`assignee-popover-${currentTask.id}-${assignee.id}`}
                             className="task-assignees-list-item"
                           >
                             <Avatar
@@ -646,9 +780,9 @@ export const TaskCard = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-30" align="end">
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleEditClick}>
                 <Users />
-                {t("tasks.asigntask")}
+                {t("assign.assignTask")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleDelete}>

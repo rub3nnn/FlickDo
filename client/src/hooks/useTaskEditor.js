@@ -8,9 +8,16 @@ import { useState, useEffect, useCallback } from "react";
  * @param {boolean} isEditing - Si la tarea está en modo edición
  * @param {Function} onSave - Callback al guardar cambios
  * @param {Function} onEditEnd - Callback al terminar la edición
+ * @param {boolean} isNew - Si es una tarea nueva (modo creación)
  * @returns {Object} Estado y funciones para manejar la edición
  */
-export function useTaskEditor(task, isEditing, onSave, onEditEnd) {
+export function useTaskEditor(
+  task,
+  isEditing,
+  onSave,
+  onEditEnd,
+  isNew = false
+) {
   const [date, setDate] = useState(parseInitialDate(task.due_date));
   const [editedTask, setEditedTask] = useState(getInitialState(task));
 
@@ -76,8 +83,22 @@ export function useTaskEditor(task, isEditing, onSave, onEditEnd) {
   }, [task, editedTask]);
 
   // Manejar guardado de cambios
-  const handleSave = useCallback(() => {
-    // Verificar si hay cambios antes de guardar
+  const handleSave = useCallback(async () => {
+    // Para tareas nuevas, solo verificar que haya título
+    if (isNew) {
+      if (!editedTask.title?.trim()) {
+        console.log("❌ No se puede crear tarea sin título");
+        onEditEnd();
+        return;
+      }
+      console.log("💾 Creando nueva tarea:", editedTask);
+      if (onSave) {
+        await onSave(task.id, editedTask);
+      }
+      return;
+    }
+
+    // Verificar si hay cambios antes de guardar (solo para edición)
     if (!hasChanges()) {
       console.log("✅ No hay cambios en la tarea, no se actualiza");
       onEditEnd();
@@ -87,10 +108,10 @@ export function useTaskEditor(task, isEditing, onSave, onEditEnd) {
     // Guardar los cambios
     console.log("💾 Guardando cambios:", editedTask);
     if (onSave) {
-      onSave(task.id, editedTask);
+      await onSave(task.id, editedTask);
     }
     onEditEnd();
-  }, [hasChanges, editedTask, task.id, onSave, onEditEnd]);
+  }, [hasChanges, editedTask, task.id, onSave, onEditEnd, isNew]);
 
   // Actualizar un campo específico
   const handleChange = useCallback((field, value) => {
