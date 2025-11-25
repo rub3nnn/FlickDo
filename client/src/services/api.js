@@ -6,6 +6,10 @@ const handleResponse = async (response) => {
   const data = await response.json();
 
   if (!response.ok) {
+    // Log validation errors for debugging
+    if (data.errors && Array.isArray(data.errors)) {
+      console.error("Validation errors:", JSON.stringify(data.errors, null, 2));
+    }
     throw new Error(data.message || "Error en la petición");
   }
 
@@ -284,6 +288,7 @@ export const tasksApi = {
 
   // Actualizar tarea
   updateTask: async (id, data) => {
+    console.log("📤 Sending updateTask:", { id, data: JSON.stringify(data) });
     const response = await fetch(`${API_URL}/tasks/${id}`, {
       method: "PUT",
       headers: {

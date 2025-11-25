@@ -5704,6 +5704,24 @@ body {
   text-align: center;
 }
 
+.list-not-found-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.list-not-found-icon .icon-xl {
+  width: 40px;
+  height: 40px;
+  color: var(--amber);
+}
+
 .list-not-found .icon-xl {
   width: 64px;
   height: 64px;

@@ -419,10 +419,11 @@ export function TasksProvider({ children }) {
   // Eliminar lista
   const deleteList = useCallback(async (id) => {
     let previousLists = null;
+    const listIdStr = String(id);
 
     setLists((prev) => {
       previousLists = prev;
-      return prev.filter((list) => list.id !== id);
+      return prev.filter((list) => String(list.id) !== listIdStr);
     });
 
     try {

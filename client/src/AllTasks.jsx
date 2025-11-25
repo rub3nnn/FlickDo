@@ -53,6 +53,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Mapeo de iconos por nombre (debe coincidir con AVAILABLE_ICONS en CreateListDialog)
 const ICON_MAP = {
@@ -85,16 +95,27 @@ export default function AllTasks() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Obtener listas del contexto global (las tareas están dentro de cada lista)
-  const { lists, loading, error, createList, updateList } = useTasks();
+  const { lists, loading, error, createList, updateList, deleteList } =
+    useTasks();
   const { user } = useAuth();
 
   // Estados para los dialogs
   const [createListOpen, setCreateListOpen] = useState(false);
   const [editListOpen, setEditListOpen] = useState(false);
   const [shareListOpen, setShareListOpen] = useState(false);
+  const [deleteListOpen, setDeleteListOpen] = useState(false);
   const [selectedListForEdit, setSelectedListForEdit] = useState(null);
   const [selectedListForShare, setSelectedListForShare] = useState(null);
+  const [selectedListForDelete, setSelectedListForDelete] = useState(null);
   const [isCreatingList, setIsCreatingList] = useState(false);
+  const [isDeletingList, setIsDeletingList] = useState(false);
+
+  // Presets para crear lista desde EmptyState
+  const [createListPreset, setCreateListPreset] = useState({
+    title: "",
+    icon: "list",
+    color: "#4f46e5",
+  });
 
   const [collapsedCompletedSections, setCollapsedCompletedSections] = useState(
     {}
@@ -146,6 +167,8 @@ export default function AllTasks() {
       const result = await createList(listData);
       if (result?.success) {
         toast.success(t("lists.created"));
+        // Resetear presets después de crear
+        setCreateListPreset({ title: "", icon: "list", color: "#4f46e5" });
         return { success: true };
       } else {
         toast.error(t("lists.errorCreating"));
@@ -157,6 +180,22 @@ export default function AllTasks() {
     } finally {
       setIsCreatingList(false);
     }
+  };
+
+  // Abrir diálogo de crear lista con presets opcionales
+  const handleOpenCreateList = (presetName) => {
+    const presets = {
+      Trabajo: { title: "Trabajo", icon: "briefcase", color: "#4f46e5" },
+      Estudios: { title: "Estudios", icon: "book", color: "#9333ea" },
+      Personal: { title: "Personal", icon: "heart", color: "#10b981" },
+    };
+
+    if (presetName && presets[presetName]) {
+      setCreateListPreset(presets[presetName]);
+    } else {
+      setCreateListPreset({ title: "", icon: "list", color: "#4f46e5" });
+    }
+    setCreateListOpen(true);
   };
 
   // Abrir dialog de compartir
@@ -178,6 +217,33 @@ export default function AllTasks() {
       return result;
     } catch (err) {
       return { success: false, error: err.message };
+    }
+  };
+
+  // Abrir diálogo de confirmación de eliminación
+  const handleDeleteListClick = (list) => {
+    setSelectedListForDelete(list);
+    setDeleteListOpen(true);
+  };
+
+  // Manejar eliminación de lista
+  const handleDeleteList = async () => {
+    if (!selectedListForDelete) return;
+
+    setIsDeletingList(true);
+    try {
+      const result = await deleteList(selectedListForDelete.id);
+      if (result?.success) {
+        toast.success(t("lists.deleted") || "Lista eliminada");
+      } else {
+        toast.error(t("lists.errorDeleting") || "Error al eliminar la lista");
+      }
+    } catch (err) {
+      toast.error(t("lists.errorDeleting") || "Error al eliminar la lista");
+    } finally {
+      setIsDeletingList(false);
+      setDeleteListOpen(false);
+      setSelectedListForDelete(null);
     }
   };
 
@@ -220,11 +286,7 @@ export default function AllTasks() {
             <div className="all-tasks-container-horizontal">
               {/* Empty State for No Lists */}
               {!loading && lists.length === 0 ? (
-                <EmptyState
-                  onCreateList={(listName) =>
-                    console.log("Create list:", listName)
-                  }
-                />
+                <EmptyState onCreateList={handleOpenCreateList} />
               ) : (
                 <>
                   {/* Compact Header with Stats */}
@@ -292,7 +354,7 @@ export default function AllTasks() {
                       </div>
                       <button
                         className="add-list-btn-compact-header"
-                        onClick={() => setCreateListOpen(true)}
+                        onClick={() => handleOpenCreateList()}
                       >
                         <Plus className="icon-sm" />
                         <span className="desktop-only">
@@ -425,7 +487,12 @@ export default function AllTasks() {
                                         </DropdownMenuItem>
                                       </DropdownMenuGroup>
                                       <DropdownMenuSeparator />
-                                      <DropdownMenuItem className="text-destructive">
+                                      <DropdownMenuItem
+                                        className="text-destructive"
+                                        onClick={() =>
+                                          handleDeleteListClick(list)
+                                        }
+                                      >
                                         <Trash2 className="icon-xs" />
                                         {t("allTasks.deleteList")}
                                       </DropdownMenuItem>
@@ -547,7 +614,7 @@ export default function AllTasks() {
                       {/* Add New List Card */}
                       <div
                         className="task-list-card-compact add-list-card"
-                        onClick={() => setCreateListOpen(true)}
+                        onClick={() => handleOpenCreateList()}
                         style={{ cursor: "pointer" }}
                       >
                         <div className="add-list-content">
@@ -573,9 +640,21 @@ export default function AllTasks() {
         {/* Dialogs */}
         <CreateListDialog
           open={createListOpen}
-          onOpenChange={setCreateListOpen}
+          onOpenChange={(open) => {
+            setCreateListOpen(open);
+            if (!open) {
+              setCreateListPreset({
+                title: "",
+                icon: "list",
+                color: "#4f46e5",
+              });
+            }
+          }}
           onCreateList={handleCreateList}
           isLoading={isCreatingList}
+          initialTitle={createListPreset.title}
+          initialIcon={createListPreset.icon}
+          initialColor={createListPreset.color}
         />
 
         <EditListDialog
@@ -591,6 +670,35 @@ export default function AllTasks() {
           list={selectedListForShare}
           currentUserId={user?.id}
         />
+
+        {/* Delete List Confirmation Dialog */}
+        <AlertDialog open={deleteListOpen} onOpenChange={setDeleteListOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t("lists.confirmDelete") || "¿Eliminar esta lista?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("lists.confirmDeleteDescription") ||
+                  "Esta acción no se puede deshacer. Se eliminarán todas las tareas de esta lista."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeletingList}>
+                {t("common.cancel") || "Cancelar"}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteList}
+                disabled={isDeletingList}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeletingList
+                  ? t("common.deleting") || "Eliminando..."
+                  : t("common.delete") || "Eliminar"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );

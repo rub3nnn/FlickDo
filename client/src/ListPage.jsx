@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Header } from "./components/Header/Header";
 import { TaskCard } from "./components/Tasks/TaskCard";
 import { EditListDialog } from "./components/Lists/EditListDialog";
@@ -45,6 +45,8 @@ import {
   Tag,
   Zap,
   Target,
+  AlertCircle,
+  ArrowLeft,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -56,6 +58,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 // Mapeo de iconos por nombre
 const ICON_MAP = {
@@ -300,8 +303,8 @@ export default function ListPage() {
     setShowNewTaskCard(false);
   };
 
-  // Si está cargando o no hay listas aún
-  if (loading || lists.length === 0) {
+  // Si está cargando, mostrar skeleton
+  if (loading) {
     return (
       <div className="dashboard-container">
         <main className="main-content">
@@ -321,7 +324,7 @@ export default function ListPage() {
     );
   }
 
-  // Si no se encuentra la lista (solo después de cargar)
+  // Si no se encuentra la lista (después de cargar)
   if (!list) {
     return (
       <div className="dashboard-container">
@@ -330,12 +333,20 @@ export default function ListPage() {
           <div className="content-area">
             <div className="content-wrapper" style={{ padding: "24px" }}>
               <div className="list-not-found">
-                <Circle className="icon-xl" />
+                <div className="list-not-found-icon">
+                  <AlertCircle className="icon-xl" />
+                </div>
                 <h2>{t("lists.notFound") || "Lista no encontrada"}</h2>
                 <p>
                   {t("lists.notFoundDescription") ||
                     "La lista que buscas no existe o no tienes acceso a ella."}
                 </p>
+                <Button asChild variant="outline" className="mt-4">
+                  <Link to="/all-tasks">
+                    <ArrowLeft className="icon-sm mr-2" />
+                    {t("common.backToTasks") || "Volver a mis tareas"}
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>

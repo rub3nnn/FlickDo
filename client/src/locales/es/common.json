@@ -196,7 +196,10 @@
     "save": "Guardar",
     "saving": "Guardando...",
     "close": "Cerrar",
-    "creating": "Creando..."
+    "creating": "Creando...",
+    "delete": "Eliminar",
+    "deleting": "Eliminando...",
+    "backToTasks": "Volver a mis tareas"
   },
   "lists": {
     "createTitle": "Crear nueva lista",
@@ -213,8 +216,14 @@
     "untitled": "Sin título",
     "created": "Lista creada correctamente",
     "updated": "Lista actualizada correctamente",
+    "deleted": "Lista eliminada correctamente",
     "errorCreating": "Error al crear la lista",
     "errorUpdating": "Error al actualizar la lista",
+    "errorDeleting": "Error al eliminar la lista",
+    "notFound": "Lista no encontrada",
+    "notFoundDescription": "La lista que buscas no existe o no tienes acceso a ella.",
+    "confirmDelete": "¿Eliminar esta lista?",
+    "confirmDeleteDescription": "Esta acción no se puede deshacer. Se eliminarán todas las tareas de esta lista.",
     "advancedSettings": "Ajustes avanzados",
     "settings": {
       "showDates": "Mostrar fechas",

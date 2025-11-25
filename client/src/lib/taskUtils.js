@@ -12,18 +12,38 @@
 export function prepareTaskForBackend(editedData) {
   const backendData = { ...editedData };
 
-  // Convertir tags a array de IDs si son objetos
-  if (editedData.tags && Array.isArray(editedData.tags)) {
-    backendData.tags = editedData.tags.map((tag) =>
-      typeof tag === "object" ? tag.id : tag
-    );
+  // Convertir due_date vacío a null (el backend espera null o una fecha válida)
+  if (backendData.due_date === "" || backendData.due_date === undefined) {
+    backendData.due_date = null;
   }
 
-  // Convertir assignees a array de IDs si son objetos
+  // Convertir description vacía a null
+  if (backendData.description === "") {
+    backendData.description = null;
+  }
+
+  // Convertir tags a array de IDs numéricos (el backend espera integers)
+  if (editedData.tags && Array.isArray(editedData.tags)) {
+    backendData.tags = editedData.tags
+      .map((tag) => {
+        const id = typeof tag === "object" ? tag.id : tag;
+        // Filtrar IDs temporales y convertir a número
+        if (typeof id === "string" && id.startsWith("temp-")) {
+          return null;
+        }
+        return typeof id === "string" ? parseInt(id, 10) : id;
+      })
+      .filter((id) => id !== null && !isNaN(id));
+  }
+
+  // Convertir assignees a array de UUIDs (strings)
   if (editedData.assignees && Array.isArray(editedData.assignees)) {
-    backendData.assignees = editedData.assignees.map((assignee) =>
-      typeof assignee === "object" ? assignee.id : assignee
-    );
+    backendData.assignees = editedData.assignees
+      .map((assignee) => {
+        const id = typeof assignee === "object" ? assignee.id : assignee;
+        return String(id);
+      })
+      .filter((id) => id && !id.startsWith("temp-"));
   }
 
   return backendData;

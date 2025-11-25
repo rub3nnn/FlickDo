@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { LayoutGrid, Inbox, Calendar, GraduationCap, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -11,11 +12,14 @@ import {
   SidebarContent,
 } from "@/components/ui/sidebar";
 import { PROJECTS } from "../../data/constants";
+import { CreateListDialog } from "../Lists/CreateListDialog";
 
 export const Sidebar = ({}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const [createListOpen, setCreateListOpen] = useState(false);
+  const [isCreatingList, setIsCreatingList] = useState(false);
 
   const navItems = [
     {
@@ -48,7 +52,20 @@ export const Sidebar = ({}) => {
     },
   ];
 
-  const { lists } = useTasks();
+  const { lists, createList } = useTasks();
+
+  const handleCreateList = async (listData) => {
+    setIsCreatingList(true);
+    try {
+      const result = await createList(listData);
+      if (result?.success && result.data?.id) {
+        navigate(`/list/${result.data.id}`);
+      }
+      return result;
+    } finally {
+      setIsCreatingList(false);
+    }
+  };
 
   return (
     <>
@@ -94,7 +111,10 @@ export const Sidebar = ({}) => {
                     />
                   );
                 })}
-                <button className="nav-item secondary">
+                <button
+                  className="nav-item secondary"
+                  onClick={() => setCreateListOpen(true)}
+                >
                   <Plus className="icon-sm" />
                   <span>{t("sidebar.new")}</span>
                 </button>
@@ -105,6 +125,13 @@ export const Sidebar = ({}) => {
           <UserMenu />
         </SidebarContent>
       </SidebarLibrary>
+
+      <CreateListDialog
+        open={createListOpen}
+        onOpenChange={setCreateListOpen}
+        onCreateList={handleCreateList}
+        isLoading={isCreatingList}
+      />
     </>
   );
 };

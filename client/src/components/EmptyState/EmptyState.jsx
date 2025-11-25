@@ -36,7 +36,10 @@ export function EmptyState({ onCreateList }) {
             "Crea tu primera lista para empezar a organizar tus tareas"}
         </p>
         <div className="empty-state-actions">
-          <button className="empty-state-primary-btn" onClick={onCreateList}>
+          <button
+            className="empty-state-primary-btn"
+            onClick={() => onCreateList?.()}
+          >
             <Plus className="icon-sm" />
             {t("allTasks.newList") || "Crear lista"}
           </button>

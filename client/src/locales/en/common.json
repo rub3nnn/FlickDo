@@ -196,7 +196,10 @@
     "save": "Save",
     "saving": "Saving...",
     "close": "Close",
-    "creating": "Creating..."
+    "creating": "Creating...",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "backToTasks": "Back to my tasks"
   },
   "lists": {
     "createTitle": "Create new list",
@@ -213,8 +216,14 @@
     "untitled": "Untitled",
     "created": "List created successfully",
     "updated": "List updated successfully",
+    "deleted": "List deleted successfully",
     "errorCreating": "Error creating list",
     "errorUpdating": "Error updating list",
+    "errorDeleting": "Error deleting list",
+    "notFound": "List not found",
+    "notFoundDescription": "The list you're looking for doesn't exist or you don't have access to it.",
+    "confirmDelete": "Delete this list?",
+    "confirmDeleteDescription": "This action cannot be undone. All tasks in this list will be deleted.",
     "advancedSettings": "Advanced settings",
     "settings": {
       "showDates": "Show dates",

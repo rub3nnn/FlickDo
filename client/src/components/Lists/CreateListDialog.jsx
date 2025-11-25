@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -82,17 +82,29 @@ export function CreateListDialog({
   onOpenChange,
   onCreateList,
   isLoading = false,
+  initialTitle = "",
+  initialIcon = "list",
+  initialColor = "#4f46e5",
 }) {
   const { t } = useTranslation();
-  const [title, setTitle] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState("list");
-  const [selectedColor, setSelectedColor] = useState("#4f46e5");
+  const [title, setTitle] = useState(initialTitle);
+  const [selectedIcon, setSelectedIcon] = useState(initialIcon);
+  const [selectedColor, setSelectedColor] = useState(initialColor);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Configuration settings
   const [showDates, setShowDates] = useState(true);
   const [enableAssignments, setEnableAssignments] = useState(true);
   const [restrictEditing, setRestrictEditing] = useState(false);
+
+  // Actualizar estado cuando cambian los props iniciales
+  useEffect(() => {
+    if (open) {
+      setTitle(initialTitle);
+      setSelectedIcon(initialIcon);
+      setSelectedColor(initialColor);
+    }
+  }, [open, initialTitle, initialIcon, initialColor]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,9 +130,9 @@ export function CreateListDialog({
   };
 
   const resetForm = () => {
-    setTitle("");
-    setSelectedIcon("list");
-    setSelectedColor("#4f46e5");
+    setTitle(initialTitle);
+    setSelectedIcon(initialIcon);
+    setSelectedColor(initialColor);
     setShowAdvanced(false);
     setShowDates(true);
     setEnableAssignments(true);
