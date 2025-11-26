@@ -194,6 +194,13 @@ export const TaskCard = ({
         return;
       }
 
+      // Cerrar el TaskCard de creación inmediatamente
+      if (externalOnEditEnd) {
+        externalOnEditEnd();
+      } else {
+        setInternalIsEditing(false);
+      }
+
       setIsCreating(true);
       try {
         const taskData = {
@@ -222,13 +229,8 @@ export const TaskCard = ({
         // Usar createTask del contexto (asegurar que listId sea número)
         const result = await createTask(Number(propListId), taskData);
         if (result?.success) {
-          // Cerrar el TaskCard de creación
-          if (externalOnEditEnd) {
-            externalOnEditEnd();
-          } else {
-            setInternalIsEditing(false);
-          }
           // Llamar a onCreate si existe
+          console.log("Tarea creada con éxito:", result.data);
           if (onCreate) {
             onCreate();
           }
@@ -509,11 +511,7 @@ export const TaskCard = ({
                 value={editedTask.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 className="task-title-input"
-                placeholder={
-                  isNew
-                    ? t("tasks.newTaskPlaceholder") || "¿Qué necesitas hacer?"
-                    : t("tasks.taskTitle")
-                }
+                placeholder={t("tasks.taskTitle")}
                 autoFocus
               />
               {!isNew && isOverdue() && (

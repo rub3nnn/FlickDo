@@ -32,6 +32,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useListMembers } from "@/hooks/useListMembers";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Roles disponibles para miembros
 const MEMBER_ROLES = {

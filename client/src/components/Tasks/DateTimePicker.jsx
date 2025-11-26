@@ -52,21 +52,18 @@ export const DateTimePicker = ({
     ).padStart(2, "0")}`;
   });
 
-  // Mapear el idioma actual a los locales de date-fns
-  const getDateLocale = () => {
-    return i18n.language === "es" ? es : enUS;
+  // Función para obtener el formato de fecha y hora a mostrar
+  const formatDisplayDate = () => {
+    if (!date) return "";
+    const dateFormat = isAllDay ? "PPP" : "PPPpp";
+    return format(date, dateFormat, {
+      locale: i18n.language === "es" ? es : enUS,
+    });
   };
 
-  // Formatear fecha para mostrar
-  const formatDisplayDate = () => {
-    if (!date) return null;
-    if (isAllDay) {
-      return format(date, "PP", { locale: getDateLocale() });
-    }
-    const [hours, minutes] = time.split(":");
-    const dateWithTime = new Date(date);
-    dateWithTime.setHours(parseInt(hours), parseInt(minutes));
-    return format(dateWithTime, "PPp", { locale: getDateLocale() });
+  // Función para obtener la configuración regional del calendario
+  const getDateLocale = () => {
+    return i18n.language === "es" ? es : enUS;
   };
 
   // Manejar selección de fecha
@@ -138,15 +135,39 @@ export const DateTimePicker = ({
           className={cn("task-date-input", !date && "muted-foreground")}
           size="sm"
         >
-          <CalendarIcon className="datetime-picker-icon" />
-          {date ? (
-            <>
-              <span>{formatDisplayDate()}</span>
-              <X className="datetime-picker-clear" onClick={handleClear} />
-            </>
-          ) : (
-            <span>{t("tasks.selectDate")}</span>
-          )}
+          <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <CalendarIcon className="datetime-picker-icon" />
+            {date ? (
+              <>
+                <span style={{ flex: 1, marginLeft: "8px" }}>
+                  {formatDisplayDate()}
+                </span>
+                <button
+                  type="button"
+                  aria-label={t("tasks.clearDate") || "Quitar fecha"}
+                  className="datetime-picker-clear-btn"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: "0 4px",
+                    marginLeft: "8px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleClear(e);
+                  }}
+                >
+                  <X className="datetime-picker-clear" />
+                </button>
+              </>
+            ) : (
+              <span style={{ marginLeft: "8px" }}>{t("tasks.selectDate")}</span>
+            )}
+          </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="datetime-picker-popover" align="start">

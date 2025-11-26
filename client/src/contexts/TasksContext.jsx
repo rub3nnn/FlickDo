@@ -137,6 +137,7 @@ export function TasksProvider({ children }) {
       assignees: [],
       tags: [],
       ...data,
+      _isNew: true, // <-- Añadido para animación instantánea
     };
 
     let previousLists = null;
@@ -169,27 +170,15 @@ export function TasksProvider({ children }) {
       const response = await tasksApi.createTask(listId, data);
 
       if (response.success) {
-        // Reemplazar la tarea temporal con la real, marcándola como nueva para animación
+        // Reemplazar la tarea temporal con la real, pero sin _isNew para evitar doble animación
         setLists((prev) =>
           prev.map((list) => ({
             ...list,
             tasks: (list.tasks || []).map((task) =>
-              task.id === tempId ? { ...response.data, _isNew: true } : task
+              task.id === tempId ? { ...response.data, _isNew: false } : task
             ),
           }))
         );
-
-        // Quitar el flag _isNew después de la animación
-        setTimeout(() => {
-          setLists((prev) =>
-            prev.map((list) => ({
-              ...list,
-              tasks: (list.tasks || []).map((task) =>
-                task._isNew ? { ...task, _isNew: false } : task
-              ),
-            }))
-          );
-        }, 400);
 
         return { success: true, data: response.data };
       } else {
