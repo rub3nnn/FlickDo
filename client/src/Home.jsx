@@ -16,13 +16,6 @@ import { useTasks } from "./contexts/TasksContext";
 import { EVENTS } from "./data/constants";
 import "./styles.css";
 
-// Presets para las sugerencias de listas
-const LIST_PRESETS = {
-  Trabajo: { icon: "briefcase", color: "#4f46e5" },
-  Estudios: { icon: "book", color: "#9333ea" },
-  Personal: { icon: "heart", color: "#10b981" },
-};
-
 export default function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -38,6 +31,25 @@ export default function Home() {
     icon: "list",
     color: "#4f46e5",
   });
+
+  // Presets para las sugerencias de listas
+  const LIST_PRESETS = {
+    Trabajo: {
+      title: t("allTasks.listSuggestions.work"),
+      icon: "briefcase",
+      color: "#4f46e5",
+    },
+    Estudios: {
+      title: t("allTasks.listSuggestions.study"),
+      icon: "book",
+      color: "#9333ea",
+    },
+    Personal: {
+      title: t("allTasks.listSuggestions.personal"),
+      icon: "heart",
+      color: "#10b981",
+    },
+  };
 
   // Obtener todas las tareas del usuario desde el contexto global
   const { tasks, lists, loading, error, updateTask, deleteTask, createList } =
@@ -55,7 +67,7 @@ export default function Home() {
   const handleOpenCreateList = (presetName) => {
     if (presetName && LIST_PRESETS[presetName]) {
       setListPreset({
-        title: presetName,
+        title: LIST_PRESETS[presetName].title,
         icon: LIST_PRESETS[presetName].icon,
         color: LIST_PRESETS[presetName].color,
       });

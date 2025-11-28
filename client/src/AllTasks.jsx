@@ -185,9 +185,21 @@ export default function AllTasks() {
   // Abrir diálogo de crear lista con presets opcionales
   const handleOpenCreateList = (presetName) => {
     const presets = {
-      Trabajo: { title: "Trabajo", icon: "briefcase", color: "#4f46e5" },
-      Estudios: { title: "Estudios", icon: "book", color: "#9333ea" },
-      Personal: { title: "Personal", icon: "heart", color: "#10b981" },
+      Trabajo: {
+        title: t("allTasks.listSuggestions.work"),
+        icon: "briefcase",
+        color: "#4f46e5",
+      },
+      Estudios: {
+        title: t("allTasks.listSuggestions.study"),
+        icon: "book",
+        color: "#9333ea",
+      },
+      Personal: {
+        title: t("allTasks.listSuggestions.personal"),
+        icon: "heart",
+        color: "#10b981",
+      },
     };
 
     if (presetName && presets[presetName]) {
