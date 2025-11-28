@@ -28,9 +28,7 @@ export function EmptyState({ onCreateList }) {
             <div className="mini-card-line short"></div>
           </div>
         </div>
-        <h2 className="empty-state-title-modern">
-          {t("allTasks.noLists") || "No tienes listas todavía"}
-        </h2>
+        <h2 className="empty-state-title-modern">{t("allTasks.noLists")}</h2>
         <p className="empty-state-description-modern">
           {t("allTasks.createFirstList") ||
             "Crea tu primera lista para empezar a organizar tus tareas"}
@@ -41,21 +39,20 @@ export function EmptyState({ onCreateList }) {
             onClick={() => onCreateList?.()}
           >
             <Plus className="icon-sm" />
-            {t("allTasks.newList") || "Crear lista"}
-          </button>
-          <button className="empty-state-secondary-btn">
-            <GraduationCap className="icon-sm" />
-            {t("allTasks.learnMore") || "Ver tutorial"}
+            {t("allTasks.newList")}
           </button>
         </div>
         <div className="empty-state-suggestions">
-          <p className="suggestions-title">
-            {t("allTasks.suggestions") || "Sugerencias para empezar:"}
-          </p>
+          <p className="suggestions-title">{t("allTasks.suggestions")}</p>
           <div className="suggestions-grid">
             <div
               className="suggestion-card"
-              onClick={() => onCreateList?.("Trabajo")}
+              onClick={
+                () =>
+                  onCreateList?.(
+                    "Trabajo"
+                  ) /*t("allTasks.listSuggestions.work")*/
+              }
             >
               <div
                 className="suggestion-icon"
@@ -64,12 +61,16 @@ export function EmptyState({ onCreateList }) {
                 <Briefcase className="icon-xs" />
               </div>
               <span className="suggestion-text">
-                {t("allTasks.workList") || "Trabajo"}
+                {t("allTasks.listSuggestions.work")}
               </span>
             </div>
             <div
               className="suggestion-card"
-              onClick={() => onCreateList?.("Estudios")}
+              onClick={() =>
+                onCreateList?.(
+                  "Estudios" /*t("allTasks.listSuggestions.study")*/
+                )
+              }
             >
               <div
                 className="suggestion-icon"
@@ -78,7 +79,7 @@ export function EmptyState({ onCreateList }) {
                 <GraduationCap className="icon-xs" />
               </div>
               <span className="suggestion-text">
-                {t("allTasks.studyList") || "Estudios"}
+                {t("allTasks.listSuggestions.study")}
               </span>
             </div>
             <div
@@ -92,7 +93,7 @@ export function EmptyState({ onCreateList }) {
                 <ListTodo className="icon-xs" />
               </div>
               <span className="suggestion-text">
-                {t("allTasks.personalList") || "Personal"}
+                {t("allTasks.listSuggestions.personal")}
               </span>
             </div>
           </div>

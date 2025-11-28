@@ -72,6 +72,7 @@
     "completedDesc": "This week"
   },
   "tasks": {
+    "task": "Task",
     "tasks": "Tasks",
     "myTasks": "My Tasks",
     "newTask": "New task",
@@ -154,9 +155,13 @@
     "gridView": "Grid view",
     "columnView": "Column view",
     "filters": {
-      "all": "All",
+      "all": "All"
+    },
+    "suggestions": "Getting started suggestions:",
+    "listSuggestions": {
       "work": "Work",
-      "classroom": "Classroom"
+      "personal": "Personal",
+      "study": "Study"
     },
     "stats": {
       "lists": "Lists",

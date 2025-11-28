@@ -72,8 +72,9 @@
     "completedDesc": "Esta semana"
   },
   "tasks": {
-    "myTasks": "Mis Tareas",
+    "task": "Tarea",
     "tasks": "Tareas",
+    "myTasks": "Mis Tareas",
     "newTask": "Nueva tarea",
     "all": "Todas",
     "work": "Trabajo",
@@ -114,7 +115,6 @@
     "openInClassroom": "Abrir en Classroom",
     "noDate": "Sin fecha",
     "invalidDate": "Fecha inválida",
-    "descriptionPlaceholder": "Descripción de la tarea",
     "selectTagsPlaceholder": "Seleccionar etiquetas...",
     "searchOrCreateTagPlaceholder": "Buscar o crear etiqueta...",
     "createTag": "Crear \"{{value}}\"",
@@ -148,6 +148,12 @@
     "logout": "Cerrar sesión"
   },
   "allTasks": {
+    "suggestions": "Sugerencias para comenzar:",
+    "listSuggestions": {
+      "work": "Trabajo",
+      "personal": "Personal",
+      "study": "Estudio"
+    },
     "title": "Tus listas",
     "subtitle": "Gestiona y organiza todas tus listas de tareas en un solo lugar",
     "newList": "Nueva lista",
@@ -155,9 +161,7 @@
     "gridView": "Vista de cuadrícula",
     "columnView": "Vista de columnas",
     "filters": {
-      "all": "Todas",
-      "work": "Trabajo",
-      "classroom": "Classroom"
+      "all": "Todas"
     },
     "stats": {
       "lists": "Listas",
