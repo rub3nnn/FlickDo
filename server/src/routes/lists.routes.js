@@ -26,6 +26,13 @@ router.delete(
   listsController.deleteList
 );
 
+// Ruta para salir de una lista compartida
+router.delete(
+  "/:id/leave",
+  validate(listValidators.getById),
+  listsController.leaveList
+);
+
 // Rutas de miembros de lista
 router.get(
   "/:id/members",

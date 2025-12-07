@@ -9,6 +9,7 @@ import { Sidebar } from "@/components/Sidebar/Sidebar";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { TasksProvider } from "@/contexts/TasksContext";
+import { GlobalCommand } from "@/components/GlobalCommand";
 
 function App() {
   const location = useLocation();
@@ -20,6 +21,7 @@ function App() {
 
   return (
     <>
+      <GlobalCommand />
       {!shouldRedirect && shouldShowSidebar ? (
         <TasksProvider>
           <SidebarProvider>

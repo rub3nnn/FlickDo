@@ -91,11 +91,20 @@ export function CreateListDialog({
   const [selectedIcon, setSelectedIcon] = useState(initialIcon);
   const [selectedColor, setSelectedColor] = useState(initialColor);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Configuration settings
   const [showDates, setShowDates] = useState(true);
   const [enableAssignments, setEnableAssignments] = useState(true);
   const [restrictEditing, setRestrictEditing] = useState(false);
+
+  // Detectar tamaño de pantalla
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Actualizar estado cuando cambian los props iniciales
   useEffect(() => {
@@ -103,12 +112,13 @@ export function CreateListDialog({
       setTitle(initialTitle);
       setSelectedIcon(initialIcon);
       setSelectedColor(initialColor);
+      setShowAdvanced(false);
     }
   }, [open, initialTitle, initialIcon, initialColor]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || isLoading) return;
 
     const listData = {
       title: title.trim(),
@@ -122,10 +132,14 @@ export function CreateListDialog({
       },
     };
 
-    const result = await onCreateList(listData);
-    if (result?.success) {
-      resetForm();
-      onOpenChange(false);
+    try {
+      const result = await onCreateList(listData);
+      if (result?.success) {
+        resetForm();
+        onOpenChange(false);
+      }
+    } catch (error) {
+      console.error("Error creating list:", error);
     }
   };
 
@@ -170,7 +184,7 @@ export function CreateListDialog({
           </div>
 
           {/* Title Input */}
-          <div className="form-field">
+          <div className="form-field field-title">
             <Label htmlFor="list-title">{t("lists.titleLabel")}</Label>
             <Input
               id="list-title"
@@ -242,24 +256,30 @@ export function CreateListDialog({
             </div>
           </div>
 
-          {/* Advanced Settings Toggle */}
-          <button
-            type="button"
-            className="advanced-settings-toggle"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-          >
-            <Settings className="icon-sm" />
-            <span>{t("lists.advancedSettings")}</span>
-            {showAdvanced ? (
-              <ChevronUp className="icon-sm" />
-            ) : (
-              <ChevronDown className="icon-sm" />
-            )}
-          </button>
+          {/* Advanced Settings Toggle - Solo en móvil */}
+          {isMobile && (
+            <button
+              type="button"
+              className="advanced-settings-toggle"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+            >
+              <Settings className="icon-sm" />
+              <span>{t("lists.advancedSettings")}</span>
+              {showAdvanced ? (
+                <ChevronUp className="icon-sm" />
+              ) : (
+                <ChevronDown className="icon-sm" />
+              )}
+            </button>
+          )}
 
           {/* Advanced Settings */}
-          {showAdvanced && (
-            <div className="advanced-settings-panel">
+          {(showAdvanced || !isMobile) && (
+            <div
+              className={`advanced-settings-panel ${
+                isMobile ? "collapsible" : ""
+              }`}
+            >
               {/* Show Dates */}
               <div className="setting-item">
                 <div className="setting-info">
@@ -317,7 +337,7 @@ export function CreateListDialog({
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="create-list-footer">
             <Button
               type="button"
               variant="ghost"

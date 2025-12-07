@@ -14,37 +14,25 @@ const getLists = async (req, res, next) => {
       return getListsWithTasks(req, res, next);
     }
 
-    // Obtener listas donde el usuario es owner o miembro
-    const { data: ownedLists, error: ownedError } = await supabase
-      .from("todo_lists")
-      .select("*, list_members!inner(role)")
-      .eq("owner_id", userId)
-      .eq("is_archived", include_archived === "true");
-
-    if (ownedError) throw ownedError;
-
-    // Obtener listas compartidas (donde es miembro pero no owner)
-    const { data: sharedLists, error: sharedError } = await supabase
+    // Obtener todas las listas donde el usuario es miembro (owner o colaborador)
+    const { data: memberLists, error: memberError } = await supabase
       .from("list_members")
-      .select("role, todo_lists!inner(*)")
+      .select(
+        `
+        role,
+        todo_lists!inner(*)
+      `
+      )
       .eq("user_id", userId)
-      .neq("todo_lists.owner_id", userId)
       .eq("todo_lists.is_archived", include_archived === "true");
 
-    if (sharedError) throw sharedError;
+    if (memberError) throw memberError;
 
-    // Combinar y formatear resultados
-    const formattedOwnedLists = ownedLists.map((list) => ({
-      ...list,
-      role: "owner",
-    }));
-
-    const formattedSharedLists = sharedLists.map((item) => ({
+    // Formatear los resultados
+    const allLists = memberLists.map((item) => ({
       ...item.todo_lists,
       role: item.role,
     }));
-
-    const allLists = [...formattedOwnedLists, ...formattedSharedLists];
 
     res.json({
       success: true,
@@ -449,6 +437,9 @@ const addListMember = async (req, res, next) => {
       throw error;
     }
 
+    // Actualizar is_shared a true al agregar el primer miembro
+    await supabase.from("todo_lists").update({ is_shared: true }).eq("id", id);
+
     res.status(201).json({
       success: true,
       message: "Miembro agregado exitosamente",
@@ -562,9 +553,103 @@ const removeListMember = async (req, res, next) => {
 
     if (error) throw error;
 
+    // Verificar si quedan colaboradores (excluyendo al owner)
+    const { data: remainingMembers, error: countError } = await supabase
+      .from("list_members")
+      .select("user_id")
+      .eq("list_id", id)
+      .neq("user_id", list.owner_id);
+
+    if (!countError && remainingMembers.length === 0) {
+      // No quedan colaboradores, actualizar is_shared a false
+      await supabase
+        .from("todo_lists")
+        .update({ is_shared: false })
+        .eq("id", id);
+    }
+
     res.json({
       success: true,
       message: "Miembro eliminado exitosamente",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Salir de una lista compartida (solo para miembros, no owners)
+ * DELETE /api/lists/:id/leave
+ */
+const leaveList = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    // Verificar que la lista existe y obtener el owner
+    const { data: list, error: listError } = await supabase
+      .from("todo_lists")
+      .select("owner_id")
+      .eq("id", id)
+      .single();
+
+    if (listError || !list) {
+      return res.status(404).json({
+        success: false,
+        message: "Lista no encontrada",
+      });
+    }
+
+    // No permitir que el owner salga de su propia lista
+    if (list.owner_id === userId) {
+      return res.status(400).json({
+        success: false,
+        message: "El owner no puede salir de su propia lista. Debe eliminarla.",
+      });
+    }
+
+    // Verificar que el usuario es miembro de la lista
+    const { data: member, error: memberError } = await supabase
+      .from("list_members")
+      .select("role")
+      .eq("list_id", id)
+      .eq("user_id", userId)
+      .single();
+
+    if (memberError || !member) {
+      return res.status(404).json({
+        success: false,
+        message: "No eres miembro de esta lista",
+      });
+    }
+
+    // Eliminar al usuario de la lista
+    const { error } = await supabase
+      .from("list_members")
+      .delete()
+      .eq("list_id", id)
+      .eq("user_id", userId);
+
+    if (error) throw error;
+
+    // Verificar si quedan colaboradores (excluyendo al owner)
+    const { data: remainingMembers, error: countError } = await supabase
+      .from("list_members")
+      .select("user_id")
+      .eq("list_id", id)
+      .neq("user_id", list.owner_id);
+
+    if (!countError && remainingMembers.length === 0) {
+      // No quedan colaboradores, actualizar is_shared a false
+      await supabase
+        .from("todo_lists")
+        .update({ is_shared: false })
+        .eq("id", id);
+    }
+
+    res.json({
+      success: true,
+      message: "Has salido de la lista exitosamente",
     });
   } catch (error) {
     next(error);
@@ -581,4 +666,5 @@ module.exports = {
   addListMember,
   updateListMember,
   removeListMember,
+  leaveList,
 };

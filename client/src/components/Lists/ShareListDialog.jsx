@@ -41,7 +41,13 @@ const MEMBER_ROLES = {
   viewer: { id: "viewer", icon: Eye, color: "#64748b" },
 };
 
-export function ShareListDialog({ open, onOpenChange, list, currentUserId }) {
+export function ShareListDialog({
+  open,
+  onOpenChange,
+  list,
+  currentUserId,
+  onListUpdated,
+}) {
   const { t } = useTranslation();
   const [emailInput, setEmailInput] = useState("");
   const [selectedRole, setSelectedRole] = useState("editor");
@@ -65,11 +71,16 @@ export function ShareListDialog({ open, onOpenChange, list, currentUserId }) {
     if (!emailInput.trim()) return;
 
     setIsInviting(true);
+    const wasEmpty = collaborators.length === 0;
     try {
       const result = await addMember(emailInput.trim(), selectedRole);
       if (result.success) {
         toast.success(t("share.memberAdded"));
         setEmailInput("");
+        // Si era el primer colaborador, actualizar is_shared a true localmente
+        if (wasEmpty && onListUpdated) {
+          onListUpdated({ is_shared: true });
+        }
       } else {
         toast.error(result.error || t("share.error"));
       }
@@ -96,10 +107,15 @@ export function ShareListDialog({ open, onOpenChange, list, currentUserId }) {
   const handleRemoveMember = async (memberId) => {
     if (!isOwner || loadingMemberId) return;
     setLoadingMemberId(memberId);
+    const willBeEmpty = collaborators.length === 1;
     try {
       const result = await removeMember(memberId);
       if (result.success) {
         toast.success(t("share.memberRemoved"));
+        // Si era el último colaborador, actualizar is_shared a false localmente
+        if (willBeEmpty && onListUpdated) {
+          onListUpdated({ is_shared: false });
+        }
       } else {
         toast.error(result.error || t("share.error"));
       }

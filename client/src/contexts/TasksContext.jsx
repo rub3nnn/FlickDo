@@ -374,6 +374,16 @@ export function TasksProvider({ children }) {
 
   // Actualizar lista
   const updateList = useCallback(async (id, data) => {
+    // Si solo se actualiza is_shared, hacerlo solo localmente
+    if (Object.keys(data).length === 1 && data.is_shared !== undefined) {
+      setLists((prev) =>
+        prev.map((list) =>
+          list.id === id ? { ...list, is_shared: data.is_shared } : list
+        )
+      );
+      return { success: true };
+    }
+
     let previousLists = null;
 
     // Actualizar inmediatamente (optimistic update)
@@ -389,7 +399,11 @@ export function TasksProvider({ children }) {
         setLists((prev) =>
           prev.map((list) =>
             list.id === id
-              ? { ...response.data, tasks: list.tasks, tags: list.tags }
+              ? {
+                  ...response.data,
+                  tasks: list.tasks,
+                  tags: list.tags,
+                }
               : list
           )
         );
@@ -430,6 +444,31 @@ export function TasksProvider({ children }) {
     }
   }, []);
 
+  // Salir de una lista compartida
+  const leaveList = useCallback(async (id) => {
+    let previousLists = null;
+    const listIdStr = String(id);
+
+    setLists((prev) => {
+      previousLists = prev;
+      return prev.filter((list) => String(list.id) !== listIdStr);
+    });
+
+    try {
+      const response = await listsApi.leaveList(id);
+      if (response.success) {
+        return { success: true };
+      } else {
+        if (previousLists) setLists(previousLists);
+        return { success: false, error: response.message };
+      }
+    } catch (err) {
+      console.error("Error saliendo de la lista:", err);
+      if (previousLists) setLists(previousLists);
+      return { success: false, error: err.message };
+    }
+  }, []);
+
   // Cargar listas al montar y cuando cambia el usuario
   useEffect(() => {
     // Esperar a que AuthContext esté inicializado
@@ -446,6 +485,32 @@ export function TasksProvider({ children }) {
     }
   }, [user, isInitialized, loadAllTasks]);
 
+  // Recargar una lista específica desde el backend
+  const refreshList = useCallback(async (listId) => {
+    try {
+      const response = await listsApi.getListById(listId);
+      if (response.success) {
+        setLists((prev) =>
+          prev.map((list) =>
+            list.id === listId
+              ? {
+                  ...list,
+                  ...response.data,
+                  tasks: list.tasks,
+                  tags: list.tags,
+                }
+              : list
+          )
+        );
+        return { success: true, data: response.data };
+      }
+      return { success: false, error: response.message };
+    } catch (err) {
+      console.error("Error recargando lista:", err);
+      return { success: false, error: err.message };
+    }
+  }, []);
+
   const value = {
     tasks, // Computed: todas las tareas extraídas de las listas
     lists, // Listas con sus tareas anidadas en list.tasks
@@ -460,6 +525,8 @@ export function TasksProvider({ children }) {
     createList,
     updateList,
     deleteList,
+    leaveList,
+    refreshList,
   };
 
   return (

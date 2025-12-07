@@ -109,6 +109,7 @@
     "linkedToClassroom": "Vinculada a Google Classroom",
     "courseId": "ID del curso",
     "description": "Descripción",
+    "descriptionPlaceholder": "Descripción de la tarea",
     "dueDate": "Fecha de entrega",
     "classroomId": "ID de Classroom",
     "lastSynced": "Última sincronización",
@@ -118,7 +119,14 @@
     "selectTagsPlaceholder": "Seleccionar etiquetas...",
     "searchOrCreateTagPlaceholder": "Buscar o crear etiqueta...",
     "createTag": "Crear \"{{value}}\"",
-    "noTagsFound": "No se encontraron etiquetas"
+    "noTagsFound": "No se encontraron etiquetas",
+    "selectColor": "Seleccionar color",
+    "tagCreated": "Etiqueta creada correctamente",
+    "errorCreatingTag": "Error al crear la etiqueta",
+    "creating": "Creando...",
+    "create": "Crear",
+    "cancel": "Cancelar",
+    "cannotEdit": "No tienes permiso para editar esta tarea"
   },
   "widgets": {
     "eventsToday": "Eventos Hoy",
@@ -128,7 +136,10 @@
     "quickActions": "Acciones Rápidas",
     "newTask": "Nueva tarea",
     "scheduleEvent": "Agendar evento",
-    "shareProject": "Compartir proyecto"
+    "shareProject": "Compartir proyecto",
+    "createList": "Crear Lista",
+    "viewLists": "Ver Listas",
+    "searchTasks": "Buscar Tarea"
   },
   "userMenu": {
     "myAccount": "Mi Cuenta",
@@ -210,6 +221,8 @@
     "creating": "Creando...",
     "delete": "Eliminar",
     "deleting": "Eliminando...",
+    "leaving": "Saliendo...",
+    "leave": "Salir",
     "backToTasks": "Volver a mis tareas"
   },
   "lists": {
@@ -217,6 +230,8 @@
     "createDescription": "Crea una lista para organizar tus tareas",
     "editTitle": "Editar lista",
     "editDescription": "Modifica el nombre y ajustes de tu lista",
+    "viewTitle": "Ver lista",
+    "viewDescription": "Detalles de la lista compartida",
     "titleLabel": "Nombre de la lista",
     "titlePlaceholder": "Ej: Trabajo, Personal, Compras...",
     "iconLabel": "Icono",
@@ -228,13 +243,20 @@
     "created": "Lista creada correctamente",
     "updated": "Lista actualizada correctamente",
     "deleted": "Lista eliminada correctamente",
+    "leftList": "Has salido de la lista",
     "errorCreating": "Error al crear la lista",
     "errorUpdating": "Error al actualizar la lista",
     "errorDeleting": "Error al eliminar la lista",
+    "errorLeaving": "Error al salir de la lista",
     "notFound": "Lista no encontrada",
     "notFoundDescription": "La lista que buscas no existe o no tienes acceso a ella.",
     "confirmDelete": "¿Eliminar esta lista?",
     "confirmDeleteDescription": "Esta acción no se puede deshacer. Se eliminarán todas las tareas de esta lista.",
+    "leaveList": "Salir de la lista",
+    "leaveListTitle": "¿Salir de la lista?",
+    "leaveListDescription": "Ya no tendrás acceso a esta lista ni a sus tareas. Esta acción no se puede deshacer.",
+    "confirmLeave": "¿Seguro que quieres abandonar la lista?",
+    "confirmLeaveDescription": "No podrás volver a acceder a menos de que te inviten de nuevo",
     "advancedSettings": "Ajustes avanzados",
     "settings": {
       "showDates": "Mostrar fechas",
@@ -243,6 +265,11 @@
       "enableAssignmentsDescription": "Permitir asignar tareas a miembros",
       "restrictEditing": "Restringir edición",
       "restrictEditingDescription": "Solo los asignados pueden editar sus tareas"
+    },
+    "config": {
+      "datesDisabled": "Fechas deshabilitadas",
+      "assignmentsDisabled": "Asignaciones deshabilitadas",
+      "restrictedEditing": "Edición restringida al asignado"
     }
   },
   "share": {
@@ -279,5 +306,17 @@
     "loading": "Cargando miembros...",
     "you": "Tú",
     "unknownUser": "Usuario desconocido"
+  },
+  "command": {
+    "title": "Búsqueda rápida",
+    "description": "Busca listas y tareas",
+    "searchLists": "Buscar listas...",
+    "searchTasks": "Buscar tareas...",
+    "searchAll": "Buscar listas y tareas...",
+    "noResults": "No se encontraron resultados",
+    "createList": "Crear lista \"{{name}}\"",
+    "actions": "Acciones",
+    "lists": "Listas",
+    "tasks": "Tareas"
   }
 }

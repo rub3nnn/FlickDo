@@ -21,9 +21,29 @@ export function useAllTasks(options = {}) {
       setError(null);
       const response = await tasksApi.getAllUserTasks(includeCompleted);
       if (response.success) {
-        // El backend ahora devuelve { tasks: [...], lists: [...], metadata: {...} }
-        setTasks(response.data.tasks || []);
-        setLists(response.data.lists || []);
+        console.log("getAllUserTasks response:", response.data);
+
+        // El backend devuelve { lists: [...], metadata: {...} }
+        // Cada lista tiene un array de tasks
+        const listsData = response.data.lists || response.data || [];
+
+        // Aplanar todas las tareas de todas las listas
+        const allTasks = [];
+        listsData.forEach((list) => {
+          if (list.tasks && Array.isArray(list.tasks)) {
+            list.tasks.forEach((task) => {
+              allTasks.push({
+                ...task,
+                list_name: list.title || list.name,
+                list_id: list.id,
+              });
+            });
+          }
+        });
+
+        console.log("Processed tasks:", allTasks);
+        setTasks(allTasks);
+        setLists(listsData);
       } else {
         setError(response.message || "Error cargando tareas");
       }

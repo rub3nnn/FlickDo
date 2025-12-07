@@ -229,6 +229,17 @@ export const listsApi = {
     );
     return handleResponse(response);
   },
+
+  // Salir de una lista compartida
+  leaveList: async (listId) => {
+    const response = await fetch(`${API_URL}/lists/${listId}/leave`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+    return handleResponse(response);
+  },
 };
 
 // API de tareas

@@ -71,6 +71,13 @@ export default function Home() {
         icon: LIST_PRESETS[presetName].icon,
         color: LIST_PRESETS[presetName].color,
       });
+    } else if (typeof presetName === "string" && !LIST_PRESETS[presetName]) {
+      // Si es un string pero no es un preset, es un título personalizado desde el command
+      setListPreset({
+        title: presetName,
+        icon: "list",
+        color: "#4f46e5",
+      });
     } else {
       setListPreset({ title: "", icon: "list", color: "#4f46e5" });
     }
@@ -143,9 +150,9 @@ export default function Home() {
                   />
 
                   <div className="sidebar-column">
-                    <EventsWidget events={EVENTS} />
+                    <QuickActions onCreateList={handleOpenCreateList} />
                     <ClassroomWidget classroomTasks={classroomTasks} />
-                    <QuickActions />
+                    <EventsWidget />
                   </div>
                 </div>
               </>
