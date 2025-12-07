@@ -4,6 +4,7 @@ import { StrictMode } from "react";
 import App from "@/App";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CommandProvider } from "@/contexts/CommandContext";
 import { Toaster } from "@/components/ui/sonner";
 import "./i18n";
 import i18n from "i18next";
@@ -19,10 +20,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-          <App />
-          <Toaster />
-        </ThemeProvider>
+        <CommandProvider>
+          <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+            <App />
+            <Toaster />
+          </ThemeProvider>
+        </CommandProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>

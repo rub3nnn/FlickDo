@@ -1,143 +1,105 @@
--- Tipo Enum
-CREATE TYPE public.list_role AS ENUM ('owner', 'editor', 'viewer');
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
--- Perfiles (mantiene UUID porque viene de auth.users)
-CREATE TABLE public.profiles (
-  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  email TEXT,
-  first_name TEXT,
-  last_name TEXT,
-  avatar_url TEXT,
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Trigger para auto-crear perfil
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-DECLARE
-  first_name_value text;
-  last_name_value text;
-BEGIN
-  -- Extraer first_name
-  first_name_value := COALESCE(
-    NEW.raw_user_meta_data->>'first_name',
-    NEW.raw_user_meta_data->>'given_name',
-    SPLIT_PART(NEW.raw_user_meta_data->>'full_name', ' ', 1),
-    SPLIT_PART(NEW.raw_user_meta_data->>'name', ' ', 1),
-    ''
-  );
-
-  -- Extraer last_name
-  last_name_value := COALESCE(
-    NEW.raw_user_meta_data->>'last_name',
-    NEW.raw_user_meta_data->>'family_name',
-    NULLIF(SUBSTRING(NEW.raw_user_meta_data->>'full_name' FROM POSITION(' ' IN NEW.raw_user_meta_data->>'full_name') + 1), ''),
-    NULLIF(SUBSTRING(NEW.raw_user_meta_data->>'name' FROM POSITION(' ' IN NEW.raw_user_meta_data->>'name') + 1), ''),
-    ''
-  );
-
-  INSERT INTO public.profiles (id, email, first_name, last_name, avatar_url, updated_at)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    first_name_value,
-    last_name_value,
-    NEW.raw_user_meta_data->>'avatar_url',
-    NOW()
-  );
-  
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- Listas (ahora con BIGSERIAL)
-CREATE TABLE public.todo_lists (
-  id BIGSERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  owner_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-  is_archived BOOLEAN DEFAULT false,
-  
-  configuration JSONB DEFAULT '{
-    "type": "standard", 
-    "show_dates": true, 
-    "enable_assignments": true,
-    "restrict_editing_to_assignee": false
-  }'::jsonb,
-  
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Miembros
-CREATE TABLE public.list_members (
-  list_id BIGINT REFERENCES public.todo_lists(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  role public.list_role DEFAULT 'viewer',
-  joined_at TIMESTAMPTZ DEFAULT now(),
-  PRIMARY KEY (list_id, user_id)
-);
-
--- Etiquetas (ahora con BIGSERIAL)
-CREATE TABLE public.tags (
-  id BIGSERIAL PRIMARY KEY,
-  owner_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  color TEXT DEFAULT '#3B82F6',
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Tareas (ahora con BIGSERIAL)
-CREATE TABLE public.tasks (
-  id BIGSERIAL PRIMARY KEY,
-  list_id BIGINT REFERENCES public.todo_lists(id) ON DELETE CASCADE NOT NULL,
-  parent_id BIGINT REFERENCES public.tasks(id) ON DELETE CASCADE,
-  
-  title TEXT NOT NULL,
-  description TEXT,
-  is_completed BOOLEAN DEFAULT false,
-  
-  due_date TIMESTAMPTZ, 
-  is_all_day BOOLEAN DEFAULT false,
-  
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Asignados a tareas (múltiples usuarios pueden estar asignados a una tarea)
-CREATE TABLE public.task_assignees (
-  task_id BIGINT REFERENCES public.tasks(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  assigned_at TIMESTAMPTZ DEFAULT now(),
-  PRIMARY KEY (task_id, user_id)
-);
-
--- Relación Tareas-Etiquetas
-CREATE TABLE public.task_tags (
-  task_id BIGINT REFERENCES public.tasks(id) ON DELETE CASCADE,
-  tag_id BIGINT REFERENCES public.tags(id) ON DELETE CASCADE,
-  PRIMARY KEY (task_id, tag_id)
-);
-
--- Integración Classroom
 CREATE TABLE public.classroom_integrations (
-  task_id BIGINT REFERENCES public.tasks(id) ON DELETE CASCADE PRIMARY KEY,
-  course_id TEXT NOT NULL,
-  course_work_id TEXT NOT NULL,
-  alternate_link TEXT,
-  last_synced_at TIMESTAMPTZ DEFAULT now()
+  task_id bigint NOT NULL,
+  course_id text NOT NULL,
+  course_work_id text NOT NULL,
+  alternate_link text,
+  last_synced_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT classroom_integrations_pkey PRIMARY KEY (task_id),
+  CONSTRAINT classroom_integrations_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.tasks(id)
 );
-
--- ============================================================
--- 3. HABILITAR RLS (sin políticas, solo backend con service_key)
--- ============================================================
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.todo_lists ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.list_members ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.task_tags ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.task_assignees ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.classroom_integrations ENABLE ROW LEVEL SECURITY;
+CREATE TABLE public.event_tasks (
+  event_id bigint NOT NULL,
+  task_id bigint NOT NULL,
+  added_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT event_tasks_pkey PRIMARY KEY (event_id, task_id),
+  CONSTRAINT event_tasks_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id),
+  CONSTRAINT event_tasks_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.tasks(id)
+);
+CREATE TABLE public.events (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  title text NOT NULL,
+  description text,
+  start_time timestamp with time zone NOT NULL,
+  end_time timestamp with time zone,
+  location text,
+  owner_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT events_pkey PRIMARY KEY (id),
+  CONSTRAINT events_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.list_members (
+  list_id bigint NOT NULL,
+  user_id uuid NOT NULL,
+  role USER-DEFINED DEFAULT 'viewer'::list_role,
+  joined_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT list_members_pkey PRIMARY KEY (list_id, user_id),
+  CONSTRAINT list_members_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.todo_lists(id),
+  CONSTRAINT list_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.list_tags (
+  id bigint NOT NULL DEFAULT nextval('list_tags_id_seq'::regclass),
+  list_id bigint NOT NULL,
+  name text NOT NULL,
+  color text DEFAULT '#3B82F6'::text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT list_tags_pkey PRIMARY KEY (id),
+  CONSTRAINT list_tags_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.todo_lists(id)
+);
+CREATE TABLE public.profiles (
+  id uuid NOT NULL,
+  email text,
+  first_name text,
+  last_name text,
+  avatar_url text,
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.task_assignees (
+  task_id bigint NOT NULL,
+  user_id uuid NOT NULL,
+  assigned_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT task_assignees_pkey PRIMARY KEY (task_id, user_id),
+  CONSTRAINT task_assignees_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.tasks(id),
+  CONSTRAINT task_assignees_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.task_tags (
+  task_id bigint NOT NULL,
+  tag_id bigint NOT NULL,
+  CONSTRAINT task_tags_pkey PRIMARY KEY (task_id, tag_id),
+  CONSTRAINT task_tags_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.tasks(id),
+  CONSTRAINT task_tags_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES public.list_tags(id)
+);
+CREATE TABLE public.tasks (
+  id bigint NOT NULL DEFAULT nextval('tasks_id_seq'::regclass),
+  list_id bigint NOT NULL,
+  parent_id bigint,
+  title text NOT NULL,
+  description text,
+  is_completed boolean DEFAULT false,
+  due_date timestamp with time zone,
+  is_all_day boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  created_by uuid NOT NULL,
+  CONSTRAINT tasks_pkey PRIMARY KEY (id),
+  CONSTRAINT tasks_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.todo_lists(id),
+  CONSTRAINT tasks_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.tasks(id),
+  CONSTRAINT tasks_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.todo_lists (
+  id bigint NOT NULL DEFAULT nextval('todo_lists_id_seq'::regclass),
+  title text NOT NULL,
+  owner_id uuid NOT NULL,
+  is_archived boolean DEFAULT false,
+  configuration jsonb DEFAULT '{"type": "standard", "show_dates": true, "enable_assignments": true, "restrict_editing_to_assignee": false}'::jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  color text DEFAULT '#4f46e5'::text,
+  icon text,
+  CONSTRAINT todo_lists_pkey PRIMARY KEY (id),
+  CONSTRAINT todo_lists_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public.profiles(id)
+);

@@ -4,6 +4,7 @@ import { Header } from "./components/Header/Header";
 import { TaskCard } from "./components/Tasks/TaskCard";
 import { EditListDialog } from "./components/Lists/EditListDialog";
 import { ShareListDialog } from "./components/Lists/ShareListDialog";
+import { ListConfigIcons } from "./components/Lists/ListConfigIcons";
 import { useTranslation } from "react-i18next";
 import { useTasks } from "./contexts/TasksContext";
 import { useAuth } from "./hooks/useAuth";
@@ -47,6 +48,7 @@ import {
   Target,
   AlertCircle,
   ArrowLeft,
+  LogOut,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -101,6 +103,8 @@ export default function ListPage() {
     createTask,
     updateList,
     deleteList,
+    leaveList,
+    refreshList,
   } = useTasks();
 
   // Encontrar la lista actual
@@ -108,11 +112,18 @@ export default function ListPage() {
     return lists.find((l) => String(l.id) === String(listId));
   }, [lists, listId]);
 
+  // Verificar si el usuario actual es el propietario de la lista
+  const isOwner = useMemo(() => {
+    return list?.owner_id === user?.id || list?.role === "owner";
+  }, [list, user]);
+
   // Estados para los dialogs
   const [editListOpen, setEditListOpen] = useState(false);
   const [shareListOpen, setShareListOpen] = useState(false);
   const [deleteListOpen, setDeleteListOpen] = useState(false);
+  const [leaveListOpen, setLeaveListOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   // Estados para tareas
   const [showCompleted, setShowCompleted] = useState(false);
@@ -181,6 +192,24 @@ export default function ListPage() {
     } finally {
       setIsDeleting(false);
       setDeleteListOpen(false);
+    }
+  };
+
+  const handleLeaveList = async () => {
+    setIsLeaving(true);
+    try {
+      const result = await leaveList(listId);
+      if (result?.success) {
+        toast.success(t("lists.left") || "Has salido de la lista");
+        navigate("/all-tasks");
+      } else {
+        toast.error(t("lists.errorLeaving") || "Error al salir de la lista");
+      }
+    } catch (err) {
+      toast.error(t("lists.errorLeaving") || "Error al salir de la lista");
+    } finally {
+      setIsLeaving(false);
+      setLeaveListOpen(false);
     }
   };
 
@@ -387,6 +416,10 @@ export default function ListPage() {
                           {t("allTasks.private") || "Privada"}
                         </span>
                       )}
+                      <ListConfigIcons
+                        configuration={list.configuration}
+                        className="ml-1"
+                      />
                       <span className="list-meta-count">
                         {activeTasks.length}{" "}
                         {activeTasks.length === 1
@@ -412,13 +445,23 @@ export default function ListPage() {
                   >
                     <Edit3 className="icon-sm" />
                   </button>
-                  <button
-                    className="list-page-action-btn destructive"
-                    onClick={() => setDeleteListOpen(true)}
-                    title={t("allTasks.deleteList") || "Eliminar lista"}
-                  >
-                    <Trash2 className="icon-sm" />
-                  </button>
+                  {isOwner ? (
+                    <button
+                      className="list-page-action-btn destructive"
+                      onClick={() => setDeleteListOpen(true)}
+                      title={t("allTasks.deleteList") || "Eliminar lista"}
+                    >
+                      <Trash2 className="icon-sm" />
+                    </button>
+                  ) : (
+                    <button
+                      className="list-page-action-btn destructive"
+                      onClick={() => setLeaveListOpen(true)}
+                      title={t("allTasks.leaveList") || "Salir de la lista"}
+                    >
+                      <LogOut className="icon-sm" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -528,6 +571,10 @@ export default function ListPage() {
           onOpenChange={setEditListOpen}
           list={list}
           onUpdateList={handleUpdateList}
+          currentUserId={user?.id}
+          onLeaveList={(listId) => {
+            navigate("/all-tasks");
+          }}
         />
 
         <ShareListDialog
@@ -535,6 +582,12 @@ export default function ListPage() {
           onOpenChange={setShareListOpen}
           list={list}
           currentUserId={user?.id}
+          onListUpdated={(updates) => {
+            // Actualizar is_shared localmente sin recargar desde backend
+            if (list?.id && updates?.is_shared !== undefined) {
+              updateList(list.id, { is_shared: updates.is_shared });
+            }
+          }}
         />
 
         {/* Confirm Delete Dialog */}
@@ -561,6 +614,35 @@ export default function ListPage() {
                 {isDeleting
                   ? t("common.deleting") || "Eliminando..."
                   : t("common.delete") || "Eliminar"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Confirm Leave List Dialog */}
+        <AlertDialog open={leaveListOpen} onOpenChange={setLeaveListOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t("lists.confirmLeave") || "¿Salir de esta lista?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("lists.confirmLeaveDescription") ||
+                  "Ya no tendrás acceso a esta lista ni a sus tareas. El propietario puede volver a invitarte."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isLeaving}>
+                {t("common.cancel") || "Cancelar"}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleLeaveList}
+                disabled={isLeaving}
+                className="btn-destructive"
+              >
+                {isLeaving
+                  ? t("common.leaving") || "Saliendo..."
+                  : t("common.leave") || "Salir"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

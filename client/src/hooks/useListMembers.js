@@ -15,6 +15,13 @@ export function useListMembers(listId, options = {}) {
   const [error, setError] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
+  // Reset state when listId changes
+  useEffect(() => {
+    setMembers([]);
+    setLoaded(false);
+    setError(null);
+  }, [listId]);
+
   // Cargar miembros
   const loadMembers = useCallback(async () => {
     if (!listId) return;

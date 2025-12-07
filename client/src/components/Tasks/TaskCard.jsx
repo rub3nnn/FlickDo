@@ -133,6 +133,26 @@ export const TaskCard = ({
     lists.find((l) => l.id === (currentTask?.list_id || propListId));
   const availableTags = externalAvailableTags || list?.tags || [];
 
+  // Obtener configuración de permisos
+  const listConfig = list?.configuration || {
+    show_dates: true,
+    enable_assignments: true,
+    restrict_editing_to_assignee: false,
+  };
+
+  // Verificar si el usuario puede editar esta tarea
+  const canEditTask = () => {
+    if (isNew) return true; // Siempre puede crear nuevas tareas
+    if (!listConfig.restrict_editing_to_assignee) return true; // Sin restricción
+
+    // Si hay restricción, verificar si la tarea está asignada al usuario
+    const isAssignedToUser = currentTask.assignees?.some(
+      (assignee) => assignee.id === user?.id
+    );
+
+    return isAssignedToUser;
+  };
+
   // Función para obtener iniciales de un nombre
   const getInitials = (firstName, lastName) => {
     const first = firstName?.charAt(0)?.toUpperCase() || "";
@@ -336,6 +356,15 @@ export const TaskCard = ({
     if (e.target.closest(".task-checkbox") || e.target.closest(".task-menu")) {
       return;
     }
+
+    // Verificar permisos antes de permitir edición
+    if (!canEditTask()) {
+      toast.error(
+        t("tasks.cannotEdit") || "No tienes permiso para editar esta tarea"
+      );
+      return;
+    }
+
     if (externalOnEditStart) {
       externalOnEditStart(currentTask.id);
     } else {
@@ -549,13 +578,15 @@ export const TaskCard = ({
               )}
 
               {/* Selector de fecha y hora */}
-              <DateTimePicker
-                value={editedTask.due_date}
-                isAllDay={editedTask.is_all_day}
-                onChange={handleDateChange}
-                onAllDayChange={handleAllDayChange}
-                onClear={handleDateClear}
-              />
+              {listConfig.show_dates && (
+                <DateTimePicker
+                  value={editedTask.due_date}
+                  isAllDay={editedTask.is_all_day}
+                  onChange={handleDateChange}
+                  onAllDayChange={handleAllDayChange}
+                  onClear={handleDateClear}
+                />
+              )}
 
               {/* Selector de tags */}
               <div className="task-tags-edit-wrapper">
@@ -568,8 +599,8 @@ export const TaskCard = ({
               </div>
             </div>
 
-            {/* Segunda línea: Asignados (solo si la lista está compartida) */}
-            {list?.is_shared && (
+            {/* Segunda línea: Asignados (solo si la lista está compartida y las asignaciones están habilitadas) */}
+            {list?.is_shared && listConfig.enable_assignments && (
               <div className="task-assignees-edit">
                 <AssignTaskCommand
                   listId={currentTask.list_id || propListId}
@@ -682,7 +713,7 @@ export const TaskCard = ({
               />
             )}
 
-            {currentTask.due_date && (
+            {currentTask.due_date && listConfig.show_dates && (
               <div className="task-due">
                 <Clock className="icon-xs" />
                 <span>
@@ -714,86 +745,94 @@ export const TaskCard = ({
             )}
           </div>
 
-          {/* Mostrar assignees si existen */}
-          {currentTask.assignees && currentTask.assignees.length > 0 && (
-            <div className="task-assignees">
-              <div className="task-assignees-stack">
-                {currentTask.assignees.slice(0, 12).map((assignee) => (
-                  <Tooltip key={`assignee-${currentTask.id}-${assignee.id}`}>
-                    <TooltipTrigger asChild>
-                      <Avatar
-                        data-slot="avatar"
-                        className="task-assignee-avatar"
-                      >
-                        <AvatarImage
-                          src={assignee.avatar_url}
-                          alt={`${assignee.first_name} ${assignee.last_name}`}
-                        />
-                        <AvatarFallback className="task-assignee-fallback">
-                          {getInitials(assignee.first_name, assignee.last_name)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        {assignee.id === user?.id
-                          ? t("tasks.you")
-                          : `${assignee.first_name} ${assignee.last_name}`}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-                {currentTask.assignees.length > 3 && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Avatar
-                        data-slot="avatar"
-                        className="task-assignees-more"
-                      >
-                        <AvatarFallback className="task-assignee-fallback-more">
-                          +{currentTask.assignees.length - 3}
-                        </AvatarFallback>
-                      </Avatar>
-                    </PopoverTrigger>
-                    <PopoverContent className="dropdown-width-xl" align="start">
-                      <div className="task-assignees-list">
-                        <p className="task-assignees-list-title">
-                          {t("tasks.assignedTo")}
+          {/* Mostrar assignees si existen y las asignaciones están habilitadas */}
+          {currentTask.assignees &&
+            currentTask.assignees.length > 0 &&
+            listConfig.enable_assignments && (
+              <div className="task-assignees">
+                <div className="task-assignees-stack">
+                  {currentTask.assignees.slice(0, 12).map((assignee) => (
+                    <Tooltip key={`assignee-${currentTask.id}-${assignee.id}`}>
+                      <TooltipTrigger asChild>
+                        <Avatar
+                          data-slot="avatar"
+                          className="task-assignee-avatar"
+                        >
+                          <AvatarImage
+                            src={assignee.avatar_url}
+                            alt={`${assignee.first_name} ${assignee.last_name}`}
+                          />
+                          <AvatarFallback className="task-assignee-fallback">
+                            {getInitials(
+                              assignee.first_name,
+                              assignee.last_name
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {assignee.id === user?.id
+                            ? t("tasks.you")
+                            : `${assignee.first_name} ${assignee.last_name}`}
                         </p>
-                        {currentTask.assignees.map((assignee) => (
-                          <div
-                            key={`assignee-popover-${currentTask.id}-${assignee.id}`}
-                            className="task-assignees-list-item"
-                          >
-                            <Avatar
-                              data-slot="avatar"
-                              className="task-assignees-list-avatar"
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                  {currentTask.assignees.length > 3 && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Avatar
+                          data-slot="avatar"
+                          className="task-assignees-more"
+                        >
+                          <AvatarFallback className="task-assignee-fallback-more">
+                            +{currentTask.assignees.length - 3}
+                          </AvatarFallback>
+                        </Avatar>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="dropdown-width-xl"
+                        align="start"
+                      >
+                        <div className="task-assignees-list">
+                          <p className="task-assignees-list-title">
+                            {t("tasks.assignedTo")}
+                          </p>
+                          {currentTask.assignees.map((assignee) => (
+                            <div
+                              key={`assignee-popover-${currentTask.id}-${assignee.id}`}
+                              className="task-assignees-list-item"
                             >
-                              <AvatarImage
-                                src={assignee.avatar_url}
-                                alt={`${assignee.first_name} ${assignee.last_name}`}
-                              />
-                              <AvatarFallback className="task-assignee-fallback">
-                                {getInitials(
-                                  assignee.first_name,
-                                  assignee.last_name
-                                )}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="task-assignees-list-name">
-                              {assignee.id === user?.id
-                                ? t("tasks.you")
-                                : `${assignee.first_name} ${assignee.last_name}`}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                )}
+                              <Avatar
+                                data-slot="avatar"
+                                className="task-assignees-list-avatar"
+                              >
+                                <AvatarImage
+                                  src={assignee.avatar_url}
+                                  alt={`${assignee.first_name} ${assignee.last_name}`}
+                                />
+                                <AvatarFallback className="task-assignee-fallback">
+                                  {getInitials(
+                                    assignee.first_name,
+                                    assignee.last_name
+                                  )}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="task-assignees-list-name">
+                                {assignee.id === user?.id
+                                  ? t("tasks.you")
+                                  : `${assignee.first_name} ${assignee.last_name}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         <DropdownMenu>
@@ -804,7 +843,7 @@ export const TaskCard = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="dropdown-width-sm" align="end">
             <DropdownMenuGroup>
-              {list?.is_shared && (
+              {list?.is_shared && listConfig.enable_assignments && (
                 <>
                   <DropdownMenuItem onClick={handleEditClick}>
                     <Users />

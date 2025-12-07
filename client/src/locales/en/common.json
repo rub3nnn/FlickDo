@@ -109,6 +109,7 @@
     "linkedToClassroom": "Linked to Google Classroom",
     "courseId": "Course ID",
     "description": "Description",
+    "descriptionPlaceholder": "Task description",
     "dueDate": "Due date",
     "classroomId": "Classroom ID",
     "lastSynced": "Last synced",
@@ -118,7 +119,14 @@
     "selectTagsPlaceholder": "Select tags...",
     "searchOrCreateTagPlaceholder": "Search or create tag...",
     "createTag": "Create \"{{value}}\"",
-    "noTagsFound": "No tags found"
+    "noTagsFound": "No tags found",
+    "selectColor": "Select color",
+    "tagCreated": "Tag created successfully",
+    "errorCreatingTag": "Error creating tag",
+    "creating": "Creating...",
+    "create": "Create",
+    "cancel": "Cancel",
+    "cannotEdit": "You don't have permission to edit this task"
   },
   "widgets": {
     "eventsToday": "Events Today",
@@ -128,7 +136,10 @@
     "quickActions": "Quick Actions",
     "newTask": "New task",
     "scheduleEvent": "Schedule event",
-    "shareProject": "Share project"
+    "shareProject": "Share project",
+    "createList": "Create List",
+    "viewLists": "View Lists",
+    "searchTasks": "Search Task"
   },
   "userMenu": {
     "myAccount": "My Account",
@@ -210,6 +221,8 @@
     "creating": "Creating...",
     "delete": "Delete",
     "deleting": "Deleting...",
+    "leaving": "Leaving...",
+    "leave": "Leave",
     "backToTasks": "Back to my tasks"
   },
   "lists": {
@@ -217,6 +230,8 @@
     "createDescription": "Create a list to organize your tasks",
     "editTitle": "Edit list",
     "editDescription": "Modify your list name and settings",
+    "viewTitle": "View list",
+    "viewDescription": "Shared list details",
     "titleLabel": "List name",
     "titlePlaceholder": "E.g: Work, Personal, Shopping...",
     "iconLabel": "Icon",
@@ -228,13 +243,20 @@
     "created": "List created successfully",
     "updated": "List updated successfully",
     "deleted": "List deleted successfully",
+    "leftList": "You have left the list",
     "errorCreating": "Error creating list",
     "errorUpdating": "Error updating list",
     "errorDeleting": "Error deleting list",
+    "errorLeaving": "Error leaving list",
     "notFound": "List not found",
     "notFoundDescription": "The list you're looking for doesn't exist or you don't have access to it.",
     "confirmDelete": "Delete this list?",
     "confirmDeleteDescription": "This action cannot be undone. All tasks in this list will be deleted.",
+    "leaveList": "Leave list",
+    "leaveListTitle": "Leave list?",
+    "leaveListDescription": "You will no longer have access to this list or its tasks. This action cannot be undone.",
+    "confirmLeave": "Are you sure you want to leave the list?",
+    "confirmLeaveDescription": "You won't be able to access it again unless you're invited back",
     "advancedSettings": "Advanced settings",
     "settings": {
       "showDates": "Show dates",
@@ -243,6 +265,11 @@
       "enableAssignmentsDescription": "Allow assigning tasks to members",
       "restrictEditing": "Restrict editing",
       "restrictEditingDescription": "Only assignees can edit their tasks"
+    },
+    "config": {
+      "datesDisabled": "Dates disabled",
+      "assignmentsDisabled": "Assignments disabled",
+      "restrictedEditing": "Editing restricted to assignee"
     }
   },
   "share": {
@@ -279,5 +306,17 @@
     "loading": "Loading members...",
     "you": "You",
     "unknownUser": "Unknown user"
+  },
+  "command": {
+    "title": "Quick search",
+    "description": "Search for lists and tasks",
+    "searchLists": "Search lists...",
+    "searchTasks": "Search tasks...",
+    "searchAll": "Search lists and tasks...",
+    "noResults": "No results found",
+    "createList": "Create list \"{{name}}\"",
+    "actions": "Actions",
+    "lists": "Lists",
+    "tasks": "Tasks"
   }
 }

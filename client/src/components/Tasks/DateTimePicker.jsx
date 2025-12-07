@@ -142,8 +142,9 @@ export const DateTimePicker = ({
                 <span style={{ flex: 1, marginLeft: "8px" }}>
                   {formatDisplayDate()}
                 </span>
-                <button
-                  type="button"
+                <span
+                  role="button"
+                  tabIndex={0}
                   aria-label={t("tasks.clearDate") || "Quitar fecha"}
                   className="datetime-picker-clear-btn"
                   style={{
@@ -160,9 +161,16 @@ export const DateTimePicker = ({
                     e.preventDefault();
                     handleClear(e);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleClear(e);
+                    }
+                  }}
                 >
                   <X className="datetime-picker-clear" />
-                </button>
+                </span>
               </>
             ) : (
               <span style={{ marginLeft: "8px" }}>{t("tasks.selectDate")}</span>

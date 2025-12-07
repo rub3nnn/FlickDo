@@ -28,34 +28,55 @@ export const ClassroomWidget = ({ classroomTasks }) => {
         </div>
         <span className="classroom-badge">{classroomTasks.length}</span>
       </div>
-      <div className="classroom-list">
-        {classroomTasks.slice(0, 4).map((task) => {
-          const daysLeft = getDaysLeft(task.due_date);
-          return (
-            <div key={task.id} className="classroom-card">
-              <p className="classroom-task-title">{task.title}</p>
-              <div className="classroom-task-footer">
-                <span className="classroom-subject">
-                  {task.classroom_integration?.course_id || "Classroom"}
-                </span>
-                {daysLeft !== null && (
-                  <span
-                    className={`classroom-days ${
-                      daysLeft === 0 ? "urgent" : ""
-                    }`}
-                  >
-                    {daysLeft === 0 ? t("tasks.today") : `${daysLeft}d`}
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <button className="widget-button primary">
-        <ExternalLink className="icon-sm" />
-        {t("widgets.openClassroom")}
-      </button>
+      {classroomTasks.length === 0 ? (
+        <div
+          style={{
+            padding: "2rem 1rem",
+            textAlign: "center",
+          }}
+        >
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "var(--text-secondary)",
+              lineHeight: "1.5",
+            }}
+          >
+            No tienes ninguna tarea vinculada con Classroom
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="classroom-list">
+            {classroomTasks.slice(0, 4).map((task) => {
+              const daysLeft = getDaysLeft(task.due_date);
+              return (
+                <div key={task.id} className="classroom-card">
+                  <p className="classroom-task-title">{task.title}</p>
+                  <div className="classroom-task-footer">
+                    <span className="classroom-subject">
+                      {task.classroom_integration?.course_id || "Classroom"}
+                    </span>
+                    {daysLeft !== null && (
+                      <span
+                        className={`classroom-days ${
+                          daysLeft === 0 ? "urgent" : ""
+                        }`}
+                      >
+                        {daysLeft === 0 ? t("tasks.today") : `${daysLeft}d`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <button className="widget-button primary">
+            <ExternalLink className="icon-sm" />
+            {t("widgets.openClassroom")}
+          </button>
+        </>
+      )}
     </div>
   );
 };

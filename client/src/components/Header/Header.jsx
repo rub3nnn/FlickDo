@@ -3,11 +3,13 @@ import { useTranslation } from "react-i18next";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useCommand } from "@/contexts/CommandContext";
 
 export const Header = ({ onToggleSidebar }) => {
   const { t, i18n } = useTranslation();
   const { toggleSidebar } = useSidebar();
   const { profile, loading } = useAuth();
+  const { openCommand } = useCommand();
 
   function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -40,16 +42,18 @@ export const Header = ({ onToggleSidebar }) => {
         </div>
 
         <div className="header-right">
-          <div className="search-container desktop-only">
+          <button
+            className="search-container desktop-only search-button"
+            onClick={() => openCommand("all")}
+          >
             <Search className="search-icon" />
-            <input
-              type="text"
-              placeholder={t("header.search")}
-              className="search-input"
-            />
-          </div>
+            <div className="search-input">{t("header.search")}</div>
+          </button>
 
-          <button className="icon-button mobile-only">
+          <button
+            className="icon-button mobile-only"
+            onClick={() => openCommand("all")}
+          >
             <Search className="icon-md" />
           </button>
 

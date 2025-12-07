@@ -5,6 +5,7 @@ import { EmptyState } from "./components/EmptyState/EmptyState";
 import { CreateListDialog } from "./components/Lists/CreateListDialog";
 import { EditListDialog } from "./components/Lists/EditListDialog";
 import { ShareListDialog } from "./components/Lists/ShareListDialog";
+import { ListConfigIcons } from "./components/Lists/ListConfigIcons";
 import { useTranslation } from "react-i18next";
 import { useTasks } from "./contexts/TasksContext";
 import { useAuth } from "./hooks/useAuth";
@@ -95,8 +96,15 @@ export default function AllTasks() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Obtener listas del contexto global (las tareas están dentro de cada lista)
-  const { lists, loading, error, createList, updateList, deleteList } =
-    useTasks();
+  const {
+    lists,
+    loading,
+    error,
+    createList,
+    updateList,
+    deleteList,
+    refreshList,
+  } = useTasks();
   const { user } = useAuth();
 
   // Estados para los dialogs
@@ -528,6 +536,10 @@ export default function AllTasks() {
                                       <Lock className="icon-xs" />
                                     </span>
                                   )}
+                                  <ListConfigIcons
+                                    configuration={list.configuration}
+                                    className="ml-1"
+                                  />
                                   <span className="task-count-mini">
                                     {activeTasksInList.length}
                                   </span>
@@ -674,6 +686,10 @@ export default function AllTasks() {
           onOpenChange={setEditListOpen}
           list={selectedListForEdit}
           onUpdateList={handleUpdateList}
+          currentUserId={user?.id}
+          onLeaveList={(listId) => {
+            setEditListOpen(false);
+          }}
         />
 
         <ShareListDialog
@@ -681,6 +697,14 @@ export default function AllTasks() {
           onOpenChange={setShareListOpen}
           list={selectedListForShare}
           currentUserId={user?.id}
+          onListUpdated={(updates) => {
+            // Actualizar is_shared localmente sin recargar desde backend
+            if (selectedListForShare?.id && updates?.is_shared !== undefined) {
+              updateList(selectedListForShare.id, {
+                is_shared: updates.is_shared,
+              });
+            }
+          }}
         />
 
         {/* Delete List Confirmation Dialog */}
