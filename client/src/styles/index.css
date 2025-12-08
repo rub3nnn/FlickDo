@@ -1,0 +1,43 @@
+/* ========================================
+   FLICKDO - MODULAR CSS ARCHITECTURE
+   ======================================== */
+
+/* Tailwind & Third-party */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Themes & Variables */
+@import "./themes/variables.css";
+
+/* Base Styles */
+@import "./base/reset.css";
+@import "./base/animations.css";
+
+/* Components */
+@import "./components/sidebar.css";
+@import "./components/header.css";
+@import "./components/tasks.css";
+@import "./components/widgets.css";
+
+/* 
+  NOTA: Este archivo reemplaza al antiguo styles.css
+  
+  Si el archivo styles.css original tiene estilos adicionales que no están aquí,
+  puedes:
+  1. Crear archivos CSS adicionales en /components/ para esos estilos
+  2. Importarlos aquí siguiendo el mismo patrón
+  
+  Estructura recomendada:
+  - styles/themes/        → Variables y temas
+  - styles/base/          → Reset, tipografía, animaciones globales
+  - styles/components/    → Estilos específicos por componente
+  
+  Beneficios:
+  ✓ Código más mantenible y organizado
+  ✓ Fácil de encontrar y editar estilos específicos
+  ✓ Mejor rendimiento al cargar solo lo necesario
+  ✓ Evita conflictos de CSS
+  ✓ Facilita el trabajo en equipo
+*/
