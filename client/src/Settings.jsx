@@ -4,6 +4,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 import { usersApi } from "@/services/api";
 import { useTheme } from "@/components/theme-provider";
 import { toast } from "sonner";
+import "@/styles/components/Settings.css";
 import { Header } from "@/components/Header/Header";
 import {
   Card,
@@ -72,7 +73,7 @@ export default function Settings() {
   const { t, i18n } = useTranslation();
   const { user, profile } = useContext(AuthContext);
   const { theme, setTheme } = useTheme();
-  
+
   const [activeTab, setActiveTab] = useState("account");
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
@@ -312,7 +313,11 @@ export default function Settings() {
   };
 
   const handleChangePassword = async () => {
-    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+    if (
+      !passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmPassword
+    ) {
       toast.error("Todos los campos son requeridos");
       return;
     }
@@ -355,7 +360,7 @@ export default function Settings() {
 
   const handleConfirmDeleteAccount = async () => {
     const expectedPhrase = `DELETE MY ACCOUNT PERMANENTLY - ${user?.email}`;
-    
+
     if (deleteConfirmationText !== expectedPhrase) {
       toast.error("La frase de confirmación no coincide");
       return;
@@ -382,17 +387,15 @@ export default function Settings() {
 
   return (
     <>
-      <main className="main-content flex flex-col h-screen overflow-hidden">
+      <main className="main-content settings-main">
         <Header />
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
+        <div className="settings-container">
+          <div className="settings-inner">
             {/* Page Title */}
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                {t("settings.title")}
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1.5">
+            <div className="settings-header">
+              <h1 className="settings-title">{t("settings.title")}</h1>
+              <p className="settings-description">
                 {t("settings.description")}
               </p>
             </div>
@@ -401,67 +404,86 @@ export default function Settings() {
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
-              className="space-y-6"
+              className="settings-tabs"
             >
-              <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4 -mx-4 px-4">
-                <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid h-11">
-                  <TabsTrigger value="account" className="gap-2 data-[state=active]:bg-background">
-                    <User className="h-4 w-4" />
-                    <span className="hidden sm:inline">Cuenta</span>
+              <div className="settings-tabs-sticky">
+                <TabsList className="settings-tabs-list">
+                  <TabsTrigger value="account" className="settings-tab-trigger">
+                    <User className="icon-sm" />
+                    <span className="settings-tab-trigger-text">Cuenta</span>
                   </TabsTrigger>
-                  <TabsTrigger value="integrations" className="gap-2 data-[state=active]:bg-background">
-                    <Unlink className="h-4 w-4" />
-                    <span className="hidden sm:inline">Integraciones</span>
+                  <TabsTrigger
+                    value="integrations"
+                    className="settings-tab-trigger"
+                  >
+                    <Unlink className="icon-sm" />
+                    <span className="settings-tab-trigger-text">
+                      Integraciones
+                    </span>
                   </TabsTrigger>
-                  <TabsTrigger value="preferences" className="gap-2 data-[state=active]:bg-background">
-                    <Palette className="h-4 w-4" />
-                    <span className="hidden sm:inline">Preferencias</span>
+                  <TabsTrigger
+                    value="preferences"
+                    className="settings-tab-trigger"
+                  >
+                    <Palette className="icon-sm" />
+                    <span className="settings-tab-trigger-text">
+                      Preferencias
+                    </span>
                   </TabsTrigger>
                 </TabsList>
               </div>
 
               {/* Account Tab */}
-              <TabsContent value="account" className="space-y-4 mt-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <TabsContent value="account" className="settings-tabs-content">
+                <div className="settings-grid">
                   {/* Profile Card */}
-                  <Card className="lg:col-span-2">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <User className="h-4 w-4" />
+                  <Card className="settings-grid-2col">
+                    <CardHeader className="profile-card-header">
+                      <CardTitle className="profile-card-title">
+                        <User className="icon-sm" />
                         Información del Perfil
                       </CardTitle>
-                      <CardDescription className="text-xs">
+                      <CardDescription className="profile-card-description">
                         Gestiona tu información personal y datos de contacto
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="flex flex-col md:flex-row gap-6 items-start">
-                        <div className="flex flex-col items-center gap-3">
-                          <Avatar className="h-24 w-24 border-2 border-muted">
+                    <CardContent className="profile-card-content">
+                      <div className="profile-card-content">
+                        <div className="profile-avatar-section">
+                          <Avatar className="profile-avatar">
                             <AvatarImage
                               src={profile?.avatar_url}
                               alt={`${accountData.firstName} ${accountData.lastName}`}
                             />
-                            <AvatarFallback className="text-2xl bg-gradient-to-br from-primary/20 to-primary/10">
+                            <AvatarFallback className="profile-avatar-fallback">
                               {getAccountInitials(
                                 `${accountData.firstName} ${accountData.lastName}`,
                                 accountData.email
                               )}
                             </AvatarFallback>
                           </Avatar>
-                          <Button variant="outline" size="sm" className="text-xs" disabled>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="profile-change-photo-btn"
+                            disabled
+                          >
                             Cambiar foto
                           </Button>
-                          <p className="text-xs text-muted-foreground text-center">
-                            No disponible
-                          </p>
+                          <p className="profile-not-available">No disponible</p>
                         </div>
-                        <Separator orientation="vertical" className="hidden md:block h-auto" />
-                        <div className="grid gap-4 flex-1 w-full">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="firstName" className="text-sm font-medium flex items-center gap-2">
-                                <User className="h-3.5 w-3.5" />
+                        <Separator
+                          orientation="vertical"
+                          className="separator-vertical"
+                        />
+                        <div className="profile-form-section">
+                          <div className="profile-form-row">
+                            <div className="profile-form-group">
+                              <Label
+                                htmlFor="firstName"
+                                className="profile-label"
+                              >
+                                <User className="profile-label-icon" />
                                 Nombre
                               </Label>
                               <Input
@@ -473,13 +495,16 @@ export default function Settings() {
                                     firstName: e.target.value,
                                   })
                                 }
-                                className="h-10"
+                                className="profile-input"
                                 placeholder="Tu nombre"
                               />
                             </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="lastName" className="text-sm font-medium flex items-center gap-2">
-                                <User className="h-3.5 w-3.5" />
+                            <div className="profile-form-group">
+                              <Label
+                                htmlFor="lastName"
+                                className="profile-label"
+                              >
+                                <User className="profile-label-icon" />
                                 Apellido
                               </Label>
                               <Input
@@ -491,14 +516,14 @@ export default function Settings() {
                                     lastName: e.target.value,
                                   })
                                 }
-                                className="h-10"
+                                className="profile-input"
                                 placeholder="Tu apellido"
                               />
                             </div>
                           </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
-                              <Mail className="h-3.5 w-3.5" />
+                          <div className="profile-form-group">
+                            <Label htmlFor="email" className="profile-label">
+                              <Mail className="profile-label-icon" />
                               Correo electrónico
                             </Label>
                             <Input
@@ -506,23 +531,23 @@ export default function Settings() {
                               type="email"
                               value={accountData.email}
                               disabled
-                              className="h-10"
+                              className="profile-input"
                             />
-                            <p className="text-xs text-muted-foreground">
+                            <p className="profile-hint">
                               El email no se puede cambiar
                             </p>
                           </div>
                         </div>
                       </div>
                       <Separator />
-                      <div className="flex justify-end">
+                      <div className="profile-actions">
                         <Button
                           onClick={handleSaveProfile}
-                          className="gap-2 h-10"
+                          className="profile-save-btn"
                           size="sm"
                           disabled={isSavingProfile}
                         >
-                          <Save className="h-4 w-4" />
+                          <Save className="icon-sm" />
                           {isSavingProfile ? "Guardando..." : "Guardar cambios"}
                         </Button>
                       </div>
@@ -531,20 +556,23 @@ export default function Settings() {
 
                   {/* Security Card */}
                   <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Shield className="h-4 w-4" />
+                    <CardHeader className="profile-card-header">
+                      <CardTitle className="profile-card-title">
+                        <Shield className="icon-sm" />
                         Seguridad
                       </CardTitle>
-                      <CardDescription className="text-xs">
+                      <CardDescription className="profile-card-description">
                         Gestiona tu contraseña y seguridad de la cuenta
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="current-password" className="text-sm font-medium flex items-center gap-2">
-                            <KeyRound className="h-3.5 w-3.5" />
+                    <CardContent className="security-card-content">
+                      <div className="security-card-content">
+                        <div className="security-form-group">
+                          <Label
+                            htmlFor="current-password"
+                            className="security-label"
+                          >
+                            <KeyRound className="profile-label-icon" />
                             Contraseña actual
                           </Label>
                           <Input
@@ -557,12 +585,17 @@ export default function Settings() {
                                 currentPassword: e.target.value,
                               })
                             }
-                            className="h-10"
+                            className="security-input"
                             placeholder="••••••••"
                           />
                         </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="new-password" className="text-sm font-medium">Nueva contraseña</Label>
+                        <div className="security-form-group">
+                          <Label
+                            htmlFor="new-password"
+                            className="security-label"
+                          >
+                            Nueva contraseña
+                          </Label>
                           <Input
                             id="new-password"
                             type="password"
@@ -573,12 +606,15 @@ export default function Settings() {
                                 newPassword: e.target.value,
                               })
                             }
-                            className="h-10"
+                            className="security-input"
                             placeholder="••••••••"
                           />
                         </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="confirm-password" className="text-sm font-medium">
+                        <div className="security-form-group">
+                          <Label
+                            htmlFor="confirm-password"
+                            className="security-label"
+                          >
                             Confirmar contraseña
                           </Label>
                           <Input
@@ -591,55 +627,60 @@ export default function Settings() {
                                 confirmPassword: e.target.value,
                               })
                             }
-                            className="h-10"
+                            className="security-input"
                             placeholder="••••••••"
                           />
                         </div>
                       </div>
                       <Separator />
-                      <div className="flex justify-end">
+                      <div className="security-actions">
                         <Button
                           onClick={handleChangePassword}
-                          className="gap-2 h-10"
+                          className="security-btn"
                           size="sm"
                           disabled={isChangingPassword}
                         >
-                          <KeyRound className="h-4 w-4" />
-                          {isChangingPassword ? "Cambiando..." : "Cambiar contraseña"}
+                          <KeyRound className="icon-sm" />
+                          {isChangingPassword
+                            ? "Cambiando..."
+                            : "Cambiar contraseña"}
                         </Button>
                       </div>
                     </CardContent>
                   </Card>
 
                   {/* Danger Zone */}
-                  <Card className="border-destructive/50 bg-destructive/5">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2 text-destructive">
-                        <Trash2 className="h-4 w-4" />
+                  <Card className="danger-zone-card">
+                    <CardHeader className="profile-card-header">
+                      <CardTitle className="profile-card-title danger-zone-title">
+                        <Trash2 className="icon-sm" />
                         Zona de peligro
                       </CardTitle>
-                      <CardDescription className="text-xs">
-                        Acciones irreversibles que afectarán permanentemente tu cuenta
+                      <CardDescription className="profile-card-description">
+                        Acciones irreversibles que afectarán permanentemente tu
+                        cuenta
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-col gap-4 p-4 border border-destructive/50 rounded-lg bg-background hover:bg-destructive/5 transition-colors">
-                        <div className="space-y-1">
-                          <p className="font-semibold text-sm flex items-center gap-2">
-                            <XCircle className="h-4 w-4 text-destructive" />
+                      <div className="danger-zone-content">
+                        <div className="danger-zone-info">
+                          <p className="danger-zone-info-title">
+                            <XCircle className="danger-zone-info-icon" />
                             Eliminar cuenta
                           </p>
-                          <p className="text-xs text-muted-foreground">
-                            Esta acción es permanente y no se puede deshacer. Se eliminarán todos tus datos, tareas y configuraciones.
+                          <p className="danger-zone-info-description">
+                            Esta acción es permanente y no se puede deshacer. Se
+                            eliminarán todos tus datos, tareas y
+                            configuraciones.
                           </p>
                         </div>
                         <Button
                           variant="destructive"
                           onClick={handleDeleteAccount}
-                          className="gap-2 w-full h-10"
+                          className="danger-zone-btn"
                           size="sm"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="icon-sm" />
                           Eliminar cuenta permanentemente
                         </Button>
                       </div>
@@ -649,24 +690,33 @@ export default function Settings() {
               </TabsContent>
 
               {/* Integrations Tab */}
-              <TabsContent value="integrations" className="space-y-4 mt-4">
-                <div className="grid grid-cols-1 gap-4">
+              <TabsContent
+                value="integrations"
+                className="settings-tabs-content"
+              >
+                <div className="settings-grid">
                   {/* Connected Accounts - Coming Soon */}
                   <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <User className="h-4 w-4" />
+                    <CardHeader className="profile-card-header">
+                      <CardTitle className="profile-card-title">
+                        <User className="icon-sm" />
                         Cuentas Conectadas
-                        <Badge variant="secondary" className="ml-2">Próximamente</Badge>
+                        <Badge
+                          variant="secondary"
+                          className="integration-coming-soon-badge"
+                        >
+                          Próximamente
+                        </Badge>
                       </CardTitle>
-                      <CardDescription className="text-xs">
-                        Pronto podrás conectar múltiples cuentas de Google, GitHub y más
+                      <CardDescription className="profile-card-description">
+                        Pronto podrás conectar múltiples cuentas de Google,
+                        GitHub y más
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-col items-center justify-center py-8 text-center">
-                        <User className="h-12 w-12 text-muted-foreground/50 mb-3" />
-                        <p className="text-sm text-muted-foreground">
+                      <div className="connected-accounts-empty">
+                        <User className="connected-accounts-empty-icon" />
+                        <p className="connected-accounts-empty-text">
                           Esta funcionalidad estará disponible próximamente
                         </p>
                       </div>
@@ -674,37 +724,45 @@ export default function Settings() {
                   </Card>
 
                   {/* Available Integrations */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="integrations-grid">
                     {integrations.map((integration) => {
                       const Icon = integration.icon;
                       return (
                         <Card
                           key={integration.id}
-                          className={`transition-all hover:shadow-md ${
-                            !integration.available ? "opacity-60" : "hover:border-accent"
+                          className={`integration-card ${
+                            !integration.available
+                              ? "integration-card-disabled"
+                              : ""
                           }`}
                         >
-                          <CardHeader className="pb-3">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <CardHeader className="integration-card-header">
+                            <div className="integration-header-content">
+                              <div className="integration-info">
                                 <div
-                                  className={`p-2.5 rounded-lg ${integration.bgColor} ${integration.darkBgColor} ${integration.color}`}
+                                  className={`integration-icon-wrapper ${
+                                    integration.id === "google-classroom"
+                                      ? "integration-icon-green"
+                                      : integration.id === "google-tasks"
+                                      ? "integration-icon-blue"
+                                      : "integration-icon-gray"
+                                  }`}
                                 >
-                                  <Icon className="h-5 w-5" />
+                                  <Icon className="integration-icon" />
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <CardTitle className="text-sm truncate">
+                                <div className="integration-details">
+                                  <div className="integration-title-row">
+                                    <CardTitle className="integration-title">
                                       {integration.name}
                                     </CardTitle>
                                     {integration.connected && (
-                                      <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                                      <CheckCircle2 className="integration-connected-icon" />
                                     )}
                                   </div>
                                   {!integration.available && (
                                     <Badge
                                       variant="secondary"
-                                      className="text-xs h-5 px-2"
+                                      className="integration-coming-soon-badge"
                                     >
                                       Próximamente
                                     </Badge>
@@ -713,8 +771,8 @@ export default function Settings() {
                               </div>
                             </div>
                           </CardHeader>
-                          <CardContent className="space-y-3">
-                            <CardDescription className="text-xs line-clamp-2 min-h-[2.5rem]">
+                          <CardContent className="integration-card-content">
+                            <CardDescription className="integration-description">
                               {integration.description}
                             </CardDescription>
                             {integration.available &&
@@ -723,18 +781,18 @@ export default function Settings() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => handleDisconnect(integration)}
-                                  className="w-full h-9 gap-2"
+                                  className="integration-btn"
                                 >
-                                  <Unlink className="h-4 w-4" />
+                                  <Unlink className="icon-sm" />
                                   Desconectar
                                 </Button>
                               ) : (
                                 <Button
                                   size="sm"
                                   onClick={() => handleConnect(integration)}
-                                  className="w-full h-9 gap-2"
+                                  className="integration-btn"
                                 >
-                                  <ExternalLink className="h-4 w-4" />
+                                  <ExternalLink className="icon-sm" />
                                   Conectar
                                 </Button>
                               ))}
@@ -747,24 +805,30 @@ export default function Settings() {
               </TabsContent>
 
               {/* Preferences Tab */}
-              <TabsContent value="preferences" className="space-y-4 mt-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <TabsContent
+                value="preferences"
+                className="settings-tabs-content"
+              >
+                <div className="settings-grid">
                   {/* Personalization */}
                   <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Palette className="h-4 w-4" />
+                    <CardHeader className="profile-card-header">
+                      <CardTitle className="profile-card-title">
+                        <Palette className="icon-sm" />
                         Personalización
                       </CardTitle>
-                      <CardDescription className="text-xs">
+                      <CardDescription className="profile-card-description">
                         Ajusta la apariencia y el idioma
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="personalization-content">
                       {/* Language Selector */}
-                      <div className="space-y-3">
-                        <Label htmlFor="language" className="text-sm font-medium flex items-center gap-2">
-                          <Languages className="h-4 w-4" />
+                      <div className="personalization-section">
+                        <Label
+                          htmlFor="language"
+                          className="personalization-label"
+                        >
+                          <Languages className="icon-sm" />
                           Idioma
                         </Label>
                         <Select
@@ -773,25 +837,28 @@ export default function Settings() {
                             i18n.changeLanguage(value);
                           }}
                         >
-                          <SelectTrigger id="language" className="h-10">
+                          <SelectTrigger
+                            id="language"
+                            className="language-select"
+                          >
                             <SelectValue placeholder="Selecciona un idioma" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="es">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">🇪🇸</span>
+                              <div className="language-option">
+                                <span className="language-flag">🇪🇸</span>
                                 <span>Español</span>
                               </div>
                             </SelectItem>
                             <SelectItem value="en">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">🇬🇧</span>
+                              <div className="language-option">
+                                <span className="language-flag">🇬🇧</span>
                                 <span>English</span>
                               </div>
                             </SelectItem>
                           </SelectContent>
                         </Select>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="personalization-hint">
                           Selecciona el idioma de la interfaz.
                         </p>
                       </div>
@@ -799,38 +866,38 @@ export default function Settings() {
                       <Separator />
 
                       {/* Theme Selector */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium flex items-center gap-2">
-                          <Palette className="h-4 w-4" />
+                      <div className="personalization-section">
+                        <Label className="personalization-label">
+                          <Palette className="icon-sm" />
                           Tema
                         </Label>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="theme-selector">
                           <Button
                             variant={theme === "light" ? "default" : "outline"}
                             onClick={() => setTheme("light")}
-                            className="justify-center h-20 flex-col gap-2"
+                            className="theme-btn"
                           >
-                            <Sun className="h-5 w-5" />
-                            <span className="text-xs">Claro</span>
+                            <Sun className="theme-icon" />
+                            <span className="theme-label">Claro</span>
                           </Button>
                           <Button
                             variant={theme === "dark" ? "default" : "outline"}
                             onClick={() => setTheme("dark")}
-                            className="justify-center h-20 flex-col gap-2"
+                            className="theme-btn"
                           >
-                            <Moon className="h-5 w-5" />
-                            <span className="text-xs">Oscuro</span>
+                            <Moon className="theme-icon" />
+                            <span className="theme-label">Oscuro</span>
                           </Button>
                           <Button
                             variant={theme === "system" ? "default" : "outline"}
                             onClick={() => setTheme("system")}
-                            className="justify-center h-20 flex-col gap-2"
+                            className="theme-btn"
                           >
-                            <Monitor className="h-5 w-5" />
-                            <span className="text-xs">Sistema</span>
+                            <Monitor className="theme-icon" />
+                            <span className="theme-label">Sistema</span>
                           </Button>
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="personalization-hint">
                           Elige tu preferencia de color.
                         </p>
                       </div>
@@ -839,12 +906,12 @@ export default function Settings() {
 
                   {/* Notifications */}
                   <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Bell className="h-4 w-4" />
+                    <CardHeader className="profile-card-header">
+                      <CardTitle className="profile-card-title">
+                        <Bell className="icon-sm" />
                         Notificaciones
                       </CardTitle>
-                      <CardDescription className="text-xs">
+                      <CardDescription className="profile-card-description">
                         Gestiona cómo recibes notificaciones
                       </CardDescription>
                     </CardHeader>
@@ -1076,19 +1143,20 @@ export default function Settings() {
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm leading-relaxed space-y-3">
               <p>
-                Esta acción es <strong>irreversible</strong>. Se eliminarán todos
-                tus datos, tareas, listas y configuraciones.
+                Esta acción es <strong>irreversible</strong>. Se eliminarán
+                todos tus datos, tareas, listas y configuraciones.
               </p>
-              <p>
-                Para confirmar, escribe exactamente la siguiente frase:
-              </p>
+              <p>Para confirmar, escribe exactamente la siguiente frase:</p>
               <code className="block bg-muted p-2 rounded text-xs break-all">
                 DELETE MY ACCOUNT PERMANENTLY - {user?.email}
               </code>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
-            <Label htmlFor="delete-confirmation" className="text-sm font-medium">
+            <Label
+              htmlFor="delete-confirmation"
+              className="text-sm font-medium"
+            >
               Frase de confirmación
             </Label>
             <Input
@@ -1105,7 +1173,11 @@ export default function Settings() {
             </AlertDialogCancel>
             <Button
               onClick={handleConfirmDeleteAccount}
-              disabled={isDeletingAccount || deleteConfirmationText !== `DELETE MY ACCOUNT PERMANENTLY - ${user?.email}`}
+              disabled={
+                isDeletingAccount ||
+                deleteConfirmationText !==
+                  `DELETE MY ACCOUNT PERMANENTLY - ${user?.email}`
+              }
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 flex-1 sm:flex-initial"
             >
               <Trash2 className="h-4 w-4 mr-2" />
