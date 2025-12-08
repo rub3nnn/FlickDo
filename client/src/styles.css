@@ -2139,6 +2139,10 @@ body {
   transform: translateY(0);
 }
 
+.btn-gradient-hover:hover {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+}
+
 .link-button {
   background: none;
   border: none;
@@ -2158,6 +2162,17 @@ body {
 .link-button.primary {
   color: #6366f1;
   font-weight: 600;
+}
+
+.link-button.primary:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+  background: transparent;
+}
+
+.dark .link-button.primary:hover {
+  color: #818cf8;
+  background: transparent;
 }
 
 .link-button.inline {

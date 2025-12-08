@@ -38,7 +38,7 @@ const LoginPage = ({ onSwitchToSignup }) => {
           setError(error.message);
         }
       } else {
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (err) {
       setError("Error al iniciar sesión. Intenta de nuevo.");
@@ -172,7 +172,11 @@ const LoginPage = ({ onSwitchToSignup }) => {
               </button>
             </div>
 
-            <button type="submit" className="btn-primary" disabled={loading}>
+            <button
+              type="submit"
+              className="btn-primary btn-gradient-hover"
+              disabled={loading}
+            >
               <span>
                 {loading ? "Iniciando sesión..." : t("auth.login.loginButton")}
               </span>
@@ -305,7 +309,7 @@ const SignupPage = ({ onSwitchToLogin }) => {
         setShowVerificationMessage(true);
       } else {
         // Registro exitoso sin verificación (no debería pasar con la nueva config)
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (err) {
       setError("Error al crear la cuenta. Intenta de nuevo.");

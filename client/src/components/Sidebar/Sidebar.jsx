@@ -26,7 +26,7 @@ export const Sidebar = ({}) => {
       icon: LayoutGrid,
       label: t("sidebar.dashboard"),
       id: "dashboard",
-      path: "/",
+      path: "/dashboard",
       active: true,
     },
     {

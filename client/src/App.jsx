@@ -1,7 +1,8 @@
 // App.jsx
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Home from "./Home";
+import Dashboard from "./Dashboard";
 import Login from "./Login";
+import LandingPage from "./LandingPage";
 import AuthCallback from "./AuthCallback";
 import AllTasks from "./AllTasks";
 import ListPage from "./ListPage";
@@ -15,34 +16,47 @@ import { GlobalCommand } from "@/components/GlobalCommand";
 function App() {
   const location = useLocation();
   const { user, isInitialized } = useAuth();
-  const hideRoutes = ["/login", "/auth/callback"];
+  const hideRoutes = ["/", "/login", "/auth/callback"];
 
-  const shouldShowSidebar = !hideRoutes.includes(location.pathname);
-  const shouldRedirect = isInitialized && !user;
+  const shouldShowSidebar = user && !hideRoutes.includes(location.pathname);
+
+  // Mostrar loading mientras se inicializa la autenticación
+  if (!isInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <>
       <GlobalCommand />
-      {!shouldRedirect && shouldShowSidebar ? (
+      {user ? (
         <TasksProvider>
           <SidebarProvider>
-            <Sidebar />
+            {shouldShowSidebar && <Sidebar />}
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/all-tasks" element={<AllTasks />} />
               <Route path="/list/:listId" element={<ListPage />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/login" element={<Navigate to="/" replace />} />
+              <Route
+                path="/login"
+                element={<Navigate to="/dashboard" replace />}
+              />
               <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </SidebarProvider>
         </TasksProvider>
       ) : (
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       )}
     </>

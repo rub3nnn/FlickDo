@@ -79,7 +79,7 @@ export default function AuthCallback() {
               localStorage.setItem("auth_token", response.data.token);
 
               // Redirigir inmediatamente sin mostrar mensaje
-              navigate("/");
+              navigate("/dashboard");
               window.location.reload();
               return;
             }
@@ -114,7 +114,7 @@ export default function AuthCallback() {
 
             // Redirigir al home después de 2 segundos
             setTimeout(() => {
-              navigate("/");
+              navigate("/dashboard");
               window.location.reload(); // Reload para actualizar el contexto de auth
             }, 2000);
           } else {
