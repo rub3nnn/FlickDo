@@ -124,10 +124,7 @@ export function GlobalCommand() {
               <p className="gc-empty-text">
                 {t("command.noResults", "No se encontraron resultados")}
               </p>
-              <button
-                onClick={handleCreateList}
-                className="gc-create-button"
-              >
+              <button onClick={handleCreateList} className="gc-create-button">
                 <Plus className="gc-icon" />
                 {t("command.createList", 'Crear lista "{name}"', {
                   name: inputValue,
@@ -168,10 +165,7 @@ export function GlobalCommand() {
                   value={list.title}
                   onSelect={() => handleSelectList(list.id)}
                 >
-                  <ListTodo
-                    className="gc-icon"
-                    style={{ color: list.color }}
-                  />
+                  <ListTodo className="gc-icon" style={{ color: list.color }} />
                   <span>{list.title}</span>
                 </CommandItem>
               ))}
@@ -201,9 +195,7 @@ export function GlobalCommand() {
                   <div className="gc-task-header">
                     <span
                       className={
-                        task.is_completed
-                          ? "gc-task-title-completed"
-                          : ""
+                        task.is_completed ? "gc-task-title-completed" : ""
                       }
                     >
                       {task.title}
