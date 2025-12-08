@@ -37,7 +37,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -392,64 +391,73 @@ export default function Settings() {
 
         <div className="settings-container">
           <div className="settings-inner">
-            {/* Page Title */}
-            <div className="settings-header">
-              <h1 className="settings-title">{t("settings.title")}</h1>
-              <p className="settings-description">
-                {t("settings.description")}
-              </p>
-            </div>
-
-            {/* Tabs Navigation */}
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="settings-tabs"
-            >
-              <div className="settings-tabs-sticky">
-                <TabsList className="settings-tabs-list">
-                  <TabsTrigger value="account" className="settings-tab-trigger">
-                    <User className="icon-sm" />
-                    <span className="settings-tab-trigger-text">Cuenta</span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="integrations"
-                    className="settings-tab-trigger"
-                  >
-                    <Unlink className="icon-sm" />
-                    <span className="settings-tab-trigger-text">
-                      Integraciones
-                    </span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="preferences"
-                    className="settings-tab-trigger"
-                  >
-                    <Palette className="icon-sm" />
-                    <span className="settings-tab-trigger-text">
-                      Preferencias
-                    </span>
-                  </TabsTrigger>
-                </TabsList>
+            {/* Settings Sidebar Navigation */}
+            <aside className="settings-sidebar">
+              <div className="settings-sidebar-header">
+                <h1 className="settings-sidebar-title">Configuración</h1>
+                <p className="settings-sidebar-description">
+                  Gestiona tu cuenta y preferencias
+                </p>
               </div>
 
-              {/* Account Tab */}
-              <TabsContent value="account" className="settings-tabs-content">
-                <div className="settings-grid">
-                  {/* Profile Card */}
-                  <Card className="settings-grid-2col">
-                    <CardHeader className="profile-card-header">
-                      <CardTitle className="profile-card-title">
-                        <User className="icon-sm" />
-                        Información del Perfil
-                      </CardTitle>
-                      <CardDescription className="profile-card-description">
-                        Gestiona tu información personal y datos de contacto
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="profile-card-content">
-                      <div className="profile-card-content">
-                        <div className="profile-avatar-section">
+              <nav className="settings-nav">
+                <button
+                  className="settings-nav-item"
+                  data-state={activeTab === "account" ? "active" : "inactive"}
+                  onClick={() => setActiveTab("account")}
+                >
+                  <User className="settings-nav-icon" />
+                  <span className="settings-nav-label">Cuenta</span>
+                </button>
+                <button
+                  className="settings-nav-item"
+                  data-state={activeTab === "integrations" ? "active" : "inactive"}
+                  onClick={() => setActiveTab("integrations")}
+                >
+                  <Unlink className="settings-nav-icon" />
+                  <span className="settings-nav-label">Integraciones</span>
+                </button>
+                <button
+                  className="settings-nav-item"
+                  data-state={activeTab === "preferences" ? "active" : "inactive"}
+                  onClick={() => setActiveTab("preferences")}
+                >
+                  <Palette className="settings-nav-icon" />
+                  <span className="settings-nav-label">Preferencias</span>
+                </button>
+              </nav>
+            </aside>
+
+            {/* Settings Content */}
+            <div className="settings-content">
+              <div className="settings-content-inner">
+                {/* Account Section */}
+                <div
+                  className="settings-section"
+                  data-state={activeTab === "account" ? "active" : "inactive"}
+                >
+                  <div className="settings-section-header">
+                    <h2 className="settings-section-title">Cuenta</h2>
+                    <p className="settings-section-description">
+                      Administra tu información personal, seguridad y configuración de cuenta
+                    </p>
+                  </div>
+
+                  <div className="settings-grid settings-grid-2col">
+                    {/* Profile Card */}
+                    <Card className="settings-grid-item-full">
+                      <CardHeader className="profile-card-header">
+                        <CardTitle className="profile-card-title">
+                          <User className="icon-sm" />
+                          Información del Perfil
+                        </CardTitle>
+                        <CardDescription className="profile-card-description">
+                          Gestiona tu información personal y datos de contacto
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="profile-card-content">
+                        {/* Avatar Inline */}
+                        <div className="profile-avatar-inline">
                           <Avatar className="profile-avatar">
                             <AvatarImage
                               src={profile?.avatar_url}
@@ -462,6 +470,12 @@ export default function Settings() {
                               )}
                             </AvatarFallback>
                           </Avatar>
+                          <div className="profile-avatar-info">
+                            <p className="profile-avatar-name">
+                              {accountData.firstName} {accountData.lastName}
+                            </p>
+                            <p className="profile-avatar-email">{accountData.email}</p>
+                          </div>
                           <Button
                             variant="outline"
                             size="sm"
@@ -470,19 +484,13 @@ export default function Settings() {
                           >
                             Cambiar foto
                           </Button>
-                          <p className="profile-not-available">No disponible</p>
                         </div>
-                        <Separator
-                          orientation="vertical"
-                          className="separator-vertical"
-                        />
+
+                        {/* Form Section */}
                         <div className="profile-form-section">
                           <div className="profile-form-row">
                             <div className="profile-form-group">
-                              <Label
-                                htmlFor="firstName"
-                                className="profile-label"
-                              >
+                              <Label htmlFor="firstName" className="profile-label">
                                 <User className="profile-label-icon" />
                                 Nombre
                               </Label>
@@ -500,10 +508,7 @@ export default function Settings() {
                               />
                             </div>
                             <div className="profile-form-group">
-                              <Label
-                                htmlFor="lastName"
-                                className="profile-label"
-                              >
+                              <Label htmlFor="lastName" className="profile-label">
                                 <User className="profile-label-icon" />
                                 Apellido
                               </Label>
@@ -538,40 +543,35 @@ export default function Settings() {
                             </p>
                           </div>
                         </div>
-                      </div>
-                      <Separator />
-                      <div className="profile-actions">
-                        <Button
-                          onClick={handleSaveProfile}
-                          className="profile-save-btn"
-                          size="sm"
-                          disabled={isSavingProfile}
-                        >
-                          <Save className="icon-sm" />
-                          {isSavingProfile ? "Guardando..." : "Guardar cambios"}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
 
-                  {/* Security Card */}
-                  <Card>
-                    <CardHeader className="profile-card-header">
-                      <CardTitle className="profile-card-title">
-                        <Shield className="icon-sm" />
-                        Seguridad
-                      </CardTitle>
-                      <CardDescription className="profile-card-description">
-                        Gestiona tu contraseña y seguridad de la cuenta
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="security-card-content">
-                      <div className="security-card-content">
-                        <div className="security-form-group">
-                          <Label
-                            htmlFor="current-password"
-                            className="security-label"
+                        <div className="profile-actions">
+                          <Button
+                            onClick={handleSaveProfile}
+                            className="profile-save-btn"
+                            size="sm"
+                            disabled={isSavingProfile}
                           >
+                            <Save className="icon-sm" />
+                            {isSavingProfile ? "Guardando..." : "Guardar cambios"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Security Card */}
+                    <Card>
+                      <CardHeader className="profile-card-header">
+                        <CardTitle className="profile-card-title">
+                          <Shield className="icon-sm" />
+                          Seguridad
+                        </CardTitle>
+                        <CardDescription className="profile-card-description">
+                          Gestiona tu contraseña y seguridad de la cuenta
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="security-card-content">
+                        <div className="security-form-group">
+                          <Label htmlFor="current-password" className="security-label">
                             <KeyRound className="profile-label-icon" />
                             Contraseña actual
                           </Label>
@@ -590,10 +590,7 @@ export default function Settings() {
                           />
                         </div>
                         <div className="security-form-group">
-                          <Label
-                            htmlFor="new-password"
-                            className="security-label"
-                          >
+                          <Label htmlFor="new-password" className="security-label">
                             Nueva contraseña
                           </Label>
                           <Input
@@ -611,10 +608,7 @@ export default function Settings() {
                           />
                         </div>
                         <div className="security-form-group">
-                          <Label
-                            htmlFor="confirm-password"
-                            className="security-label"
-                          >
+                          <Label htmlFor="confirm-password" className="security-label">
                             Confirmar contraseña
                           </Label>
                           <Input
@@ -631,114 +625,114 @@ export default function Settings() {
                             placeholder="••••••••"
                           />
                         </div>
-                      </div>
-                      <Separator />
-                      <div className="security-actions">
-                        <Button
-                          onClick={handleChangePassword}
-                          className="security-btn"
-                          size="sm"
-                          disabled={isChangingPassword}
-                        >
-                          <KeyRound className="icon-sm" />
-                          {isChangingPassword
-                            ? "Cambiando..."
-                            : "Cambiar contraseña"}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
 
-                  {/* Danger Zone */}
-                  <Card className="danger-zone-card">
-                    <CardHeader className="profile-card-header">
-                      <CardTitle className="profile-card-title danger-zone-title">
-                        <Trash2 className="icon-sm" />
-                        Zona de peligro
-                      </CardTitle>
-                      <CardDescription className="profile-card-description">
-                        Acciones irreversibles que afectarán permanentemente tu
-                        cuenta
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="danger-zone-content">
-                        <div className="danger-zone-info">
-                          <p className="danger-zone-info-title">
-                            <XCircle className="danger-zone-info-icon" />
-                            Eliminar cuenta
-                          </p>
-                          <p className="danger-zone-info-description">
-                            Esta acción es permanente y no se puede deshacer. Se
-                            eliminarán todos tus datos, tareas y
-                            configuraciones.
+                        <div className="security-actions">
+                          <Button
+                            onClick={handleChangePassword}
+                            className="security-btn"
+                            size="sm"
+                            disabled={isChangingPassword}
+                          >
+                            <KeyRound className="icon-sm" />
+                            {isChangingPassword ? "Cambiando..." : "Cambiar contraseña"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Danger Zone */}
+                    <Card className="danger-zone-card settings-grid-item-full">
+                      <CardHeader className="profile-card-header">
+                        <CardTitle className="profile-card-title danger-zone-title">
+                          <Trash2 className="icon-sm" />
+                          Zona de peligro
+                        </CardTitle>
+                        <CardDescription className="profile-card-description">
+                          Acciones irreversibles que afectarán permanentemente tu cuenta
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="danger-zone-content">
+                          <div className="danger-zone-info">
+                            <p className="danger-zone-info-title">
+                              <XCircle className="danger-zone-info-icon" />
+                              Eliminar cuenta
+                            </p>
+                            <p className="danger-zone-info-description">
+                              Esta acción es permanente y no se puede deshacer. Se
+                              eliminarán todos tus datos, tareas y configuraciones.
+                            </p>
+                          </div>
+                          <Button
+                            variant="destructive"
+                            onClick={handleDeleteAccount}
+                            className="danger-zone-btn"
+                            size="sm"
+                          >
+                            <Trash2 className="icon-sm" />
+                            Eliminar cuenta permanentemente
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* Integrations Section */}
+                <div
+                  className="settings-section"
+                  data-state={activeTab === "integrations" ? "active" : "inactive"}
+                >
+                  <div className="settings-section-header">
+                    <h2 className="settings-section-title">Integraciones</h2>
+                    <p className="settings-section-description">
+                      Conecta tu cuenta con servicios externos para sincronizar tareas y datos
+                    </p>
+                  </div>
+
+                  <div className="settings-grid settings-grid-full">
+                    {/* Connected Accounts - Coming Soon */}
+                    <Card>
+                      <CardHeader className="profile-card-header">
+                        <CardTitle className="profile-card-title">
+                          <User className="icon-sm" />
+                          Cuentas Conectadas
+                          <Badge
+                            variant="secondary"
+                            className="integration-coming-soon-badge"
+                          >
+                            Próximamente
+                          </Badge>
+                        </CardTitle>
+                        <CardDescription className="profile-card-description">
+                          Pronto podrás conectar múltiples cuentas de Google, GitHub y más
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="connected-accounts-empty">
+                          <User className="connected-accounts-empty-icon" />
+                          <p className="connected-accounts-empty-text">
+                            Esta funcionalidad estará disponible próximamente
                           </p>
                         </div>
-                        <Button
-                          variant="destructive"
-                          onClick={handleDeleteAccount}
-                          className="danger-zone-btn"
-                          size="sm"
-                        >
-                          <Trash2 className="icon-sm" />
-                          Eliminar cuenta permanentemente
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
+                      </CardContent>
+                    </Card>
 
-              {/* Integrations Tab */}
-              <TabsContent
-                value="integrations"
-                className="settings-tabs-content"
-              >
-                <div className="settings-grid">
-                  {/* Connected Accounts - Coming Soon */}
-                  <Card>
-                    <CardHeader className="profile-card-header">
-                      <CardTitle className="profile-card-title">
-                        <User className="icon-sm" />
-                        Cuentas Conectadas
-                        <Badge
-                          variant="secondary"
-                          className="integration-coming-soon-badge"
-                        >
-                          Próximamente
-                        </Badge>
-                      </CardTitle>
-                      <CardDescription className="profile-card-description">
-                        Pronto podrás conectar múltiples cuentas de Google,
-                        GitHub y más
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="connected-accounts-empty">
-                        <User className="connected-accounts-empty-icon" />
-                        <p className="connected-accounts-empty-text">
-                          Esta funcionalidad estará disponible próximamente
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Available Integrations */}
-                  <div className="integrations-grid">
-                    {integrations.map((integration) => {
-                      const Icon = integration.icon;
-                      return (
-                        <Card
-                          key={integration.id}
-                          className={`integration-card ${
-                            !integration.available
-                              ? "integration-card-disabled"
-                              : ""
-                          }`}
-                        >
-                          <CardHeader className="integration-card-header">
-                            <div className="integration-header-content">
-                              <div className="integration-info">
+                    {/* Available Integrations */}
+                    <div className="integrations-grid">
+                      {integrations.map((integration) => {
+                        const Icon = integration.icon;
+                        return (
+                          <Card
+                            key={integration.id}
+                            className={`integration-card ${
+                              !integration.available
+                                ? "integration-card-disabled"
+                                : ""
+                            }`}
+                          >
+                            <CardHeader className="integration-card-header">
+                              <div className="integration-header-content">
                                 <div
                                   className={`integration-icon-wrapper ${
                                     integration.id === "google-classroom"
@@ -750,7 +744,7 @@ export default function Settings() {
                                 >
                                   <Icon className="integration-icon" />
                                 </div>
-                                <div className="integration-details">
+                                <div className="integration-info">
                                   <div className="integration-title-row">
                                     <CardTitle className="integration-title">
                                       {integration.name}
@@ -758,245 +752,246 @@ export default function Settings() {
                                     {integration.connected && (
                                       <CheckCircle2 className="integration-connected-icon" />
                                     )}
+                                    {!integration.available && (
+                                      <Badge
+                                        variant="secondary"
+                                        className="integration-coming-soon-badge"
+                                      >
+                                        Próximamente
+                                      </Badge>
+                                    )}
                                   </div>
-                                  {!integration.available && (
-                                    <Badge
-                                      variant="secondary"
-                                      className="integration-coming-soon-badge"
-                                    >
-                                      Próximamente
-                                    </Badge>
-                                  )}
                                 </div>
                               </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="integration-card-content">
-                            <CardDescription className="integration-description">
-                              {integration.description}
-                            </CardDescription>
-                            {integration.available &&
-                              (integration.connected ? (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleDisconnect(integration)}
-                                  className="integration-btn"
-                                >
-                                  <Unlink className="icon-sm" />
-                                  Desconectar
-                                </Button>
-                              ) : (
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleConnect(integration)}
-                                  className="integration-btn"
-                                >
-                                  <ExternalLink className="icon-sm" />
-                                  Conectar
-                                </Button>
-                              ))}
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
+                            </CardHeader>
+                            <CardContent className="integration-card-content">
+                              <CardDescription className="integration-description">
+                                {integration.description}
+                              </CardDescription>
+                              {integration.available &&
+                                (integration.connected ? (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDisconnect(integration)}
+                                    className="integration-btn"
+                                  >
+                                    <Unlink className="icon-sm" />
+                                    Desconectar
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleConnect(integration)}
+                                    className="integration-btn"
+                                  >
+                                    <ExternalLink className="icon-sm" />
+                                    Conectar
+                                  </Button>
+                                ))}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </TabsContent>
 
-              {/* Preferences Tab */}
-              <TabsContent
-                value="preferences"
-                className="settings-tabs-content"
-              >
-                <div className="settings-grid">
-                  {/* Personalization */}
-                  <Card>
-                    <CardHeader className="profile-card-header">
-                      <CardTitle className="profile-card-title">
-                        <Palette className="icon-sm" />
-                        Personalización
-                      </CardTitle>
-                      <CardDescription className="profile-card-description">
-                        Ajusta la apariencia y el idioma
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="personalization-content">
-                      {/* Language Selector */}
-                      <div className="personalization-section">
-                        <Label
-                          htmlFor="language"
-                          className="personalization-label"
-                        >
-                          <Languages className="icon-sm" />
-                          Idioma
-                        </Label>
-                        <Select
-                          value={i18n.language}
-                          onValueChange={(value) => {
-                            i18n.changeLanguage(value);
-                          }}
-                        >
-                          <SelectTrigger
-                            id="language"
-                            className="language-select"
-                          >
-                            <SelectValue placeholder="Selecciona un idioma" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="es">
-                              <div className="language-option">
-                                <span className="language-flag">🇪🇸</span>
-                                <span>Español</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="en">
-                              <div className="language-option">
-                                <span className="language-flag">🇬🇧</span>
-                                <span>English</span>
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <p className="personalization-hint">
-                          Selecciona el idioma de la interfaz.
-                        </p>
-                      </div>
+                {/* Preferences Section */}
+                <div
+                  className="settings-section"
+                  data-state={activeTab === "preferences" ? "active" : "inactive"}
+                >
+                  <div className="settings-section-header">
+                    <h2 className="settings-section-title">Preferencias</h2>
+                    <p className="settings-section-description">
+                      Personaliza la apariencia y el comportamiento de la aplicación
+                    </p>
+                  </div>
 
-                      <Separator />
-
-                      {/* Theme Selector */}
-                      <div className="personalization-section">
-                        <Label className="personalization-label">
+                  <div className="settings-grid settings-grid-2col">
+                    {/* Personalization */}
+                    <Card>
+                      <CardHeader className="profile-card-header">
+                        <CardTitle className="profile-card-title">
                           <Palette className="icon-sm" />
-                          Tema
-                        </Label>
-                        <div className="theme-selector">
-                          <Button
-                            variant={theme === "light" ? "default" : "outline"}
-                            onClick={() => setTheme("light")}
-                            className="theme-btn"
+                          Personalización
+                        </CardTitle>
+                        <CardDescription className="profile-card-description">
+                          Ajusta la apariencia y el idioma
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="personalization-content">
+                        {/* Language Selector */}
+                        <div className="personalization-section">
+                          <Label htmlFor="language" className="personalization-label">
+                            <Languages className="icon-sm" />
+                            Idioma
+                          </Label>
+                          <Select
+                            value={i18n.language}
+                            onValueChange={(value) => {
+                              i18n.changeLanguage(value);
+                            }}
                           >
-                            <Sun className="theme-icon" />
-                            <span className="theme-label">Claro</span>
-                          </Button>
-                          <Button
-                            variant={theme === "dark" ? "default" : "outline"}
-                            onClick={() => setTheme("dark")}
-                            className="theme-btn"
-                          >
-                            <Moon className="theme-icon" />
-                            <span className="theme-label">Oscuro</span>
-                          </Button>
-                          <Button
-                            variant={theme === "system" ? "default" : "outline"}
-                            onClick={() => setTheme("system")}
-                            className="theme-btn"
-                          >
-                            <Monitor className="theme-icon" />
-                            <span className="theme-label">Sistema</span>
-                          </Button>
-                        </div>
-                        <p className="personalization-hint">
-                          Elige tu preferencia de color.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Notifications */}
-                  <Card>
-                    <CardHeader className="profile-card-header">
-                      <CardTitle className="profile-card-title">
-                        <Bell className="icon-sm" />
-                        Notificaciones
-                      </CardTitle>
-                      <CardDescription className="profile-card-description">
-                        Gestiona cómo recibes notificaciones
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {/* Task Notifications */}
-                        <div className="flex items-center justify-between space-x-2 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
-                          <div className="flex-1 space-y-1">
-                            <Label
-                              htmlFor="notifications-tasks"
-                              className="text-sm font-medium leading-none cursor-pointer"
-                            >
-                              Notificaciones de tareas
-                            </Label>
-                            <p className="text-xs text-muted-foreground">
-                              Recibe alertas sobre tus tareas pendientes
-                            </p>
-                          </div>
-                          <Switch
-                            id="notifications-tasks"
-                            checked={notificationSettings.tasks}
-                            onCheckedChange={(checked) =>
-                              setNotificationSettings({
-                                ...notificationSettings,
-                                tasks: checked,
-                              })
-                            }
-                          />
+                            <SelectTrigger id="language" className="language-select">
+                              <SelectValue placeholder="Selecciona un idioma" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="es">
+                                <div className="language-option">
+                                  <span className="language-flag">🇪🇸</span>
+                                  <span>Español</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="en">
+                                <div className="language-option">
+                                  <span className="language-flag">🇬🇧</span>
+                                  <span>English</span>
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="personalization-hint">
+                            Selecciona el idioma de la interfaz.
+                          </p>
                         </div>
 
-                        {/* Collaboration Notifications */}
-                        <div className="flex items-center justify-between space-x-2 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
-                          <div className="flex-1 space-y-1">
-                            <Label
-                              htmlFor="notifications-collaboration"
-                              className="text-sm font-medium leading-none cursor-pointer"
-                            >
-                              Notificaciones de colaboración
-                            </Label>
-                            <p className="text-xs text-muted-foreground">
-                              Cuando alguien te asigna una tarea
-                            </p>
-                          </div>
-                          <Switch
-                            id="notifications-collaboration"
-                            checked={notificationSettings.collaboration}
-                            onCheckedChange={(checked) =>
-                              setNotificationSettings({
-                                ...notificationSettings,
-                                collaboration: checked,
-                              })
-                            }
-                          />
-                        </div>
+                        <Separator />
 
-                        {/* Daily Summary */}
-                        <div className="flex items-center justify-between space-x-2 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
-                          <div className="flex-1 space-y-1">
-                            <Label
-                              htmlFor="notifications-summary"
-                              className="text-sm font-medium leading-none cursor-pointer"
+                        {/* Theme Selector */}
+                        <div className="personalization-section">
+                          <Label className="personalization-label">
+                            <Palette className="icon-sm" />
+                            Tema
+                          </Label>
+                          <div className="theme-selector">
+                            <Button
+                              variant={theme === "light" ? "default" : "outline"}
+                              onClick={() => setTheme("light")}
+                              className="theme-btn"
                             >
-                              Resumen diario
-                            </Label>
-                            <p className="text-xs text-muted-foreground">
-                              Recibe un resumen de tus tareas cada mañana
-                            </p>
+                              <Sun className="theme-icon" />
+                              <span className="theme-label">Claro</span>
+                            </Button>
+                            <Button
+                              variant={theme === "dark" ? "default" : "outline"}
+                              onClick={() => setTheme("dark")}
+                              className="theme-btn"
+                            >
+                              <Moon className="theme-icon" />
+                              <span className="theme-label">Oscuro</span>
+                            </Button>
+                            <Button
+                              variant={theme === "system" ? "default" : "outline"}
+                              onClick={() => setTheme("system")}
+                              className="theme-btn"
+                            >
+                              <Monitor className="theme-icon" />
+                              <span className="theme-label">Sistema</span>
+                            </Button>
                           </div>
-                          <Switch
-                            id="notifications-summary"
-                            checked={notificationSettings.dailySummary}
-                            onCheckedChange={(checked) =>
-                              setNotificationSettings({
-                                ...notificationSettings,
-                                dailySummary: checked,
-                              })
-                            }
-                          />
+                          <p className="personalization-hint">
+                            Elige tu preferencia de color.
+                          </p>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+
+                    {/* Notifications */}
+                    <Card>
+                      <CardHeader className="profile-card-header">
+                        <CardTitle className="profile-card-title">
+                          <Bell className="icon-sm" />
+                          Notificaciones
+                        </CardTitle>
+                        <CardDescription className="profile-card-description">
+                          Gestiona cómo recibes notificaciones
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {/* Task Notifications */}
+                          <div className="flex items-center justify-between space-x-2 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+                            <div className="flex-1 space-y-1">
+                              <Label
+                                htmlFor="notifications-tasks"
+                                className="text-sm font-medium leading-none cursor-pointer"
+                              >
+                                Notificaciones de tareas
+                              </Label>
+                              <p className="text-xs text-muted-foreground">
+                                Recibe alertas sobre tus tareas pendientes
+                              </p>
+                            </div>
+                            <Switch
+                              id="notifications-tasks"
+                              checked={notificationSettings.tasks}
+                              onCheckedChange={(checked) =>
+                                setNotificationSettings({
+                                  ...notificationSettings,
+                                  tasks: checked,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Collaboration Notifications */}
+                          <div className="flex items-center justify-between space-x-2 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+                            <div className="flex-1 space-y-1">
+                              <Label
+                                htmlFor="notifications-collaboration"
+                                className="text-sm font-medium leading-none cursor-pointer"
+                              >
+                                Notificaciones de colaboración
+                              </Label>
+                              <p className="text-xs text-muted-foreground">
+                                Cuando alguien te asigna una tarea
+                              </p>
+                            </div>
+                            <Switch
+                              id="notifications-collaboration"
+                              checked={notificationSettings.collaboration}
+                              onCheckedChange={(checked) =>
+                                setNotificationSettings({
+                                  ...notificationSettings,
+                                  collaboration: checked,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Daily Summary */}
+                          <div className="flex items-center justify-between space-x-2 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+                            <div className="flex-1 space-y-1">
+                              <Label
+                                htmlFor="notifications-summary"
+                                className="text-sm font-medium leading-none cursor-pointer"
+                              >
+                                Resumen diario
+                              </Label>
+                              <p className="text-xs text-muted-foreground">
+                                Recibe un resumen de tus tareas cada mañana
+                              </p>
+                            </div>
+                            <Switch
+                              id="notifications-summary"
+                              checked={notificationSettings.dailySummary}
+                              onCheckedChange={(checked) =>
+                                setNotificationSettings({
+                                  ...notificationSettings,
+                                  dailySummary: checked,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
           </div>
         </div>
       </main>
