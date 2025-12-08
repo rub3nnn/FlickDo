@@ -57,10 +57,14 @@ export const Header = ({ onToggleSidebar }) => {
             <Search className="icon-md" />
           </button>
 
-          <button className="icon-button notification-button">
+          {
+            /*
+            <button className="icon-button notification-button">
             <Bell className="icon-md" />
             <span className="notification-dot" />
           </button>
+          */
+          }
         </div>
       </div>
     </header>

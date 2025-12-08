@@ -407,3 +407,45 @@ export const tagsApi = {
     return handleResponse(response);
   },
 };
+
+// API de usuarios
+export const usersApi = {
+  // Actualizar perfil
+  updateProfile: async (firstName, lastName) => {
+    const response = await fetch(`${API_URL}/users/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ firstName, lastName }),
+    });
+    return handleResponse(response);
+  },
+
+  // Cambiar contraseña
+  changePassword: async (currentPassword, newPassword) => {
+    const response = await fetch(`${API_URL}/users/password`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    return handleResponse(response);
+  },
+
+  // Eliminar cuenta
+  deleteAccount: async (confirmationPhrase) => {
+    const response = await fetch(`${API_URL}/users/account`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ confirmationPhrase }),
+    });
+    return handleResponse(response);
+  },
+};

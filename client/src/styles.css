@@ -7094,3 +7094,180 @@ body {
 .toggle-switch.toggle-on .toggle-switch-thumb {
   transform: translateX(18px);
 }
+
+/* Settings Page */
+.settings-page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.settings-page-header {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.settings-page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.settings-page-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.settings-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.settings-section {
+  margin-bottom: 40px;
+}
+
+.settings-section:last-child {
+  margin-bottom: 0;
+}
+
+.settings-section-header {
+  margin-bottom: 20px;
+}
+
+.settings-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+}
+
+.settings-section-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.integrations-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.connected-accounts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .connected-accounts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .integrations-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .settings-page-header {
+    padding: 24px 24px;
+  }
+
+  .settings-page-title {
+    font-size: 28px;
+  }
+
+  .settings-container {
+    padding: 32px 24px;
+  }
+
+  .settings-section {
+    margin-bottom: 48px;
+  }
+
+  .settings-section-header {
+    margin-bottom: 24px;
+  }
+
+  .settings-section-title {
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .integrations-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .connected-accounts-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .settings-page-header {
+    padding: 32px;
+  }
+
+  .settings-page-title {
+    font-size: 32px;
+    margin-bottom: 6px;
+  }
+
+  .settings-page-description {
+    font-size: 15px;
+  }
+
+  .settings-container {
+    padding: 40px 32px;
+  }
+}
+
+.integration-card {
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.integration-card:hover:not(.opacity-60) {
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+  border-color: var(--indigo);
+}
+
+.dark .integration-card:hover:not(.opacity-60) {
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+}
+
+.integration-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+/* Connected Accounts */
+.connected-account-card {
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  transition: all 0.2s ease;
+}
+
+.connected-account-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: var(--border-color);
+}
+
+.dark .connected-account-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}

@@ -1,6 +1,7 @@
 import { Settings, LogOut, Moon, Sun, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/components/theme-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -26,6 +27,7 @@ export const UserMenu = ({ darkMode, onToggleDarkMode }) => {
   const { setTheme, theme } = useTheme();
   const { t, i18n } = useTranslation();
   const { user, profile, isInitialized, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -80,15 +82,11 @@ export const UserMenu = ({ darkMode, onToggleDarkMode }) => {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="dropdown-width-lg" align="center">
-          <DropdownMenuLabel>{t("userMenu.myAccount")}</DropdownMenuLabel>
           <DropdownMenuGroup>
-            <DropdownMenuItem disabled>
-              {t("userMenu.myProfile")}
-              <DropdownMenuShortcut>
-                {t("userMenu.notAvailable")}
-              </DropdownMenuShortcut>
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
+              <Settings className="mr-2 h-4 w-4" />
+              {t("userMenu.settings")}
             </DropdownMenuItem>
-            <DropdownMenuItem>{t("userMenu.settings")}</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
