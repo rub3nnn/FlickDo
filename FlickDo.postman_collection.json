@@ -1,0 +1,1017 @@
+{
+  "info": {
+    "_postman_id": "58fec29b-fe4f-4774-aa02-f6e7d2ead6c3",
+    "name": "FlickDo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49010539"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test.user@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Ana\",\n  \"lastName\": \"García\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.token) {",
+                  "    pm.collectionVariables.set(\"auth_token\", response.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test.user@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Lists",
+      "item": [
+        {
+          "name": "Get All Lists",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists",
+              "host": ["{{base_url}}"],
+              "path": ["lists"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get List By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.id) {",
+                  "    pm.collectionVariables.set(\"list_id\", response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyecto Final\",\n  \"description\": \"Tareas del proyecto final de la universidad\",\n  \"color\": \"#3b82f6\",\n  \"icon\": \"📚\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists",
+              "host": ["{{base_url}}"],
+              "path": ["lists"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update List",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyecto Final - Actualizado\",\n  \"description\": \"Tareas del proyecto final (versión actualizada)\",\n  \"color\": \"#10b981\",\n  \"icon\": \"✅\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete List",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Leave List",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/leave",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "leave"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get List Members",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "members"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add List Member",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"role\": \"editor\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "members"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update List Member",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"viewer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/members/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "members", "{{user_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove List Member",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/members/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "members", "{{user_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Get All User Tasks",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["tasks"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tasks By List",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "tasks"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Task By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.id) {",
+                  "    pm.collectionVariables.set(\"task_id\", response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Investigación de mercado\",\n  \"description\": \"Realizar un análisis completo del mercado objetivo\",\n  \"status\": \"todo\",\n  \"priority\": \"high\",\n  \"dueDate\": \"2025-12-15T23:59:59Z\",\n  \"estimatedTime\": 240\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "tasks"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Investigación de mercado - Completada\",\n  \"status\": \"done\",\n  \"priority\": \"medium\",\n  \"completedAt\": \"2025-12-10T15:30:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subtasks",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}/subtasks",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}", "subtasks"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tags",
+      "item": [
+        {
+          "name": "Get All Tags",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/tags",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "tags"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tag By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/tags/{{tag_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "tags", "{{tag_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tag",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.data && response.data.id) {",
+                  "    pm.collectionVariables.set(\"tag_id\", response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Urgente\",\n  \"color\": \"#ef4444\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/tags",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "tags"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Tag",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Muy Urgente\",\n  \"color\": \"#dc2626\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/tags/{{tag_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "tags", "{{tag_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Tag",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/tags/{{tag_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "tags", "{{tag_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tasks By Tag",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/{{list_id}}/tags/{{tag_id}}/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "{{list_id}}", "tags", "{{tag_id}}", "tasks"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Classroom Integration",
+      "item": [
+        {
+          "name": "Get Classroom Integration",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}/classroom",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}", "classroom"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create/Update Classroom Integration",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"123456\",\n  \"courseName\": \"Ingeniería de Software\",\n  \"courseWorkId\": \"789012\",\n  \"courseWorkTitle\": \"Proyecto Final\",\n  \"courseWorkType\": \"ASSIGNMENT\",\n  \"maxPoints\": 100,\n  \"submissionState\": \"NEW\",\n  \"autoSync\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}/classroom",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}", "classroom"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Classroom Integration",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}/classroom",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}", "classroom"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Last Synced",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}/classroom/sync",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}", "classroom", "sync"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/profiles/me",
+              "host": ["{{base_url}}"],
+              "path": ["profiles", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ana María\",\n  \"lastName\": \"García López\",\n  \"avatarUrl\": \"https://api.dicebear.com/7.x/avataaars/svg?seed=Ana\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/profiles/me",
+              "host": ["{{base_url}}"],
+              "path": ["profiles", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Profiles",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/profiles/search?query=ana",
+              "host": ["{{base_url}}"],
+              "path": ["profiles", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "ana"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/profiles/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["profiles", "{{user_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "list_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "task_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tag_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
