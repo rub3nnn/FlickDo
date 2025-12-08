@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![FlickDo Logo](/docs/imgs/logo.png)
+<img src="/docs/imgs/logo.png" alt="FlickDo Logo" width="150"/>
 
 **A modern basic task management application**
 
