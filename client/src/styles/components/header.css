@@ -1,0 +1,146 @@
+/* ========================================
+   HEADER STYLES
+   ======================================== */
+
+.header {
+  padding: 16px 16px 12px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.dark .header {
+  background: rgba(2, 6, 23, 0.8);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-button {
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: var(--text-primary);
+}
+
+.menu-button:hover {
+  background: var(--bg-tertiary);
+}
+
+@media (min-width: 1024px) {
+  .header {
+    padding: 16px 24px 12px;
+  }
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: opacity 0.3s ease;
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Search */
+.search-container {
+  position: relative;
+}
+
+.search-button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 256px;
+  height: 36px;
+  padding-left: 36px;
+  padding-right: 16px;
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+  font-size: 14px;
+  border: none;
+  outline: none;
+  transition: all 0.2s;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+}
+
+.search-button:hover .search-input {
+  background: var(--bg-secondary);
+}
+
+.search-button:focus .search-input {
+  outline: 2px solid var(--indigo);
+  box-shadow: 0 0 0 2px var(--indigo);
+}
+
+/* Icon Buttons */
+.icon-button {
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: var(--text-secondary);
+}
+
+.icon-button:hover {
+  background: var(--bg-tertiary);
+}
+
+.notification-button {
+  position: relative;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+}
