@@ -394,5 +394,91 @@
         "confirm": "Disconnect"
       }
     }
+  },
+  "landing": {
+    "header": {
+      "login": "Sign In"
+    },
+    "hero": {
+      "title": "Organize your life",
+      "titleGradient": " effortlessly",
+      "description": "FlickDo is an open-source application to manage your tasks and collaborate with your team. Simple, powerful, and completely free.",
+      "startFree": "Start for free",
+      "viewGithub": "View on GitHub",
+      "demoTitle": "My Tasks"
+    },
+    "demoTasks": [
+      "Design user interface",
+      "Implement authentication",
+      "Configure database",
+      "Create REST API",
+      "Write documentation",
+      "Perform testing",
+      "Deploy application"
+    ],
+    "complete": {
+      "title": "Well done!",
+      "message": "All tasks completed"
+    },
+    "features": {
+      "title": "Everything you need to be productive",
+      "taskManagement": {
+        "title": "Task Management",
+        "description": "Create, organize, and complete your tasks with an intuitive interface. Add dates, priorities, and tags to keep everything in order."
+      },
+      "collaboration": {
+        "title": "Team Collaboration",
+        "description": "Share lists, assign tasks to members, and manage permissions. Perfect for team projects."
+      },
+      "multipleLists": {
+        "title": "Multiple Lists",
+        "description": "Organize your work, studies, and personal life in separate lists. Navigate easily between all your lists."
+      },
+      "tags": {
+        "title": "Custom Tags",
+        "description": "Organize your tasks with color tags and find what you need instantly with smart filters."
+      },
+      "statistics": {
+        "title": "Statistics",
+        "description": "Visualize your productivity with detailed graphs and statistics of your daily and weekly progress."
+      },
+      "openSource": {
+        "title": "Open Source",
+        "description": "Transparent and secure. Review the code, contribute to the project, or customize the application to your needs."
+      },
+      "navigation": {
+        "title": "Quick Navigation",
+        "description": "Access any task or list instantly with keyboard shortcuts and a powerful global search."
+      },
+      "darkMode": {
+        "title": "Dark Mode",
+        "description": "Work comfortably at any time with the integrated dark mode that takes care of your eyes."
+      },
+      "integrations": {
+        "title": "Upcoming Integrations",
+        "description": "Soon we will integrate GitHub, Google Classroom, and Google Tasks to centralize all your tasks."
+      }
+    },
+    "opensource": {
+      "badge": "Open Source",
+      "title": "Open source and free project",
+      "description": "FlickDo is an open-source and completely free project. Developed by",
+      "description2": ", you can contribute, report bugs, or simply explore how everything works inside.",
+      "stats": {
+        "free": "Free",
+        "openSource": "Open Source",
+        "tasks": "Tasks"
+      },
+      "viewRepo": "View Repository",
+      "portfolio": "Creator's Portfolio"
+    },
+    "cta": {
+      "title": "Ready to be more productive?",
+      "description": "Join thousands of users who already organize their lives with FlickDo",
+      "button": "Start now"
+    },
+    "footer": {
+      "copyright": "Open source project created by"
+    }
   }
 }

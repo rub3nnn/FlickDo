@@ -2,6 +2,7 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "./Home";
 import Login from "./Login";
+import LandingPage from "./LandingPage";
 import AuthCallback from "./AuthCallback";
 import AllTasks from "./AllTasks";
 import ListPage from "./ListPage";
@@ -23,7 +24,7 @@ function App() {
   return (
     <>
       <GlobalCommand />
-      {!shouldRedirect && shouldShowSidebar ? (
+      {user && shouldShowSidebar ? (
         <TasksProvider>
           <SidebarProvider>
             <Sidebar />
@@ -40,9 +41,10 @@ function App() {
         </TasksProvider>
       ) : (
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       )}
     </>
