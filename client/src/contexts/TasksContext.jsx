@@ -282,28 +282,116 @@ export function TasksProvider({ children }) {
 
     let previousLists = null;
 
+    console.log("🏷️ Creating tag - Temp tag:", tempTag);
+
     // Actualizar inmediatamente la lista con el nuevo tag
+    setLists((prev) => {
+      previousLists = prev;
+      const updated = prev.map((list) =>
+        list.id === listId
+          ? { ...list, tags: [...(list.tags || []), tempTag] }
+          : list
+      );
+      console.log(
+        "🏷️ Lists updated with temp tag:",
+        updated.find((l) => l.id === listId)?.tags
+      );
+      return updated;
+    });
+
+    // En paralelo, hacer la petición al servidor
+    try {
+      const response = await tagsApi.createTag(listId, name, color);
+      if (response.success) {
+        const realTag = response.data;
+
+        console.log("🏷️ Server responded with real tag:", realTag);
+
+        // Reemplazar el tag temporal con el real en tags Y en las tareas
+        setLists((prev) => {
+          const updated = prev.map((list) =>
+            list.id === listId
+              ? {
+                  ...list,
+                  tags: (list.tags || []).map((tag) =>
+                    tag.id === tempId ? realTag : tag
+                  ),
+                  tasks: (list.tasks || []).map((task) => ({
+                    ...task,
+                    tags: (task.tags || []).map((tag) =>
+                      tag.id === tempId ? realTag : tag
+                    ),
+                  })),
+                }
+              : list
+          );
+          console.log(
+            "🏷️ Lists updated with real tag:",
+            updated.find((l) => l.id === listId)?.tags
+          );
+          return updated;
+        });
+
+        // Devolver el tag temporal primero para que esté disponible inmediatamente
+        return { success: true, data: tempTag, realTag, tempId };
+      } else {
+        if (previousLists) setLists(previousLists);
+        return { success: false, error: response.message };
+      }
+    } catch (err) {
+      console.error("Error creando tag:", err);
+      if (previousLists) setLists(previousLists);
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  // Actualizar tag con OPTIMISTIC UPDATE
+  const updateTag = useCallback(async (listId, tagId, data) => {
+    if (!listId) {
+      return { success: false, error: "No se ha especificado una lista" };
+    }
+
+    let previousLists = null;
+
+    // Actualizar inmediatamente (optimistic update)
     setLists((prev) => {
       previousLists = prev;
       return prev.map((list) =>
         list.id === listId
-          ? { ...list, tags: [...(list.tags || []), tempTag] }
+          ? {
+              ...list,
+              tags: (list.tags || []).map((tag) =>
+                tag.id === tagId ? { ...tag, ...data } : tag
+              ),
+              tasks: (list.tasks || []).map((task) => ({
+                ...task,
+                tags: (task.tags || []).map((tag) =>
+                  tag.id === tagId ? { ...tag, ...data } : tag
+                ),
+              })),
+            }
           : list
       );
     });
 
     try {
-      const response = await tagsApi.createTag(listId, name, color);
+      const response = await tagsApi.updateTag(listId, tagId, data);
       if (response.success) {
-        // Reemplazar el tag temporal con el real
+        // Actualizar con los datos reales del servidor
         setLists((prev) =>
           prev.map((list) =>
             list.id === listId
               ? {
                   ...list,
                   tags: (list.tags || []).map((tag) =>
-                    tag.id === tempId ? response.data : tag
+                    tag.id === tagId ? response.data : tag
                   ),
+                  tasks: (list.tasks || []).map((task) => ({
+                    ...task,
+                    tags: (task.tags || []).map((tag) =>
+                      tag.id === tagId ? response.data : tag
+                    ),
+                  })),
                 }
               : list
           )
@@ -314,7 +402,47 @@ export function TasksProvider({ children }) {
         return { success: false, error: response.message };
       }
     } catch (err) {
-      console.error("Error creando tag:", err);
+      console.error("Error actualizando tag:", err);
+      if (previousLists) setLists(previousLists);
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  // Eliminar tag con OPTIMISTIC UPDATE
+  const deleteTag = useCallback(async (listId, tagId) => {
+    if (!listId) {
+      return { success: false, error: "No se ha especificado una lista" };
+    }
+
+    let previousLists = null;
+
+    // Eliminar inmediatamente (optimistic update)
+    setLists((prev) => {
+      previousLists = prev;
+      return prev.map((list) =>
+        list.id === listId
+          ? {
+              ...list,
+              tags: (list.tags || []).filter((tag) => tag.id !== tagId),
+              tasks: (list.tasks || []).map((task) => ({
+                ...task,
+                tags: (task.tags || []).filter((tag) => tag.id !== tagId),
+              })),
+            }
+          : list
+      );
+    });
+
+    try {
+      const response = await tagsApi.deleteTag(listId, tagId);
+      if (response.success) {
+        return { success: true };
+      } else {
+        if (previousLists) setLists(previousLists);
+        return { success: false, error: response.message };
+      }
+    } catch (err) {
+      console.error("Error eliminando tag:", err);
       if (previousLists) setLists(previousLists);
       return { success: false, error: err.message };
     }
@@ -522,6 +650,8 @@ export function TasksProvider({ children }) {
     deleteTask,
     toggleTaskCompleted,
     createTag,
+    updateTag,
+    deleteTag,
     createList,
     updateList,
     deleteList,

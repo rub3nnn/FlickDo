@@ -9,7 +9,7 @@ const tagValidators = {
       .isLength({ max: 100 })
       .withMessage("El nombre no puede exceder 100 caracteres"),
     body("color")
-      .optional()
+      .optional({ checkFalsy: true })
       .matches(/^#[0-9A-Fa-f]{6}$/)
       .withMessage("El color debe estar en formato hexadecimal (#RRGGBB)"),
     param("listId").isInt({ min: 1 }).withMessage("ID de lista inválido"),
@@ -26,7 +26,7 @@ const tagValidators = {
       .isLength({ max: 100 })
       .withMessage("El nombre no puede exceder 100 caracteres"),
     body("color")
-      .optional()
+      .optional({ checkFalsy: true })
       .matches(/^#[0-9A-Fa-f]{6}$/)
       .withMessage("El color debe estar en formato hexadecimal (#RRGGBB)"),
   ],

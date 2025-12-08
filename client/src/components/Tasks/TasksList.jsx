@@ -16,6 +16,7 @@ export const TasksList = ({
   onFilterChange,
   onUpdateTask,
   onDeleteTask,
+  onCreateTag,
 }) => {
   const { t } = useTranslation();
   const [editingTaskId, setEditingTaskId] = useState(null);
@@ -53,6 +54,11 @@ export const TasksList = ({
 
   // Función para crear un tag y actualizar el map local
   const handleCreateTag = async (listId, name, color = "#3B82F6") => {
+    // Si se proporciona una función externa (desde el contexto), usarla
+    if (onCreateTag) {
+      return await onCreateTag(listId, name, color);
+    }
+
     try {
       const response = await tagsApi.createTag(listId, name, color);
       if (response.success) {

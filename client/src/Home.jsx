@@ -52,8 +52,16 @@ export default function Home() {
   };
 
   // Obtener todas las tareas del usuario desde el contexto global
-  const { tasks, lists, loading, error, updateTask, deleteTask, createList } =
-    useTasks();
+  const {
+    tasks,
+    lists,
+    loading,
+    error,
+    updateTask,
+    deleteTask,
+    createList,
+    createTag,
+  } = useTasks();
 
   useEffect(() => {
     if (darkMode) {
@@ -147,6 +155,7 @@ export default function Home() {
                     onFilterChange={setFilter}
                     onUpdateTask={updateTask}
                     onDeleteTask={deleteTask}
+                    onCreateTag={createTag}
                   />
 
                   <div className="sidebar-column">
