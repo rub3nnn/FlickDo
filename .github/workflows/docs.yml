@@ -5,8 +5,8 @@ on:
     branches:
       - main
       - docs/documentation
-      - "docs/workflow" # <--- 1. AGREGADO: Para que se active al hacer push aquí
-  workflow_dispatch:
+      - "docs/workflow" # <--- 1. Agregamos tu rama aquí
+  workflow_dispatch: # <--- 2. Mantenemos esto para poder ejecutarlo manualmente si quieres
 
 permissions:
   contents: read
@@ -37,7 +37,6 @@ jobs:
 
       - name: Build MkDocs site
         run: mkdocs build --strict
-        # Si esto falla, sabrás que tu documentación tiene errores antes de publicar
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -50,9 +49,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
-    # 2. AGREGADO: Condicional de seguridad
-    # Esto evita que se publique si no estás en la rama principal o docs/documentation
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/docs/documentation'
+    # ALERTA: No hemos puesto ningún 'if'.
+    # Esto significa que desplegará desde CUALQUIERA de las ramas listadas arriba.
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
