@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import "./GlobalCommand.css";
 import {
   CommandDialog,
   CommandEmpty,
@@ -119,22 +120,22 @@ export function GlobalCommand() {
       <CommandList>
         <CommandEmpty>
           {inputValue && showCreateList ? (
-            <div className="py-6 text-center">
-              <p className="text-sm text-muted-foreground mb-3">
+            <div className="gc-empty-container">
+              <p className="gc-empty-text">
                 {t("command.noResults", "No se encontraron resultados")}
               </p>
               <button
                 onClick={handleCreateList}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors"
+                className="gc-create-button"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="gc-icon" />
                 {t("command.createList", 'Crear lista "{name}"', {
                   name: inputValue,
                 })}
               </button>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="gc-no-results">
               {t("command.noResults", "No se encontraron resultados")}
             </p>
           )}
@@ -145,7 +146,7 @@ export function GlobalCommand() {
           <>
             <CommandGroup heading={t("command.actions", "Acciones")}>
               <CommandItem onSelect={handleCreateList}>
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="gc-icon" />
                 <span>
                   {t("command.createList", 'Crear lista "{name}"', {
                     name: inputValue,
@@ -168,7 +169,7 @@ export function GlobalCommand() {
                   onSelect={() => handleSelectList(list.id)}
                 >
                   <ListTodo
-                    className="mr-2 h-4 w-4"
+                    className="gc-icon"
                     style={{ color: list.color }}
                   />
                   <span>{list.title}</span>
@@ -195,35 +196,35 @@ export function GlobalCommand() {
                 value={task.title}
                 onSelect={() => handleSelectTask(task)}
               >
-                <CheckSquare className="mr-2 h-4 w-4" />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
+                <CheckSquare className="gc-icon" />
+                <div className="gc-task-container">
+                  <div className="gc-task-header">
                     <span
                       className={
                         task.is_completed
-                          ? "line-through text-muted-foreground"
+                          ? "gc-task-title-completed"
                           : ""
                       }
                     >
                       {task.title}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                  <div className="gc-task-metadata">
                     {task.list_name && (
-                      <span className="flex items-center gap-1">
-                        <ListTodo className="h-3 w-3" />
+                      <span className="gc-task-metadata-item">
+                        <ListTodo className="gc-icon-small" />
                         {task.list_name}
                       </span>
                     )}
                     {task.due_date && (
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
+                      <span className="gc-task-metadata-item">
+                        <Calendar className="gc-icon-small" />
                         {new Date(task.due_date).toLocaleDateString()}
                       </span>
                     )}
                     {task.tags && task.tags.length > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Tag className="h-3 w-3" />
+                      <span className="gc-task-metadata-item">
+                        <Tag className="gc-icon-small" />
                         {task.tags.length}
                       </span>
                     )}
