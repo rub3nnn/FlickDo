@@ -77,6 +77,8 @@ export const TaskCard = ({
   onDelete: externalOnDelete,
   availableTags: externalAvailableTags,
   onCreateTag: externalOnCreateTag,
+  onUpdateTag: externalOnUpdateTag,
+  onDeleteTag: externalOnDeleteTag,
   list: externalList,
   hideListBadge = false,
 }) => {
@@ -93,6 +95,8 @@ export const TaskCard = ({
     createTask,
     lists,
     createTag: contextCreateTag,
+    updateTag: contextUpdateTag,
+    deleteTag: contextDeleteTag,
   } = useTasksContext();
 
   // Tarea vacía para modo creación
@@ -495,12 +499,37 @@ export const TaskCard = ({
 
   const handleCreateTag = async (name, color) => {
     const taskListId = currentTask?.list_id || propListId;
+
     if (externalOnCreateTag) {
-      return await externalOnCreateTag(taskListId, name, color);
+      // externalOnCreateTag ya tiene acceso al listId en su scope (ej. ListPage)
+      return await externalOnCreateTag(name, color);
     } else if (contextCreateTag) {
+      // contextCreateTag sí necesita el listId como primer parámetro
       return await contextCreateTag(taskListId, name, color);
     }
     return { success: false, error: "No create tag function available" };
+  };
+
+  const handleUpdateTag = async (tagId, data) => {
+    const taskListId = currentTask?.list_id || propListId;
+
+    if (externalOnUpdateTag) {
+      return await externalOnUpdateTag(tagId, data);
+    } else if (contextUpdateTag) {
+      return await contextUpdateTag(taskListId, tagId, data);
+    }
+    return { success: false, error: "No update tag function available" };
+  };
+
+  const handleDeleteTag = async (tagId) => {
+    const taskListId = currentTask?.list_id || propListId;
+
+    if (externalOnDeleteTag) {
+      return await externalOnDeleteTag(tagId);
+    } else if (contextDeleteTag) {
+      return await contextDeleteTag(taskListId, tagId);
+    }
+    return { success: false, error: "No delete tag function available" };
   };
 
   // No renderizar si está oculta
@@ -595,6 +624,8 @@ export const TaskCard = ({
                   selectedTags={editedTask.tags}
                   onTagsChange={(newTags) => handleChange("tags", newTags)}
                   onCreateTag={handleCreateTag}
+                  onUpdateTag={handleUpdateTag}
+                  onDeleteTag={handleDeleteTag}
                 />
               </div>
             </div>

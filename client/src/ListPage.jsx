@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import { useTasks } from "./contexts/TasksContext";
 import { useAuth } from "./hooks/useAuth";
 import { toast } from "sonner";
-import { tagsApi } from "@/services/api";
 import {
   prepareTaskForBackend,
   prepareTaskForOptimisticUpdate,
@@ -101,6 +100,7 @@ export default function ListPage() {
     updateTask,
     deleteTask: contextDeleteTask,
     createTask,
+    createTag,
     updateList,
     deleteList,
     leaveList,
@@ -134,7 +134,9 @@ export default function ListPage() {
 
   // Tags disponibles para la lista
   const availableTags = useMemo(() => {
-    return list?.tags || [];
+    const tagsArray = list?.tags || [];
+    console.log("📋 ListPage: Available tags updated:", tagsArray);
+    return tagsArray;
   }, [list]);
 
   // Tareas de la lista
@@ -318,10 +320,9 @@ export default function ListPage() {
 
   const handleCreateTag = async (name, color = "#3B82F6") => {
     try {
-      const response = await tagsApi.createTag(listId, name, color);
-      if (response.success) {
-        return { success: true, data: response.data };
-      }
+      // Usar la función del contexto que ya tiene optimistic update
+      const result = await createTag(Number(listId), name, color);
+      return result;
     } catch (error) {
       console.error("Error creando tag:", error);
       return { success: false, error: error.message };

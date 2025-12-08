@@ -357,13 +357,15 @@ export const tagsApi = {
 
   // Crear etiqueta
   createTag: async (listId, name, color = "#3B82F6") => {
+    const payload = { name, color };
+
     const response = await fetch(`${API_URL}/lists/${listId}/tags`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getToken()}`,
       },
-      body: JSON.stringify({ name, color }),
+      body: JSON.stringify(payload),
     });
     return handleResponse(response);
   },

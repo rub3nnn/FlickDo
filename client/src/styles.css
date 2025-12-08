@@ -6747,6 +6747,47 @@ body {
   border-radius: 50%;
 }
 
+.tag-combobox-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  text-align: center;
+  gap: 8px;
+}
+
+.tag-combobox-empty-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--text-tertiary);
+  opacity: 0.5;
+  margin-bottom: 8px;
+}
+
+.tag-combobox-empty-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tag-combobox-empty-description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.tag-combobox-create-section {
+  margin-top: 4px;
+}
+
+.tag-combobox-create-trigger {
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+}
+
 /* DateTimePicker Styles */
 .datetime-picker-icon {
   width: 16px;
