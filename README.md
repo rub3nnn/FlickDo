@@ -16,6 +16,7 @@
 [Installation](#-installation) •
 [Usage](#-usage) •
 [API](#-api) •
+[Documentation](#-documentation) •
 [Contributing](#-contributing)
 
 </div>
@@ -286,6 +287,30 @@ The application supports multiple languages using i18next:
 - 🇬🇧 English
 
 Translations are located in `client/src/locales/`
+
+## 📚 Documentation
+
+Comprehensive documentation is available at [https://rub3nnn.github.io/FlickDo](https://rub3nnn.github.io/FlickDo)
+
+### Build Documentation Locally
+
+```bash
+# Install MkDocs and dependencies
+pip install mkdocs mkdocs-material pymdown-extensions mkdocs-minify-plugin
+
+# Serve documentation locally
+mkdocs serve
+```
+
+Visit `http://127.0.0.1:8000` to view the documentation.
+
+### Documentation Includes
+
+- **Getting Started** - Installation and quick start guides
+- **User Guide** - Comprehensive feature documentation
+- **API Reference** - Complete REST API documentation
+- **Development** - Architecture and contribution guidelines
+- **Deployment** - Production deployment guides
 
 ## 🤝 Contributing
 

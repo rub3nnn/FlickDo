@@ -1,0 +1,126 @@
+site_name: FlickDo Documentation
+site_description: Complete documentation for FlickDo - A modern task management application
+site_author: rub3nnn
+site_url: https://rub3nnn.github.io/FlickDo
+
+repo_name: rub3nnn/FlickDo
+repo_url: https://github.com/rub3nnn/FlickDo
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: en
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - admonition
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+plugins:
+  - search:
+      lang: en
+  - minify:
+      minify_html: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/rub3nnn/FlickDo
+      name: FlickDo on GitHub
+
+  version:
+    provider: mike
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Introduction: getting-started/introduction.md
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+  - User Guide:
+      - Tasks: user-guide/tasks.md
+      - Lists: user-guide/lists.md
+      - Tags: user-guide/tags.md
+      - Calendar: user-guide/calendar.md
+      - Google Classroom: user-guide/classroom.md
+      - Collaboration: user-guide/collaboration.md
+      - Statistics: user-guide/statistics.md
+  - API Reference:
+      - Overview: api/overview.md
+      - Authentication: api/authentication.md
+      - Tasks: api/tasks.md
+      - Lists: api/lists.md
+      - Tags: api/tags.md
+      - Users: api/users.md
+  - Development:
+      - Architecture: development/architecture.md
+      - Frontend: development/frontend.md
+      - Backend: development/backend.md
+      - Database: development/database.md
+      - Contributing: development/contributing.md
+  - Deployment:
+      - Environment Setup: deployment/environment.md
+      - Frontend Deploy: deployment/frontend.md
+      - Backend Deploy: deployment/backend.md
+      - Database Setup: deployment/database.md
