@@ -10,8 +10,6 @@ Get up and running with FlickDo in just a few minutes! This guide assumes you've
    - Sign up with email and password
    - Sign in with Google
 
-![Login Screen](../imgs/login-screenshot.png)
-
 ## Create Your First Task
 
 ### Method 1: Quick Add (Recommended)

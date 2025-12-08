@@ -1,0 +1,57 @@
+name: Deploy MkDocs to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - docs/documentation
+      - "docs/workflow" # <--- 1. Agregamos tu rama aquí
+  workflow_dispatch: # <--- 2. Mantenemos esto para poder ejecutarlo manualmente si quieres
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install mkdocs mkdocs-material pymdown-extensions mkdocs-minify-plugin
+
+      - name: Build MkDocs site
+        run: mkdocs build --strict
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    # ALERTA: No hemos puesto ningún 'if'.
+    # Esto significa que desplegará desde CUALQUIERA de las ramas listadas arriba.
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
