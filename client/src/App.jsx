@@ -5,6 +5,7 @@ import Login from "./Login";
 import AuthCallback from "./AuthCallback";
 import AllTasks from "./AllTasks";
 import ListPage from "./ListPage";
+import Settings from "./Settings";
 import { Sidebar } from "@/components/Sidebar/Sidebar";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,6 +31,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/all-tasks" element={<AllTasks />} />
               <Route path="/list/:listId" element={<ListPage />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/login" element={<Navigate to="/" replace />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -338,5 +338,61 @@
     "actions": "Acciones",
     "lists": "Listas",
     "tasks": "Tareas"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "description": "Configura tu cuenta y preferencias",
+    "connectedAccounts": {
+      "title": "Cuentas Conectadas",
+      "description": "Gestiona las cuentas de terceros vinculadas a FlickDo",
+      "connectedOn": "Conectada el",
+      "activeIntegrations": "Integraciones activas",
+      "noIntegrations": "Sin integraciones activas",
+      "empty": "No hay cuentas conectadas",
+      "emptyHint": "Conecta una integración para vincular tu cuenta",
+      "disconnectDialog": {
+        "title": "¿Desconectar cuenta?",
+        "description": "Al desconectar la cuenta {{email}}, se desactivarán todas las integraciones asociadas y perderás el acceso a sus funciones.",
+        "cancel": "Cancelar",
+        "confirm": "Desconectar cuenta"
+      }
+    },
+    "integrations": {
+      "title": "Integraciones",
+      "description": "Conecta FlickDo con tus herramientas favoritas",
+      "available": "Disponible",
+      "comingSoon": "Próximamente",
+      "connect": "Conectar",
+      "disconnect": "Desconectar",
+      "configure": "Configurar",
+      "notAvailable": "No disponible",
+      "googleClassroom": {
+        "name": "Google Classroom",
+        "description": "Sincroniza tus tareas y asignaciones de Google Classroom automáticamente"
+      },
+      "googleTasks": {
+        "name": "Google Tasks",
+        "description": "Sincroniza tus tareas con Google Tasks en ambas direcciones"
+      },
+      "github": {
+        "name": "GitHub",
+        "description": "Convierte issues de GitHub en tareas y mantén todo sincronizado"
+      },
+      "connectDialog": {
+        "title": "Conectar {{name}}",
+        "description": "Para usar esta integración, necesitamos permiso para acceder a tu cuenta.",
+        "permissions": "Esta integración necesita los siguientes permisos:",
+        "redirectInfo": "Serás redirigido a la página de autorización. Una vez que concedas los permisos, volverás automáticamente a FlickDo.",
+        "cancel": "Cancelar",
+        "continue": "Continuar",
+        "connecting": "Conectando..."
+      },
+      "disconnectDialog": {
+        "title": "¿Desconectar {{name}}?",
+        "description": "Al desconectar esta integración, perderás el acceso a todas las funciones relacionadas. Los datos ya sincronizados se mantendrán en FlickDo.",
+        "cancel": "Cancelar",
+        "confirm": "Desconectar"
+      }
+    }
   }
 }

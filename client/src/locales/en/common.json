@@ -329,7 +329,7 @@
   },
   "command": {
     "title": "Quick search",
-    "description": "Search for lists and tasks",
+    "description": "Search lists and tasks",
     "searchLists": "Search lists...",
     "searchTasks": "Search tasks...",
     "searchAll": "Search lists and tasks...",
@@ -338,5 +338,61 @@
     "actions": "Actions",
     "lists": "Lists",
     "tasks": "Tasks"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Configure your account and preferences",
+    "connectedAccounts": {
+      "title": "Connected Accounts",
+      "description": "Manage third-party accounts linked to FlickDo",
+      "connectedOn": "Connected on",
+      "activeIntegrations": "Active integrations",
+      "noIntegrations": "No active integrations",
+      "empty": "No connected accounts",
+      "emptyHint": "Connect an integration to link your account",
+      "disconnectDialog": {
+        "title": "Disconnect account?",
+        "description": "Disconnecting the account {{email}} will disable all associated integrations and you will lose access to their features.",
+        "cancel": "Cancel",
+        "confirm": "Disconnect account"
+      }
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect FlickDo with your favorite tools",
+      "available": "Available",
+      "comingSoon": "Coming Soon",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "configure": "Configure",
+      "notAvailable": "Not available",
+      "googleClassroom": {
+        "name": "Google Classroom",
+        "description": "Sync your Google Classroom tasks and assignments automatically"
+      },
+      "googleTasks": {
+        "name": "Google Tasks",
+        "description": "Sync your tasks with Google Tasks in both directions"
+      },
+      "github": {
+        "name": "GitHub",
+        "description": "Turn GitHub issues into tasks and keep everything in sync"
+      },
+      "connectDialog": {
+        "title": "Connect {{name}}",
+        "description": "To use this integration, we need permission to access your account.",
+        "permissions": "This integration needs the following permissions:",
+        "redirectInfo": "You will be redirected to the authorization page. Once you grant permissions, you'll automatically return to FlickDo.",
+        "cancel": "Cancel",
+        "continue": "Continue",
+        "connecting": "Connecting..."
+      },
+      "disconnectDialog": {
+        "title": "Disconnect {{name}}?",
+        "description": "By disconnecting this integration, you will lose access to all related features. Data already synced will remain in FlickDo.",
+        "cancel": "Cancel",
+        "confirm": "Disconnect"
+      }
+    }
   }
 }
