@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 // PUT /api/users/profile
 const updateProfile = async (req, res, next) => {
   try {
-    const { firstName, lastName } = req.body;
+    const { firstName, lastName, preferences } = req.body;
     const userId = req.user.id;
 
     // Actualizar en la tabla profiles
@@ -14,6 +14,7 @@ const updateProfile = async (req, res, next) => {
       .update({
         first_name: firstName,
         last_name: lastName,
+        preferences: preferences,
         updated_at: new Date().toISOString(),
       })
       .eq("id", userId)
@@ -49,7 +50,8 @@ const changePassword = async (req, res, next) => {
     const userId = req.user.id;
 
     // Obtener el usuario de Supabase Auth para verificar la contraseña actual
-    const { data: authUser, error: getUserError } = await supabase.auth.admin.getUserById(userId);
+    const { data: authUser, error: getUserError } =
+      await supabase.auth.admin.getUserById(userId);
 
     if (getUserError || !authUser) {
       return res.status(404).json({
@@ -132,7 +134,9 @@ const deleteAccount = async (req, res, next) => {
     }
 
     // Eliminar usuario de Supabase Auth
-    const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(userId);
+    const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(
+      userId
+    );
 
     if (deleteAuthError) {
       console.error("Error deleting auth user:", deleteAuthError);

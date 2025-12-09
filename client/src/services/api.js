@@ -411,14 +411,18 @@ export const tagsApi = {
 // API de usuarios
 export const usersApi = {
   // Actualizar perfil
-  updateProfile: async (firstName, lastName) => {
+  updateProfile: async (firstName, lastName, preferences = null) => {
+    const data = { firstName, lastName };
+    if (preferences) {
+      data.preferences = preferences;
+    }
     const response = await fetch(`${API_URL}/users/profile`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getToken()}`,
       },
-      body: JSON.stringify({ firstName, lastName }),
+      body: JSON.stringify(data),
     });
     return handleResponse(response);
   },
