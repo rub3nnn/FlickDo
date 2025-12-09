@@ -56,6 +56,7 @@ CREATE TABLE public.profiles (
   last_name text,
   avatar_url text,
   updated_at timestamp with time zone DEFAULT now(),
+  preferences jsonb,
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );

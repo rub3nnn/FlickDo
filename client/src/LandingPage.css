@@ -193,6 +193,14 @@
 }
 
 .landing-page .hero-text {
+  order: 2;
+}
+
+.landing-page .hero-demo {
+  order: 1;
+}
+
+.landing-page .hero-text {
   animation: fadeInUp 0.8s ease-out;
 }
 
@@ -235,6 +243,7 @@
 
 .landing-page .hero-buttons {
   display: flex;
+  flex-direction: column-reverse;
   gap: 16px;
 }
 
