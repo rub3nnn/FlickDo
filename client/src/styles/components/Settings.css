@@ -722,6 +722,12 @@
   gap: 0.75rem;
 }
 
+@media (max-width: 480px) {
+  .not-mobile {
+    display: none;
+  }
+}
+
 .personalization-label {
   display: flex;
   align-items: center;

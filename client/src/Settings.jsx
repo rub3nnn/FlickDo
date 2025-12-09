@@ -977,7 +977,7 @@ export default function Settings() {
                     </Card>
 
                     {/* Notifications */}
-                    <Card>
+                    <Card className=" not-mobile">
                       <CardHeader className="profile-card-header">
                         <CardTitle className="profile-card-title">
                           <Bell className="icon-sm" />
