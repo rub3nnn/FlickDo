@@ -67,6 +67,7 @@ import {
   Monitor,
   Languages,
 } from "lucide-react";
+import { set } from "date-fns";
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
@@ -93,6 +94,12 @@ export default function Settings() {
     email: "",
   });
 
+  const [notificationSettings, setNotificationSettings] = useState({
+    tasks: false,
+    collaboration: false,
+    dailySummary: false,
+  });
+
   // Load user data from context
   useEffect(() => {
     if (profile && user) {
@@ -101,14 +108,15 @@ export default function Settings() {
         lastName: profile.last_name || "",
         email: user.email || "",
       });
+      setNotificationSettings(
+        profile.preferences || {
+          tasks: false,
+          collaboration: false,
+          dailySummary: false,
+        }
+      );
     }
   }, [profile, user]);
-
-  const [notificationSettings, setNotificationSettings] = useState({
-    tasks: true,
-    collaboration: true,
-    dailySummary: false,
-  });
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -298,7 +306,8 @@ export default function Settings() {
     try {
       const response = await usersApi.updateProfile(
         accountData.firstName,
-        accountData.lastName
+        accountData.lastName,
+        notificationSettings
       );
 
       if (response.success) {
@@ -306,6 +315,25 @@ export default function Settings() {
       }
     } catch (error) {
       toast.error(error.message || "Error al actualizar el perfil");
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  const handleChangePreferences = async () => {
+    setIsSavingProfile(true);
+    try {
+      const response = await usersApi.updateProfile(
+        accountData.firstName,
+        accountData.lastName,
+        notificationSettings
+      );
+
+      if (response.success) {
+        toast.success("Preferencias actualizadas correctamente");
+      }
+    } catch (error) {
+      toast.error(error.message || "Error al actualizar las preferencias");
     } finally {
       setIsSavingProfile(false);
     }
@@ -411,7 +439,9 @@ export default function Settings() {
                 </button>
                 <button
                   className="settings-nav-item"
-                  data-state={activeTab === "integrations" ? "active" : "inactive"}
+                  data-state={
+                    activeTab === "integrations" ? "active" : "inactive"
+                  }
                   onClick={() => setActiveTab("integrations")}
                 >
                   <Unlink className="settings-nav-icon" />
@@ -419,7 +449,9 @@ export default function Settings() {
                 </button>
                 <button
                   className="settings-nav-item"
-                  data-state={activeTab === "preferences" ? "active" : "inactive"}
+                  data-state={
+                    activeTab === "preferences" ? "active" : "inactive"
+                  }
                   onClick={() => setActiveTab("preferences")}
                 >
                   <Palette className="settings-nav-icon" />
@@ -439,7 +471,8 @@ export default function Settings() {
                   <div className="settings-section-header">
                     <h2 className="settings-section-title">Cuenta</h2>
                     <p className="settings-section-description">
-                      Administra tu información personal, seguridad y configuración de cuenta
+                      Administra tu información personal, seguridad y
+                      configuración de cuenta
                     </p>
                   </div>
 
@@ -474,7 +507,9 @@ export default function Settings() {
                             <p className="profile-avatar-name">
                               {accountData.firstName} {accountData.lastName}
                             </p>
-                            <p className="profile-avatar-email">{accountData.email}</p>
+                            <p className="profile-avatar-email">
+                              {accountData.email}
+                            </p>
                           </div>
                           <Button
                             variant="outline"
@@ -490,7 +525,10 @@ export default function Settings() {
                         <div className="profile-form-section">
                           <div className="profile-form-row">
                             <div className="profile-form-group">
-                              <Label htmlFor="firstName" className="profile-label">
+                              <Label
+                                htmlFor="firstName"
+                                className="profile-label"
+                              >
                                 <User className="profile-label-icon" />
                                 Nombre
                               </Label>
@@ -508,7 +546,10 @@ export default function Settings() {
                               />
                             </div>
                             <div className="profile-form-group">
-                              <Label htmlFor="lastName" className="profile-label">
+                              <Label
+                                htmlFor="lastName"
+                                className="profile-label"
+                              >
                                 <User className="profile-label-icon" />
                                 Apellido
                               </Label>
@@ -552,7 +593,9 @@ export default function Settings() {
                             disabled={isSavingProfile}
                           >
                             <Save className="icon-sm" />
-                            {isSavingProfile ? "Guardando..." : "Guardar cambios"}
+                            {isSavingProfile
+                              ? "Guardando..."
+                              : "Guardar cambios"}
                           </Button>
                         </div>
                       </CardContent>
@@ -571,7 +614,10 @@ export default function Settings() {
                       </CardHeader>
                       <CardContent className="security-card-content">
                         <div className="security-form-group">
-                          <Label htmlFor="current-password" className="security-label">
+                          <Label
+                            htmlFor="current-password"
+                            className="security-label"
+                          >
                             <KeyRound className="profile-label-icon" />
                             Contraseña actual
                           </Label>
@@ -590,7 +636,10 @@ export default function Settings() {
                           />
                         </div>
                         <div className="security-form-group">
-                          <Label htmlFor="new-password" className="security-label">
+                          <Label
+                            htmlFor="new-password"
+                            className="security-label"
+                          >
                             Nueva contraseña
                           </Label>
                           <Input
@@ -608,7 +657,10 @@ export default function Settings() {
                           />
                         </div>
                         <div className="security-form-group">
-                          <Label htmlFor="confirm-password" className="security-label">
+                          <Label
+                            htmlFor="confirm-password"
+                            className="security-label"
+                          >
                             Confirmar contraseña
                           </Label>
                           <Input
@@ -634,7 +686,9 @@ export default function Settings() {
                             disabled={isChangingPassword}
                           >
                             <KeyRound className="icon-sm" />
-                            {isChangingPassword ? "Cambiando..." : "Cambiar contraseña"}
+                            {isChangingPassword
+                              ? "Cambiando..."
+                              : "Cambiar contraseña"}
                           </Button>
                         </div>
                       </CardContent>
@@ -648,7 +702,8 @@ export default function Settings() {
                           Zona de peligro
                         </CardTitle>
                         <CardDescription className="profile-card-description">
-                          Acciones irreversibles que afectarán permanentemente tu cuenta
+                          Acciones irreversibles que afectarán permanentemente
+                          tu cuenta
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -659,8 +714,9 @@ export default function Settings() {
                               Eliminar cuenta
                             </p>
                             <p className="danger-zone-info-description">
-                              Esta acción es permanente y no se puede deshacer. Se
-                              eliminarán todos tus datos, tareas y configuraciones.
+                              Esta acción es permanente y no se puede deshacer.
+                              Se eliminarán todos tus datos, tareas y
+                              configuraciones.
                             </p>
                           </div>
                           <Button
@@ -681,12 +737,15 @@ export default function Settings() {
                 {/* Integrations Section */}
                 <div
                   className="settings-section"
-                  data-state={activeTab === "integrations" ? "active" : "inactive"}
+                  data-state={
+                    activeTab === "integrations" ? "active" : "inactive"
+                  }
                 >
                   <div className="settings-section-header">
                     <h2 className="settings-section-title">Integraciones</h2>
                     <p className="settings-section-description">
-                      Conecta tu cuenta con servicios externos para sincronizar tareas y datos
+                      Conecta tu cuenta con servicios externos para sincronizar
+                      tareas y datos
                     </p>
                   </div>
 
@@ -705,7 +764,8 @@ export default function Settings() {
                           </Badge>
                         </CardTitle>
                         <CardDescription className="profile-card-description">
-                          Pronto podrás conectar múltiples cuentas de Google, GitHub y más
+                          Pronto podrás conectar múltiples cuentas de Google,
+                          GitHub y más
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -773,7 +833,9 @@ export default function Settings() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleDisconnect(integration)}
+                                    onClick={() =>
+                                      handleDisconnect(integration)
+                                    }
                                     className="integration-btn"
                                   >
                                     <Unlink className="icon-sm" />
@@ -800,12 +862,18 @@ export default function Settings() {
                 {/* Preferences Section */}
                 <div
                   className="settings-section"
-                  data-state={activeTab === "preferences" ? "active" : "inactive"}
+                  style={{
+                    width: "100%",
+                  }}
+                  data-state={
+                    activeTab === "preferences" ? "active" : "inactive"
+                  }
                 >
                   <div className="settings-section-header">
                     <h2 className="settings-section-title">Preferencias</h2>
                     <p className="settings-section-description">
-                      Personaliza la apariencia y el comportamiento de la aplicación
+                      Personaliza la apariencia y el comportamiento de la
+                      aplicación
                     </p>
                   </div>
 
@@ -824,7 +892,10 @@ export default function Settings() {
                       <CardContent className="personalization-content">
                         {/* Language Selector */}
                         <div className="personalization-section">
-                          <Label htmlFor="language" className="personalization-label">
+                          <Label
+                            htmlFor="language"
+                            className="personalization-label"
+                          >
                             <Languages className="icon-sm" />
                             Idioma
                           </Label>
@@ -834,7 +905,10 @@ export default function Settings() {
                               i18n.changeLanguage(value);
                             }}
                           >
-                            <SelectTrigger id="language" className="language-select">
+                            <SelectTrigger
+                              id="language"
+                              className="language-select"
+                            >
                               <SelectValue placeholder="Selecciona un idioma" />
                             </SelectTrigger>
                             <SelectContent>
@@ -867,7 +941,9 @@ export default function Settings() {
                           </Label>
                           <div className="theme-selector">
                             <Button
-                              variant={theme === "light" ? "default" : "outline"}
+                              variant={
+                                theme === "light" ? "default" : "outline"
+                              }
                               onClick={() => setTheme("light")}
                               className="theme-btn"
                             >
@@ -883,7 +959,9 @@ export default function Settings() {
                               <span className="theme-label">Oscuro</span>
                             </Button>
                             <Button
-                              variant={theme === "system" ? "default" : "outline"}
+                              variant={
+                                theme === "system" ? "default" : "outline"
+                              }
                               onClick={() => setTheme("system")}
                               className="theme-btn"
                             >
@@ -899,7 +977,7 @@ export default function Settings() {
                     </Card>
 
                     {/* Notifications */}
-                    <Card>
+                    <Card className=" not-mobile">
                       <CardHeader className="profile-card-header">
                         <CardTitle className="profile-card-title">
                           <Bell className="icon-sm" />
@@ -927,12 +1005,12 @@ export default function Settings() {
                             <Switch
                               id="notifications-tasks"
                               checked={notificationSettings.tasks}
-                              onCheckedChange={(checked) =>
+                              onCheckedChange={(checked) => {
                                 setNotificationSettings({
                                   ...notificationSettings,
                                   tasks: checked,
-                                })
-                              }
+                                });
+                              }}
                             />
                           </div>
 
@@ -952,12 +1030,12 @@ export default function Settings() {
                             <Switch
                               id="notifications-collaboration"
                               checked={notificationSettings.collaboration}
-                              onCheckedChange={(checked) =>
+                              onCheckedChange={(checked) => {
                                 setNotificationSettings({
                                   ...notificationSettings,
                                   collaboration: checked,
-                                })
-                              }
+                                });
+                              }}
                             />
                           </div>
 
@@ -977,15 +1055,25 @@ export default function Settings() {
                             <Switch
                               id="notifications-summary"
                               checked={notificationSettings.dailySummary}
-                              onCheckedChange={(checked) =>
+                              onCheckedChange={(checked) => {
                                 setNotificationSettings({
                                   ...notificationSettings,
                                   dailySummary: checked,
-                                })
-                              }
+                                });
+                              }}
                             />
                           </div>
                         </div>
+                        <Button
+                          onClick={handleSaveProfile}
+                          className="profile-save-btn"
+                          style={{ marginTop: "10px" }}
+                          size="sm"
+                          disabled={isSavingProfile}
+                        >
+                          <Save className="icon-sm" />
+                          {isSavingProfile ? "Guardando..." : "Guardar cambios"}
+                        </Button>
                       </CardContent>
                     </Card>
                   </div>

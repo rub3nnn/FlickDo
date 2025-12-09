@@ -16,17 +16,19 @@ const validate = (req, res, next) => {
 // Validación para actualizar perfil
 const updateProfileValidator = [
   body("firstName")
+    .optional()
     .trim()
-    .notEmpty()
-    .withMessage("El nombre es requerido")
     .isLength({ min: 2, max: 50 })
     .withMessage("El nombre debe tener entre 2 y 50 caracteres"),
   body("lastName")
+    .optional()
     .trim()
-    .notEmpty()
-    .withMessage("El apellido es requerido")
     .isLength({ min: 2, max: 50 })
     .withMessage("El apellido debe tener entre 2 y 50 caracteres"),
+  body("preferences")
+    .optional()
+    .isObject()
+    .withMessage("Las preferencias deben ser un objeto válido"),
   validate,
 ];
 

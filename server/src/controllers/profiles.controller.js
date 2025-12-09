@@ -40,13 +40,14 @@ const getMyProfile = async (req, res, next) => {
 const updateMyProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { first_name, last_name, avatar_url } = req.body;
+    const { first_name, last_name, avatar_url, preferences } = req.body;
 
     // Preparar datos de actualización
     const updateData = {};
     if (first_name !== undefined) updateData.first_name = first_name;
     if (last_name !== undefined) updateData.last_name = last_name;
     if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+    if (preferences !== undefined) updateData.preferences = preferences;
     updateData.updated_at = new Date().toISOString();
 
     const { data: profile, error } = await supabase
