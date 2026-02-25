@@ -70,7 +70,10 @@ export function PreviewModal() {
             </h4>
             <ul className="text-sm text-amber-800 dark:text-amber-200 space-y-1">
               <li>• Los datos no se persisten al recargar</li>
-              <li>• No hay autenticación real</li>
+              <li>
+                • No hay autenticación real (login con Google/GitHub
+                deshabilitado)
+              </li>
               <li>• Funcionalidades colaborativas deshabilitadas</li>
             </ul>
           </div>

@@ -99,9 +99,18 @@ VITE_API_URL=http://localhost:3000/api
 
 - ❌ Los datos no se persisten al recargar la página
 - ❌ No hay autenticación real
+- ❌ **OAuth deshabilitado**: Los botones de login con Google/GitHub no funcionan en preview
 - ❌ Funcionalidades colaborativas no están disponibles
 - ❌ No se puede cerrar sesión (siempre aparece como logueado)
 - ❌ No hay sincronización entre dispositivos
+
+### ⚠️ Importante sobre OAuth
+
+En modo preview, los botones de autenticación con Google y GitHub están **completamente deshabilitados** para evitar solicitudes de permisos innecesarias. Si ves algún diálogo pidiendo permisos para acceder a otras aplicaciones:
+
+1. **Cierra el diálogo** - No es necesario otorgar ningún permiso
+2. **El preview funciona sin autenticación** - Ya estás automáticamente logueado con datos de demostración
+3. **Para la versión completa** - Consulta la [documentación de instalación](docs/getting-started/installation.md)
 
 ### Personalización
 

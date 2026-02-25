@@ -140,6 +140,15 @@ export function AuthProvider({ children }) {
   };
 
   const signInWithProvider = async (provider) => {
+    // En modo preview, no permitir OAuth
+    if (IS_PREVIEW_MODE) {
+      console.log("OAuth deshabilitado en modo preview");
+      return {
+        data: null,
+        error: { message: "OAuth no disponible en modo preview" },
+      };
+    }
+
     try {
       const response = await authApi.oauthLogin(
         provider,
