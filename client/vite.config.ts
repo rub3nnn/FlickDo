@@ -4,7 +4,7 @@ import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
-export default defineConfig(({ command, mode }) => ({
+export default defineConfig(({ mode }) => ({
   // Configurar base para GitHub Pages
   // En desarrollo usa '/', en producción usa el nombre del repo
   base: mode === "production" ? "/FlickDo/" : "/",
