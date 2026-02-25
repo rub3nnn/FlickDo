@@ -10,8 +10,12 @@ import { tasksApi, tagsApi, listsApi } from "@/services/api";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "./AuthContext";
+import { mockLists } from "@/data/mockData";
 
 const TasksContext = createContext(null);
+
+// Variable para controlar el modo preview
+const IS_PREVIEW_MODE = true;
 
 /**
  * Provider global para manejar todas las listas y tareas de la aplicación
@@ -23,8 +27,8 @@ const TasksContext = createContext(null);
 export function TasksProvider({ children }) {
   const { t } = useTranslation();
   const { user, isInitialized } = useContext(AuthContext);
-  const [lists, setLists] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [lists, setLists] = useState(IS_PREVIEW_MODE ? mockLists : []);
+  const [loading, setLoading] = useState(!IS_PREVIEW_MODE);
   const [error, setError] = useState(null);
 
   // Computed: extraer todas las tareas de todas las listas (para compatibilidad)
@@ -40,6 +44,13 @@ export function TasksProvider({ children }) {
   // Cargar todas las listas del usuario (con sus tareas incluidas)
   const loadAllTasks = useCallback(
     async (includeCompleted = true) => {
+      // En modo preview, usar datos mock
+      if (IS_PREVIEW_MODE) {
+        setLists(mockLists);
+        setLoading(false);
+        return;
+      }
+
       // No cargar si no hay usuario autenticado
       if (!user) {
         setLists([]);
@@ -69,7 +80,7 @@ export function TasksProvider({ children }) {
         setLoading(false);
       }
     },
-    [user]
+    [user],
   );
 
   // Actualizar tarea con OPTIMISTIC UPDATE
@@ -91,10 +102,15 @@ export function TasksProvider({ children }) {
         return prev.map((list) => ({
           ...list,
           tasks: (list.tasks || []).map((task) =>
-            task.id === id ? { ...task, ...optimisticData } : task
+            task.id === id ? { ...task, ...optimisticData } : task,
           ),
         }));
       });
+
+      // En modo preview, solo actualizar localmente
+      if (IS_PREVIEW_MODE) {
+        return { success: true, data: { ...optimisticData, id } };
+      }
 
       try {
         const response = await tasksApi.updateTask(id, dataToSend);
@@ -105,9 +121,9 @@ export function TasksProvider({ children }) {
             prev.map((list) => ({
               ...list,
               tasks: (list.tasks || []).map((task) =>
-                task.id === id ? response.data : task
+                task.id === id ? response.data : task,
               ),
-            }))
+            })),
           );
           return { success: true, data: response.data };
         } else {
@@ -123,16 +139,19 @@ export function TasksProvider({ children }) {
         return { success: false, error: err.message };
       }
     },
-    []
+    [],
   );
 
   // Crear tarea con OPTIMISTIC UPDATE
   const createTask = useCallback(async (listId, data, insertIndex = null) => {
-    const tempId = `temp-${Date.now()}`;
+    const tempId = IS_PREVIEW_MODE
+      ? `preview-task-${Date.now()}`
+      : `temp-${Date.now()}`;
     const tempTask = {
       id: tempId,
       list_id: listId,
       is_completed: false,
+      completed: false,
       created_at: new Date().toISOString(),
       assignees: [],
       tags: [],
@@ -167,6 +186,11 @@ export function TasksProvider({ children }) {
         });
       });
 
+      // En modo preview, solo actualizar localmente
+      if (IS_PREVIEW_MODE) {
+        return { success: true, data: { ...tempTask, _isNew: false } };
+      }
+
       const response = await tasksApi.createTask(listId, data);
 
       if (response.success) {
@@ -175,9 +199,9 @@ export function TasksProvider({ children }) {
           prev.map((list) => ({
             ...list,
             tasks: (list.tasks || []).map((task) =>
-              task.id === tempId ? { ...response.data, _isNew: false } : task
+              task.id === tempId ? { ...response.data, _isNew: false } : task,
             ),
-          }))
+          })),
         );
 
         return { success: true, data: response.data };
@@ -207,6 +231,11 @@ export function TasksProvider({ children }) {
       }));
     });
 
+    // En modo preview, solo eliminar localmente
+    if (IS_PREVIEW_MODE) {
+      return { success: true };
+    }
+
     try {
       const response = await tasksApi.deleteTask(id);
       if (response.success) {
@@ -234,10 +263,20 @@ export function TasksProvider({ children }) {
       return prev.map((list) => ({
         ...list,
         tasks: (list.tasks || []).map((task) =>
-          task.id === id ? { ...task, is_completed: !isCompleted } : task
+          task.id === id
+            ? { ...task, is_completed: !isCompleted, completed: !isCompleted }
+            : task,
         ),
       }));
     });
+
+    // En modo preview, solo actualizar localmente
+    if (IS_PREVIEW_MODE) {
+      return {
+        success: true,
+        data: { id, is_completed: !isCompleted, completed: !isCompleted },
+      };
+    }
 
     try {
       const response = await tasksApi.updateTask(id, {
@@ -248,9 +287,9 @@ export function TasksProvider({ children }) {
           prev.map((list) => ({
             ...list,
             tasks: (list.tasks || []).map((task) =>
-              task.id === id ? response.data : task
+              task.id === id ? response.data : task,
             ),
-          }))
+          })),
         );
         return { success: true, data: response.data };
       } else {
@@ -272,7 +311,9 @@ export function TasksProvider({ children }) {
       return { success: false, error: "No se ha especificado una lista" };
     }
 
-    const tempId = `temp-tag-${Date.now()}`;
+    const tempId = IS_PREVIEW_MODE
+      ? `preview-tag-${Date.now()}`
+      : `temp-tag-${Date.now()}`;
     const tempTag = {
       id: tempId,
       name,
@@ -290,14 +331,19 @@ export function TasksProvider({ children }) {
       const updated = prev.map((list) =>
         list.id === listId
           ? { ...list, tags: [...(list.tags || []), tempTag] }
-          : list
+          : list,
       );
       console.log(
         "🏷️ Lists updated with temp tag:",
-        updated.find((l) => l.id === listId)?.tags
+        updated.find((l) => l.id === listId)?.tags,
       );
       return updated;
     });
+
+    // En modo preview, solo actualizar localmente
+    if (IS_PREVIEW_MODE) {
+      return { success: true, data: tempTag, realTag: tempTag, tempId };
+    }
 
     // En paralelo, hacer la petición al servidor
     try {
@@ -314,20 +360,20 @@ export function TasksProvider({ children }) {
               ? {
                   ...list,
                   tags: (list.tags || []).map((tag) =>
-                    tag.id === tempId ? realTag : tag
+                    tag.id === tempId ? realTag : tag,
                   ),
                   tasks: (list.tasks || []).map((task) => ({
                     ...task,
                     tags: (task.tags || []).map((tag) =>
-                      tag.id === tempId ? realTag : tag
+                      tag.id === tempId ? realTag : tag,
                     ),
                   })),
                 }
-              : list
+              : list,
           );
           console.log(
             "🏷️ Lists updated with real tag:",
-            updated.find((l) => l.id === listId)?.tags
+            updated.find((l) => l.id === listId)?.tags,
           );
           return updated;
         });
@@ -361,18 +407,23 @@ export function TasksProvider({ children }) {
           ? {
               ...list,
               tags: (list.tags || []).map((tag) =>
-                tag.id === tagId ? { ...tag, ...data } : tag
+                tag.id === tagId ? { ...tag, ...data } : tag,
               ),
               tasks: (list.tasks || []).map((task) => ({
                 ...task,
                 tags: (task.tags || []).map((tag) =>
-                  tag.id === tagId ? { ...tag, ...data } : tag
+                  tag.id === tagId ? { ...tag, ...data } : tag,
                 ),
               })),
             }
-          : list
+          : list,
       );
     });
+
+    // En modo preview, solo actualizar localmente
+    if (IS_PREVIEW_MODE) {
+      return { success: true, data: { ...data, id: tagId } };
+    }
 
     try {
       const response = await tagsApi.updateTag(listId, tagId, data);
@@ -384,17 +435,17 @@ export function TasksProvider({ children }) {
               ? {
                   ...list,
                   tags: (list.tags || []).map((tag) =>
-                    tag.id === tagId ? response.data : tag
+                    tag.id === tagId ? response.data : tag,
                   ),
                   tasks: (list.tasks || []).map((task) => ({
                     ...task,
                     tags: (task.tags || []).map((tag) =>
-                      tag.id === tagId ? response.data : tag
+                      tag.id === tagId ? response.data : tag,
                     ),
                   })),
                 }
-              : list
-          )
+              : list,
+          ),
         );
         return { success: true, data: response.data };
       } else {
@@ -429,9 +480,14 @@ export function TasksProvider({ children }) {
                 tags: (task.tags || []).filter((tag) => tag.id !== tagId),
               })),
             }
-          : list
+          : list,
       );
     });
+
+    // En modo preview, solo eliminar localmente
+    if (IS_PREVIEW_MODE) {
+      return { success: true };
+    }
 
     try {
       const response = await tagsApi.deleteTag(listId, tagId);
@@ -450,7 +506,9 @@ export function TasksProvider({ children }) {
 
   // Crear lista con OPTIMISTIC UPDATE
   const createList = useCallback(async (listData) => {
-    const tempId = `temp-list-${Date.now()}`;
+    const tempId = IS_PREVIEW_MODE
+      ? `preview-list-${Date.now()}`
+      : `temp-list-${Date.now()}`;
     const tempList = {
       id: tempId,
       title: listData.title,
@@ -477,6 +535,11 @@ export function TasksProvider({ children }) {
       return [tempList, ...prev]; // Añadir al principio
     });
 
+    // En modo preview, solo actualizar localmente
+    if (IS_PREVIEW_MODE) {
+      return { success: true, data: tempList };
+    }
+
     try {
       const response = await listsApi.createList(listData);
       if (response.success) {
@@ -485,8 +548,8 @@ export function TasksProvider({ children }) {
           prev.map((list) =>
             list.id === tempId
               ? { ...response.data, tasks: [], tags: [] }
-              : list
-          )
+              : list,
+          ),
         );
         return { success: true, data: response.data };
       } else {
@@ -506,8 +569,8 @@ export function TasksProvider({ children }) {
     if (Object.keys(data).length === 1 && data.is_shared !== undefined) {
       setLists((prev) =>
         prev.map((list) =>
-          list.id === id ? { ...list, is_shared: data.is_shared } : list
-        )
+          list.id === id ? { ...list, is_shared: data.is_shared } : list,
+        ),
       );
       return { success: true };
     }
@@ -519,6 +582,11 @@ export function TasksProvider({ children }) {
       previousLists = prev;
       return prev.map((list) => (list.id === id ? { ...list, ...data } : list));
     });
+
+    // En modo preview, solo actualizar localmente
+    if (IS_PREVIEW_MODE) {
+      return { success: true, data: { ...data, id } };
+    }
 
     try {
       const response = await listsApi.updateList(id, data);
@@ -532,8 +600,8 @@ export function TasksProvider({ children }) {
                   tasks: list.tasks,
                   tags: list.tags,
                 }
-              : list
-          )
+              : list,
+          ),
         );
         return { success: true, data: response.data };
       } else {
@@ -556,6 +624,11 @@ export function TasksProvider({ children }) {
       previousLists = prev;
       return prev.filter((list) => String(list.id) !== listIdStr);
     });
+
+    // En modo preview, solo eliminar localmente
+    if (IS_PREVIEW_MODE) {
+      return { success: true };
+    }
 
     try {
       const response = await listsApi.deleteList(id);
@@ -627,8 +700,8 @@ export function TasksProvider({ children }) {
                   tasks: list.tasks,
                   tags: list.tags,
                 }
-              : list
-          )
+              : list,
+          ),
         );
         return { success: true, data: response.data };
       }

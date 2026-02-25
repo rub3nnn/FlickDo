@@ -12,6 +12,7 @@ import { SidebarProvider } from "./components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { TasksProvider } from "@/contexts/TasksContext";
 import { GlobalCommand } from "@/components/GlobalCommand";
+import { PreviewModal } from "@/components/PreviewModal";
 
 function App() {
   const location = useLocation();
@@ -31,6 +32,7 @@ function App() {
 
   return (
     <>
+      <PreviewModal />
       <GlobalCommand />
       {user ? (
         <TasksProvider>

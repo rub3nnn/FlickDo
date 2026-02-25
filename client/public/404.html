@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FlickDo Preview</title>
+    <script>
+      // Single Page Apps para GitHub Pages
+      // MIT License - https://github.com/rafgraph/spa-github-pages
+      // Este script toma la URL actual y la convierte en una query string
+      // que es leída por el index.html para restaurar la ruta correcta
+
+      var pathSegmentsToKeep = 1;
+      var l = window.location;
+
+      l.replace(
+        l.protocol +
+          "//" +
+          l.hostname +
+          (l.port ? ":" + l.port : "") +
+          l.pathname
+            .split("/")
+            .slice(0, 1 + pathSegmentsToKeep)
+            .join("/") +
+          "/?/" +
+          l.pathname
+            .slice(1)
+            .split("/")
+            .slice(pathSegmentsToKeep)
+            .join("/")
+            .replace(/&/g, "~and~") +
+          (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+          l.hash,
+      );
+    </script>
+  </head>
+  <body>
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+      "
+    >
+      <div>
+        <h1>🔄 Redirecting...</h1>
+        <p>Loading FlickDo Preview</p>
+      </div>
+    </div>
+  </body>
+</html>

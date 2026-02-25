@@ -1,8 +1,12 @@
 // src/contexts/AuthContext.jsx
 import { createContext, useState, useEffect } from "react";
 import { authApi } from "@/services/api";
+import { mockUser, mockProfile } from "@/data/mockData";
 
 export const AuthContext = createContext({});
+
+// Variable para controlar el modo preview
+const IS_PREVIEW_MODE = true;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null); // Usuario de Supabase Auth
@@ -14,6 +18,18 @@ export function AuthProvider({ children }) {
     let mounted = true;
 
     const initializeAuth = async () => {
+      // En modo preview, usar datos mock directamente
+      if (IS_PREVIEW_MODE) {
+        if (mounted) {
+          setUser(mockUser);
+          setProfile(mockProfile);
+          setSession({ access_token: "preview-token" });
+          setIsInitialized(true);
+        }
+        return;
+      }
+
+      // Código original para modo producción
       try {
         const token = localStorage.getItem("auth_token");
 
@@ -56,6 +72,14 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signIn = async (email, password) => {
+    if (IS_PREVIEW_MODE) {
+      // En modo preview, simular login exitoso
+      setUser(mockUser);
+      setProfile(mockProfile);
+      setSession({ access_token: "preview-token" });
+      return { data: { user: mockUser }, error: null };
+    }
+
     try {
       const response = await authApi.login(email, password);
 
@@ -83,7 +107,7 @@ export function AuthProvider({ children }) {
         email,
         password,
         metadata.firstName,
-        metadata.lastName
+        metadata.lastName,
       );
 
       if (response.success) {
@@ -119,7 +143,7 @@ export function AuthProvider({ children }) {
     try {
       const response = await authApi.oauthLogin(
         provider,
-        `${window.location.origin}/auth/callback`
+        `${window.location.origin}/auth/callback`,
       );
 
       if (response.success && response.data.url) {
@@ -133,6 +157,12 @@ export function AuthProvider({ children }) {
   };
 
   const signOut = async () => {
+    if (IS_PREVIEW_MODE) {
+      // En modo preview, simplemente limpiar el estado (pero mantener el usuario logueado)
+      // No permitimos logout en el preview
+      return { error: null };
+    }
+
     try {
       await authApi.logout();
       localStorage.removeItem("auth_token");

@@ -1,21 +1,23 @@
-name: Deploy MkDocs to GitHub Pages
+name: Build MkDocs Documentation
+
+# Este workflow solo construye la documentación pero NO la despliega a GitHub Pages
+# GitHub Pages ahora muestra el preview de la aplicación desde production/preview
 
 on:
   push:
     branches:
       - main
       - docs/documentation
-      - "docs/workflow" # <--- 1. Agregamos tu rama aquí
-  workflow_dispatch: # <--- 2. Mantenemos esto para poder ejecutarlo manualmente si quieres
+      - "docs/workflow"
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+# Deshabilitado el deployment a Pages - ahora lo hace preview-deploy.yml
+# concurrency:
+#   group: "pages"
+#   cancel-in-progress: false
 
 jobs:
   build:
@@ -38,20 +40,19 @@ jobs:
       - name: Build MkDocs site
         run: mkdocs build --strict
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./site
+      - name: Check build success
+        run: echo "✅ Documentation built successfully! Docs are available in ./site directory"
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    # ALERTA: No hemos puesto ningún 'if'.
-    # Esto significa que desplegará desde CUALQUIERA de las ramas listadas arriba.
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+  # Deploy job DESHABILITADO - GitHub Pages ahora muestra el preview de la aplicación
+  # Para ver la documentación, construye localmente con: mkdocs build && mkdocs serve
+
+  # deploy:
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4

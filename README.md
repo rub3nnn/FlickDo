@@ -11,15 +11,59 @@
 [![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js)](https://nodejs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?logo=supabase)](https://supabase.com/)
 
+[🌐 **LIVE PREVIEW**](https://rub3nnn.github.io/FlickDo/) •
 [Features](#-features) •
 [Technologies](#-technologies) •
+[Preview Mode](#-preview-mode) •
 [Installation](#-installation) •
-[Usage](#-usage) •
-[API](#-api) •
-[Documentation](#-documentation) •
-[Contributing](#-contributing)
+[Documentation](#-documentation)
 
 </div>
+
+---
+
+## 🌐 Live Preview
+
+**Prueba FlickDo ahora mismo sin instalar nada:**
+
+### 👉 [https://rub3nnn.github.io/FlickDo/](https://rub3nnn.github.io/FlickDo/)
+
+Preview en vivo con datos de ejemplo. No requiere registro ni configuración.
+
+---
+
+## 🎯 Preview Mode
+
+**¡Prueba FlickDo sin instalar nada!**
+
+Esta versión incluye un **modo preview** que funciona completamente sin base de datos. Ideal para:
+
+- 🚀 Ver una demo rápida del proyecto
+- 🎨 Probar la interfaz sin configurar el backend
+- 📱 Mostrar el proyecto en presentaciones
+- 🧪 Testing de UI sin dependencias
+
+### Características del Preview
+
+- ✅ No requiere autenticación
+- ✅ Datos de ejemplo precargados
+- ✅ Usuario simulado automáticamente logueado
+- ✅ Todas las funcionalidades disponibles (excepto colaboración)
+
+> 📖 **Más información**: Lee [PREVIEW_MODE.md](PREVIEW_MODE.md) para aprender cómo funciona y cómo cambiar entre preview y producción.
+
+### 🚀 Desplegar Preview en GitHub Pages
+
+La rama `production/preview` se despliega automáticamente a GitHub Pages:
+
+```bash
+git checkout production/preview
+git push origin production/preview
+```
+
+El workflow de GitHub Actions compilará y desplegará automáticamente la aplicación.
+
+> 📖 **Guía de deployment**: Lee [QUICK_DEPLOY.md](QUICK_DEPLOY.md) para una guía rápida o [GITHUB_PAGES_SETUP.md](GITHUB_PAGES_SETUP.md) para la guía completa.
 
 ---
 
@@ -290,21 +334,38 @@ Translations are located in `client/src/locales/`
 
 ## 📚 Documentation
 
-Comprehensive documentation is available at [https://rub3nnn.github.io/FlickDo](https://rub3nnn.github.io/FlickDo)
+> **⚠️ Importante**: GitHub Pages ahora muestra el [preview en vivo](https://rub3nnn.github.io/FlickDo/) de la aplicación en lugar de la documentación.
 
-### Build Documentation Locally
+La documentación completa está disponible en el repositorio y puede ser consultada localmente.
+
+### Ver Documentación Localmente
 
 ```bash
-# Install MkDocs and dependencies
+# Instalar MkDocs y dependencias
 pip install mkdocs mkdocs-material pymdown-extensions mkdocs-minify-plugin
 
-# Serve documentation locally
+# Servir documentación localmente
 mkdocs serve
 ```
 
-Visit `http://127.0.0.1:8000` to view the documentation.
+Visita `http://127.0.0.1:8000` para ver la documentación.
 
-### Documentation Includes
+### Opción Alternativa: Leer Markdown Directamente
+
+Los archivos de documentación están en la carpeta [`docs/`](docs/):
+
+```
+docs/
+├── getting-started/    - Instalación y guías de inicio
+├── user-guide/         - Documentación completa de características
+├── api/                - Documentación completa de la API REST
+├── development/        - Arquitectura y guías de contribución
+└── deployment/         - Guías de despliegue en producción
+```
+
+> 📖 Para más información sobre acceso a la documentación, consulta [DOCUMENTATION_ACCESS.md](DOCUMENTATION_ACCESS.md)
+
+### Contenidos de la Documentación
 
 - **Getting Started** - Installation and quick start guides
 - **User Guide** - Comprehensive feature documentation
