@@ -19,7 +19,7 @@ export default function AuthCallback() {
         // Obtener los parámetros de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(
-          window.location.hash.substring(1)
+          window.location.hash.substring(1),
         );
 
         // Verificar si hay errores en los parámetros de la URL
@@ -71,7 +71,7 @@ export default function AuthCallback() {
             // Llamar al backend para obtener/crear el perfil y JWT
             const response = await authApi.handleOAuthCallback(
               accessToken,
-              refreshToken
+              refreshToken,
             );
 
             if (response.success && response.data.token) {
@@ -120,7 +120,7 @@ export default function AuthCallback() {
           } else {
             setStatus("error");
             setMessage(
-              response.message || t("auth.callback.errors.verificationError")
+              response.message || t("auth.callback.errors.verificationError"),
             );
           }
         } else if (type === "recovery") {
@@ -172,7 +172,7 @@ export default function AuthCallback() {
       >
         {/* Logo */}
         <img
-          src="/logo.png"
+          src="./logo.png"
           alt="FlickDo Logo"
           style={{
             width: "80px",

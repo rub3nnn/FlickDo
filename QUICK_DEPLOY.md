@@ -8,10 +8,17 @@ Los siguientes archivos ya están configurados para GitHub Pages:
 
 - ✅ `.github/workflows/preview-deploy.yml` - Workflow de deployment
 - ✅ `client/vite.config.ts` - Base URL configurada para `/FlickDo/`
+- ✅ `client/src/main.tsx` - BrowserRouter con basename `/FlickDo`
 - ✅ `client/public/404.html` - Manejo de rutas React Router
 - ✅ `client/public/.nojekyll` - Desactiva Jekyll
 - ✅ `client/index.html` - Script de restauración de rutas
 - ✅ Modal con enlace a `https://github.com/rub3nnn/FlickDo`
+
+**Configuración de rutas:**
+
+- Vite base: `/FlickDo/` (en producción)
+- React Router basename: `/FlickDo` (en producción)
+- Esto asegura que todas las navegaciones funcionen bajo `https://rub3nnn.github.io/FlickDo/`
 
 ### 📝 Pasos para Desplegar
 

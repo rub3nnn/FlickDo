@@ -87,7 +87,11 @@ const LoginPage = ({ onSwitchToSignup }) => {
       <div className="auth-left">
         <div className="auth-brand">
           <div className="auth-logo-large">
-            <img src="/logo.png" alt="FlickDo Logo" className="auth-logo-img" />
+            <img
+              src="./logo.png"
+              alt="FlickDo Logo"
+              className="auth-logo-img"
+            />
             <span className="logo-text-auth">FlickDo</span>
           </div>
           <p className="auth-tagline">{t("auth.tagline")}</p>
@@ -294,7 +298,7 @@ const SignupPage = ({ onSwitchToLogin }) => {
         {
           firstName: formData.firstName,
           lastName: formData.lastName,
-        }
+        },
       );
 
       if (error) {
@@ -365,7 +369,11 @@ const SignupPage = ({ onSwitchToLogin }) => {
       <div className="auth-left">
         <div className="auth-brand">
           <div className="auth-logo-large">
-            <img src="/logo.png" alt="FlickDo Logo" className="auth-logo-img" />
+            <img
+              src="./logo.png"
+              alt="FlickDo Logo"
+              className="auth-logo-img"
+            />
             <span className="logo-text-auth">FlickDo</span>
           </div>
           <p className="auth-tagline">{t("auth.taglineSignup")}</p>

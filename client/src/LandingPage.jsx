@@ -18,7 +18,7 @@ export default function LandingPage() {
       id: index + 1,
       text,
       delay: index * 3000,
-    })
+    }),
   );
 
   useEffect(() => {
@@ -36,34 +36,43 @@ export default function LandingPage() {
       // Simular escritura letra por letra
       const chars = task.text.split("");
       chars.forEach((char, charIndex) => {
-        const typeCharTimer = setTimeout(() => {
-          setTypingText((prev) => ({
-            ...prev,
-            [task.id]: task.text.substring(0, charIndex + 1),
-          }));
-        }, task.delay + 200 + charIndex * 50);
+        const typeCharTimer = setTimeout(
+          () => {
+            setTypingText((prev) => ({
+              ...prev,
+              [task.id]: task.text.substring(0, charIndex + 1),
+            }));
+          },
+          task.delay + 200 + charIndex * 50,
+        );
         timers.push(typeCharTimer);
       });
 
       // Terminar de escribir (salir del modo edición)
-      const finishTypingTimer = setTimeout(() => {
-        setTypingTasks((prev) => prev.filter((id) => id !== task.id));
-      }, task.delay + 200 + chars.length * 50 + 300);
+      const finishTypingTimer = setTimeout(
+        () => {
+          setTypingTasks((prev) => prev.filter((id) => id !== task.id));
+        },
+        task.delay + 200 + chars.length * 50 + 300,
+      );
       timers.push(finishTypingTimer);
 
       // Completar tarea después de un momento
-      const completeTimer = setTimeout(() => {
-        setCompletedTasks((prev) => {
-          const newCompleted = [...prev, task.id];
-          // Si todas las tareas están completadas, mostrar mensaje
-          if (newCompleted.length === DEMO_TASKS.length) {
-            setTimeout(() => {
-              setShowCompleteMessage(true);
-            }, 500);
-          }
-          return newCompleted;
-        });
-      }, task.delay + 200 + chars.length * 50 + 1500);
+      const completeTimer = setTimeout(
+        () => {
+          setCompletedTasks((prev) => {
+            const newCompleted = [...prev, task.id];
+            // Si todas las tareas están completadas, mostrar mensaje
+            if (newCompleted.length === DEMO_TASKS.length) {
+              setTimeout(() => {
+                setShowCompleteMessage(true);
+              }, 500);
+            }
+            return newCompleted;
+          });
+        },
+        task.delay + 200 + chars.length * 50 + 1500,
+      );
       timers.push(completeTimer);
     };
 
@@ -108,7 +117,7 @@ export default function LandingPage() {
       <header className="landing-header">
         <div className="landing-container">
           <div className="footer-logo">
-            <img src="/logo.png" alt="FlickDo" className="footer-logo-image" />
+            <img src="./logo.png" alt="FlickDo" className="footer-logo-image" />
             <span className="logo-text">FlickDo</span>
           </div>
           <button className="btn-login" onClick={() => navigate("/login")}>
@@ -492,7 +501,7 @@ export default function LandingPage() {
           <div className="footer-content">
             <div className="footer-logo">
               <img
-                src="/logo.png"
+                src="./logo.png"
                 alt="FlickDo"
                 className="footer-logo-image"
               />

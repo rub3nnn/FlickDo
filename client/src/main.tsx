@@ -9,6 +9,9 @@ import { Toaster } from "@/components/ui/sonner";
 import "./i18n";
 import i18n from "i18next";
 
+// Configurar basename para GitHub Pages
+const basename = import.meta.env.PROD ? "/FlickDo" : "/";
+
 // Establece el lang inicial y actualiza cuando cambia
 document.documentElement.lang = i18n.language || "en";
 i18n.on &&
@@ -18,7 +21,7 @@ i18n.on &&
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <AuthProvider>
         <CommandProvider>
           <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
@@ -28,5 +31,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </CommandProvider>
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );
